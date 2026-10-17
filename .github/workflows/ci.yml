@@ -1,0 +1,28 @@
+# ==============================================================================
+# CI/CD Pipeline Workflow (Placeholder - Inactive)
+#
+# CATATAN:
+# Workflow ini sengaja dinonaktifkan agar GitHub Actions TIDAK berjalan secara
+# otomatis pada push/commit awal (belum waktunya eksekusi CI/CD).
+#
+# Trigger otomatis (push & pull_request) ke branch main, dev, dan feature/*
+# akan diaktifkan secara resmi pada Fase 5 setelah implementasi kode
+# Backend dan Frontend selesai.
+# ==============================================================================
+
+name: CI/CD Pipeline
+
+# Menggunakan 'workflow_dispatch' murni tanpa trigger push/pull_request,
+# sehingga GitHub Actions tidak akan pernah berjalan otomatis saat kamu melakukan push/PR.
+on:
+  workflow_dispatch:
+
+jobs:
+  placeholder:
+    name: Pipeline Belum Aktif
+    runs-on: ubuntu-latest
+    # Kondisi 'if: false' memastikan job tidak akan berjalan sekalipun tombol dispatch ditekan tidak sengaja
+    if: false
+    steps:
+      - name: Inactive Step
+        run: echo "Workflow belum aktif."
