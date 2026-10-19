@@ -19,7 +19,7 @@ Aplikasi antarmuka pengguna berbasis *Single Page Application* (SPA) untuk siste
 ### ⏳ Task Terkait Soal 2: Frontend SPA (10 Poin)
 - [ ] Inisialisasi project Vue 3 + Vite di direktori `/frontend`.
 - [ ] Konfigurasi Axios instance dengan Global Interceptor:
-  - Otomatis menyematkan header `Authorization: Bearer <token>` untuk request terproteksi.
+  - Otomatis menyematkan header `Authorization: Bearer <BEARER_TOKEN>` untuk request terproteksi.
   - Penanganan error 401 (otomatis redirect ke `/login` jika sesi habis).
   - Penanganan error jaringan / 503 (menampilkan tampilan ramah pengguna *"Layanan Sedang Dalam Pemeliharaan"* alih-alih layar putih kosong).
 - [ ] Halaman Login & Registrasi:
@@ -28,8 +28,8 @@ Aplikasi antarmuka pengguna berbasis *Single Page Application* (SPA) untuk siste
   - Otomatis melakukan *redirection* ke dashboard setelah sukses.
 - [ ] Dashboard Publik (Guest View - Tanpa Login):
   - Card Grid menampilkan barang hilang/ditemukan yang berstatus `approved` dari `GET /api/public/items`.
-  - Menampilkan foto barang, badge kategori, lokasi, info penyimpanan, dan kontak.
-  - Indikator hitung mundur (*Countdown Timer*) sisa masa aktif 3 hari.
+  - Menampilkan foto barang, badge kategori, lokasi, dan info penyimpanan yang aman untuk publik (field kontak dihilangkan demi privasi pelapor).
+  - Indikator hitung mundur (*Countdown Timer*) sisa masa aktif 72 jam secara real-time.
 - [ ] Halaman Pelaporan Barang (User Authenticated):
   - Form input data barang (Nama, Kategori, Lokasi, Penyimpanan, Kontak, Kronologi).
   - Dukungan upload file gambar (`<input type="file">`) menggunakan `FormData`.
