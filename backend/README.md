@@ -12,6 +12,23 @@ Layanan Backend ini bertindak sebagai penyedia API tunggal (*Single Source of Tr
 
 ---
 
+## 📌 Status Implementasi Fitur Backend (Fase 2)
+
+- [x] **Step 2.1:** Setup Laravel 11 & instalasi paket `laravel/sanctum` (termasuk migrasi token Sanctum & trait `HasApiTokens`).
+- [ ] **Step 2.2:** Rancang skema database & index: Migrasi tabel `users` (tambah role & phone), `lost_items` (+composite index `status, approved_at`), dan `item_reports` (+composite index `lost_item_id, status`).
+- [ ] **Step 2.3:** Pembuatan Model Eloquent `User`, `LostItem`, dan `ItemReport` dengan proteksi Mass Assignment (`$guarded`).
+- [ ] **Step 2.4:** FormRequest Validasi & Rate Limiting: `RegisterRequest`, `LoginRequest`, `StoreLostItemRequest`, `UpdateLostItemRequest`, dan `StoreItemReportRequest`.
+- [ ] **Step 2.5:** Implementasi endpoint autentikasi: `POST /api/register`, `POST /api/login`, dan `POST /api/logout`.
+- [ ] **Step 2.6:** Implementasi rute publik `GET /api/public/items` (status `approved`, < 72 jam, omit kontak).
+- [ ] **Step 2.7:** Implementasi rute CRUD terproteksi (`auth:sanctum`): `GET /api/items`, `GET /api/items/{id}`, `POST /api/items`, `POST /api/items/{id}` (`_method: PUT`), `DELETE /api/items/{id}`, dan `PATCH /api/items/{id}/status`.
+- [ ] **Step 2.8:** Implementasi alur resolusi & laporan pihak ketiga: `POST /api/items/{id}/report` (anti-duplicate pending), `POST /api/items/{id}/repost`, serta `GET`/`PATCH` `/api/item-reports` khusus Admin dengan Dual Pessimistic Locking (`lockForUpdate()`).
+- [ ] **Step 2.9:** Implementasi `LostItemPolicy` dan `ItemReportPolicy` untuk otorisasi akses (Respons 403 Forbidden).
+- [ ] **Step 2.10:** Penulisan 12 Feature Test otomatis berbasis MySQL testing engine (`uts_kepl_test`).
+- [ ] **Step 2.11:** Konfigurasi runner server aplikasi FrankenPHP.
+- [ ] **Step 2.12:** Ekspor Postman Collection (14 endpoint lengkap) & Environment ke folder `/postman`.
+
+---
+
 ## 2. Ketentuan Teknis & Panduan Kepatuhan Soal
 
 1. **Aplikasi Server FrankenPHP:**

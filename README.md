@@ -75,7 +75,7 @@ Gunakan tabel ini sebagai **lembar panduan mandiri (*cheatsheet*)** saat menyusu
 
 ### ⏳ Fase 2: Backend Development (Laravel & FrankenPHP Setup)
 *Pembangunan RESTful API, Autentikasi Sanctum, dan Pengujian Otomatis*
-- [ ] Setup Laravel 11 dan instalasi paket `laravel/sanctum`.
+- [x] Setup Laravel 11 dan instalasi paket `laravel/sanctum`.
 - [ ] Rancang skema database & index: Migrasi tabel `users`, tabel `lost_items` (+composite index `status, approved_at`), dan tabel `item_reports` (+composite index `lost_item_id, status`).
 - [ ] Pembuatan Model Eloquent `User`, `LostItem`, dan `ItemReport` dengan proteksi *Mass Assignment* (`$guarded`).
 - [ ] FormRequest Validasi & Rate Limiting: `RegisterRequest`, `LoginRequest`, `StoreLostItemRequest`, `UpdateLostItemRequest`, dan `StoreItemReportRequest`.
