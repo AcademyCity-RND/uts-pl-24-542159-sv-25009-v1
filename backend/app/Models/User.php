@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone_number',
     ];
 
     /**
@@ -44,5 +45,37 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Helper untuk memeriksa apakah pengguna adalah admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Helper untuk memeriksa apakah pengguna adalah user biasa.
+     */
+    public function isUser(): bool
+    {
+        return $this->role === 'user';
+    }
+
+    /**
+     * Relasi ke barang hilang/ditemukan yang dilaporkan pengguna ini.
+     */
+    public function lostItems()
+    {
+        return $this->hasMany(LostItem::class, 'user_id');
+    }
+
+    /**
+     * Relasi ke laporan penemuan pihak ketiga yang diajukan pengguna ini.
+     */
+    public function itemReports()
+    {
+        return $this->hasMany(ItemReport::class, 'reporter_user_id');
     }
 }

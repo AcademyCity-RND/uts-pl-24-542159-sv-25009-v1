@@ -16,7 +16,7 @@ Layanan Backend ini bertindak sebagai penyedia API tunggal (*Single Source of Tr
 
 - [x] **Step 2.1:** Setup Laravel 11 & instalasi paket `laravel/sanctum` (termasuk migrasi token Sanctum & trait `HasApiTokens`).
 - [x] **Step 2.2:** Rancang skema database & index: Migrasi tabel `users` (tambah role & phone), `lost_items` (+composite index `status, approved_at`), dan `item_reports` (+composite index `lost_item_id, status`).
-- [ ] **Step 2.3:** Pembuatan Model Eloquent `User`, `LostItem`, dan `ItemReport` dengan proteksi Mass Assignment (`$guarded`).
+- [x] **Step 2.3:** Pembuatan Model Eloquent `User`, `LostItem`, dan `ItemReport` dengan proteksi Mass Assignment (`$guarded`).
 - [ ] **Step 2.4:** FormRequest Validasi & Rate Limiting: `RegisterRequest`, `LoginRequest`, `StoreLostItemRequest`, `UpdateLostItemRequest`, dan `StoreItemReportRequest`.
 - [ ] **Step 2.5:** Implementasi endpoint autentikasi: `POST /api/register`, `POST /api/login`, dan `POST /api/logout`.
 - [ ] **Step 2.6:** Implementasi rute publik `GET /api/public/items` (status `approved`, < 72 jam, omit kontak).
