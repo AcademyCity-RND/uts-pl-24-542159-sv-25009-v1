@@ -78,7 +78,7 @@ Gunakan tabel ini sebagai **lembar panduan mandiri (*cheatsheet*)** saat menyusu
 - [x] Setup Laravel 11 dan instalasi paket `laravel/sanctum`.
 - [x] Rancang skema database & index: Migrasi tabel `users`, tabel `lost_items` (+composite index `status, approved_at`), dan tabel `item_reports` (+composite index `lost_item_id, status`).
 - [x] Pembuatan Model Eloquent `User`, `LostItem`, dan `ItemReport` dengan proteksi *Mass Assignment* (`$guarded`).
-- [ ] FormRequest Validasi & Rate Limiting: `RegisterRequest`, `LoginRequest`, `StoreLostItemRequest`, `UpdateLostItemRequest`, dan `StoreItemReportRequest`.
+- [x] FormRequest Validasi & Rate Limiting: `RegisterRequest`, `LoginRequest`, `StoreLostItemRequest`, `UpdateLostItemRequest`, dan `StoreItemReportRequest`.
 - [ ] Implementasi endpoint autentikasi: `POST /api/register` (role hardcode `user`), `POST /api/login`, dan `POST /api/logout`.
 - [ ] Implementasi rute publik `GET /api/public/items` (khusus status `approved` aktif < 72 jam, field kontak *omitted*).
 - [ ] Implementasi rute CRUD terproteksi (`auth:sanctum`): `GET /api/items`, `GET /api/items/{id}`, `POST /api/items`, `POST /api/items/{id}` (dengan `_method: PUT`), `DELETE /api/items/{id}`, dan `PATCH /api/items/{id}/status`.
