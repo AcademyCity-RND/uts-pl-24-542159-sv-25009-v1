@@ -10,6 +10,7 @@ use App\Models\LostItem;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 
 class ItemReportController extends Controller
@@ -19,14 +20,8 @@ class ItemReportController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $user = $request->user();
-
-        // 1. Proteksi Akses: Hanya Admin (PRD Skenario 4: 403 Forbidden untuk user biasa)
-        if (!$user->isAdmin()) {
-            return response()->json([
-                'message' => 'Akses ditolak. Hanya administrator yang berhak mengakses data laporan penemuan.',
-            ], 403);
-        }
+        // 1. Proteksi Akses via ItemReportPolicy: Hanya Admin (PRD Skenario 4: 403 Forbidden untuk user biasa)
+        Gate::authorize('viewAny', ItemReport::class);
 
         $query = ItemReport::with(['lostItem', 'reporter']);
 
@@ -50,12 +45,8 @@ class ItemReportController extends Controller
         $item = LostItem::findOrFail($id);
         $user = $request->user();
 
-        // 1. Anti Self-Reporting: Pemilik barang dilarang melapor barangnya sendiri (PRD Skenario 5: 403 Forbidden)
-        if ($item->user_id === $user->id) {
-            return response()->json([
-                'message' => 'Anda tidak dapat membuat laporan penemuan untuk barang milik sendiri.',
-            ], 403);
-        }
+        // 1. Anti Self-Reporting via ItemReportPolicy: Pemilik barang dilarang melapor barangnya sendiri (PRD Skenario 5: 403 Forbidden)
+        Gate::authorize('create', [ItemReport::class, $item]);
 
         // 2. Ketentuan State Barang: Harus approved dan belum kedaluwarsa (PRD Skenario 7: 409 Conflict)
         if ($item->status !== 'approved' || $item->is_expired) {
@@ -100,14 +91,8 @@ class ItemReportController extends Controller
      */
     public function updateStatus(Request $request, int $id): JsonResponse
     {
-        $user = $request->user();
-
-        // 1. Proteksi Akses: Hanya Admin
-        if (!$user->isAdmin()) {
-            return response()->json([
-                'message' => 'Hanya administrator yang berhak mengubah status laporan penemuan.',
-            ], 403);
-        }
+        // 1. Proteksi Akses via ItemReportPolicy: Hanya Admin
+        Gate::authorize('updateStatus', ItemReport::class);
 
         // 2. Status 'closed' dilarang diset secara manual oleh Admin (PRD: 403 Forbidden)
         if ($request->input('status') === 'closed') {

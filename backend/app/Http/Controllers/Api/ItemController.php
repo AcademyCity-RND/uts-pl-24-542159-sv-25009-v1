@@ -11,6 +11,7 @@ use App\Models\LostItem;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -104,14 +105,9 @@ class ItemController extends Controller
     public function update(UpdateLostItemRequest $request, int $id): JsonResponse
     {
         $item = LostItem::with('user')->findOrFail($id);
-        $user = $request->user();
 
-        // Otorisasi: hanya pemilik atau admin yang boleh memperbarui data
-        if ($item->user_id !== $user->id && !$user->isAdmin()) {
-            return response()->json([
-                'message' => 'Anda tidak memiliki hak akses untuk mengubah data barang ini.',
-            ], 403);
-        }
+        // Otorisasi melalui LostItemPolicy (hanya pemilik atau admin)
+        Gate::authorize('update', $item);
 
         // Aturan State: Hanya barang pending atau rejected yang dapat diperbarui
         if (!in_array($item->status, ['pending', 'rejected'])) {
@@ -157,13 +153,9 @@ class ItemController extends Controller
     public function destroy(Request $request, int $id): JsonResponse
     {
         $item = LostItem::findOrFail($id);
-        $user = $request->user();
 
-        if ($item->user_id !== $user->id && !$user->isAdmin()) {
-            return response()->json([
-                'message' => 'Anda tidak memiliki hak akses untuk menghapus barang ini.',
-            ], 403);
-        }
+        // Otorisasi melalui LostItemPolicy (hanya pemilik atau admin)
+        Gate::authorize('delete', $item);
 
         if ($item->image_path && Storage::disk('public')->exists($item->image_path)) {
             Storage::disk('public')->delete($item->image_path);
@@ -273,14 +265,9 @@ class ItemController extends Controller
     public function repost(Request $request, int $id): JsonResponse
     {
         $item = LostItem::with('user')->findOrFail($id);
-        $user = $request->user();
 
-        // 1. Hak Akses: Hanya pemilik barang (owner)
-        if ($user->id !== $item->user_id) {
-            return response()->json([
-                'message' => 'Hanya pemilik barang (owner) yang berhak memperpanjang masa tayang (repost).',
-            ], 403);
-        }
+        // 1. Hak Akses via LostItemPolicy: Hanya pemilik barang (owner)
+        Gate::authorize('repost', $item);
 
         // 2. Ketentuan Repost (PRD Bagian C Baris 272-273 & Baris 324):
         // Repost hanya boleh jika berstatus resolved ATAU berstatus approved tapi sudah kedaluwarsa (> 72 jam)
