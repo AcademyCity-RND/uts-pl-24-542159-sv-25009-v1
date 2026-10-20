@@ -18,6 +18,7 @@ class LostItem extends Model
         'status',
         'approved_at',
         'resolved_at',
+        'last_reposted_at',
     ];
 
     /**
@@ -28,6 +29,7 @@ class LostItem extends Model
         return [
             'approved_at' => 'datetime',
             'resolved_at' => 'datetime',
+            'last_reposted_at' => 'datetime',
         ];
     }
 
@@ -54,6 +56,14 @@ class LostItem extends Model
     public function reports()
     {
         return $this->hasMany(ItemReport::class, 'lost_item_id');
+    }
+
+    /**
+     * Alias relasi reports sesuai rujukan kontrak PRD.
+     */
+    public function itemReports()
+    {
+        return $this->reports();
     }
 
     /**

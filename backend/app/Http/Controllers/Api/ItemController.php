@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreLostItemRequest;
 use App\Http\Requests\UpdateLostItemRequest;
 use App\Http\Resources\LostItemDetailResource;
+use App\Models\ItemReport;
 use App\Models\LostItem;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -253,12 +254,60 @@ class ItemController extends Controller
         } elseif ($currentStatus === 'resolve_requested' && $newStatus === 'approved') {
             // resolve_requested -> approved: approved_at TETAP Waktu Asli, resolved_at = null
             $item->resolved_at = null;
+            // Otomatis ubah laporan berstatus accepted menjadi closed (PRD Skenario 10)
+            ItemReport::where('lost_item_id', $item->id)
+                ->where('status', 'accepted')
+                ->update(['status' => 'closed']);
         }
 
         $item->save();
 
         return (new LostItemDetailResource($item))->additional([
             'message' => "Status barang berhasil diperbarui menjadi {$newStatus}.",
+        ])->response();
+    }
+
+    /**
+     * Memperpanjang masa tayang barang yang kedaluwarsa (> 72 jam) atau berstatus resolved (PRD Skenario 11).
+     */
+    public function repost(Request $request, int $id): JsonResponse
+    {
+        $item = LostItem::with('user')->findOrFail($id);
+        $user = $request->user();
+
+        // 1. Hak Akses: Hanya pemilik barang (owner)
+        if ($user->id !== $item->user_id) {
+            return response()->json([
+                'message' => 'Hanya pemilik barang (owner) yang berhak memperpanjang masa tayang (repost).',
+            ], 403);
+        }
+
+        // 2. Ketentuan Repost (PRD Bagian C Baris 272-273 & Baris 324):
+        // Repost hanya boleh jika berstatus resolved ATAU berstatus approved tapi sudah kedaluwarsa (> 72 jam)
+        $isResolved = ($item->status === 'resolved');
+        $isExpiredApproved = ($item->status === 'approved' && $item->is_expired);
+
+        if (!$isResolved && !$isExpiredApproved) {
+            return response()->json([
+                'message' => 'Batas waktu perpanjangan (repost) belum terpenuhi. Repost hanya diizinkan untuk barang yang telah kedaluwarsa (> 72 jam) atau berstatus resolved.',
+            ], 409);
+        }
+
+        if ($item->last_reposted_at && $item->last_reposted_at->greaterThan(now()->subHours(72))) {
+            return response()->json([
+                'message' => 'Repost hanya dapat dilakukan maksimal satu kali dalam 72 jam.',
+            ], 409);
+        }
+
+        // 3. Eksekusi Repost: approved_at = now(), resolved_at = null, status = approved
+        $item->status = 'approved';
+        $item->approved_at = now();
+        $item->resolved_at = null;
+        $item->last_reposted_at = now();
+        $item->save();
+
+        return (new LostItemDetailResource($item))->additional([
+            'message' => 'Masa tayang barang berhasil diperpanjang (repost).',
         ])->response();
     }
 }

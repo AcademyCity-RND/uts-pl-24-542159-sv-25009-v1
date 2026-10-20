@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ItemController;
+use App\Http\Controllers\Api\ItemReportController;
 use App\Http\Controllers\Api\PublicItemController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -30,4 +31,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::match(['post', 'put'], '/items/{id}', [ItemController::class, 'update']);
     Route::delete('/items/{id}', [ItemController::class, 'destroy']);
     Route::patch('/items/{id}/status', [ItemController::class, 'updateStatus']);
+    Route::post('/items/{id}/repost', [ItemController::class, 'repost']);
+
+    // Laporan Penemuan Pihak Ketiga & Resolusi
+    Route::post('/items/{id}/report', [ItemReportController::class, 'store'])->middleware('throttle:10,1');
+    Route::get('/item-reports', [ItemReportController::class, 'index']);
+    Route::patch('/item-reports/{id}/status', [ItemReportController::class, 'updateStatus']);
 });
