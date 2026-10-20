@@ -19,7 +19,7 @@ Layanan Backend ini bertindak sebagai penyedia API tunggal (*Single Source of Tr
 - [x] **Step 2.3:** Pembuatan Model Eloquent `User`, `LostItem`, dan `ItemReport` dengan proteksi Mass Assignment (`$guarded`).
 - [x] **Step 2.4:** FormRequest Validasi & Rate Limiting: `RegisterRequest`, `LoginRequest`, `StoreLostItemRequest`, `UpdateLostItemRequest`, dan `StoreItemReportRequest`.
 - [x] **Step 2.5:** Implementasi endpoint autentikasi: `POST /api/register`, `POST /api/login`, dan `POST /api/logout`.
-- [ ] **Step 2.6:** Implementasi rute publik `GET /api/public/items` (status `approved`, < 72 jam, omit kontak).
+- [x] **Step 2.6:** Implementasi rute publik `GET /api/public/items` (status `approved`, < 72 jam, omit kontak).
 - [ ] **Step 2.7:** Implementasi rute CRUD terproteksi (`auth:sanctum`): `GET /api/items`, `GET /api/items/{id}`, `POST /api/items`, `POST /api/items/{id}` (`_method: PUT`), `DELETE /api/items/{id}`, dan `PATCH /api/items/{id}/status`.
 - [ ] **Step 2.8:** Implementasi alur resolusi & laporan pihak ketiga: `POST /api/items/{id}/report` (anti-duplicate pending), `POST /api/items/{id}/repost`, serta `GET`/`PATCH` `/api/item-reports` khusus Admin dengan Dual Pessimistic Locking (`lockForUpdate()`).
 - [ ] **Step 2.9:** Implementasi `LostItemPolicy` dan `ItemReportPolicy` untuk otorisasi akses (Respons 403 Forbidden).

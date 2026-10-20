@@ -80,7 +80,7 @@ Gunakan tabel ini sebagai **lembar panduan mandiri (*cheatsheet*)** saat menyusu
 - [x] Pembuatan Model Eloquent `User`, `LostItem`, dan `ItemReport` dengan proteksi *Mass Assignment* (`$guarded`).
 - [x] FormRequest Validasi & Rate Limiting: `RegisterRequest`, `LoginRequest`, `StoreLostItemRequest`, `UpdateLostItemRequest`, dan `StoreItemReportRequest`.
 - [x] Implementasi endpoint autentikasi: `POST /api/register` (role hardcode `user`), `POST /api/login`, dan `POST /api/logout`.
-- [ ] Implementasi rute publik `GET /api/public/items` (khusus status `approved` aktif < 72 jam, field kontak *omitted*).
+- [x] Implementasi rute publik `GET /api/public/items` (khusus status `approved` aktif < 72 jam, field kontak *omitted*).
 - [ ] Implementasi rute CRUD terproteksi (`auth:sanctum`): `GET /api/items`, `GET /api/items/{id}`, `POST /api/items`, `POST /api/items/{id}` (dengan `_method: PUT`), `DELETE /api/items/{id}`, dan `PATCH /api/items/{id}/status`.
 - [ ] Implementasi alur resolusi & laporan pihak ketiga: `POST /api/items/{id}/report` (anti-duplicate pending), `POST /api/items/{id}/repost`, serta `GET`/`PATCH` `/api/item-reports` khusus Admin dengan *Dual Pessimistic Locking* (`lockForUpdate()`).
 - [ ] Implementasi `LostItemPolicy` dan `ItemReportPolicy` untuk otorisasi akses (Respons 403 Forbidden).

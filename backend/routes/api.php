@@ -1,8 +1,12 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\PublicItemController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+// Endpoint Publik Terbuka
+Route::get('/public/items', [PublicItemController::class, 'index']);
 
 // Endpoint Autentikasi Publik (Rate Limit: 5 req/menit per IP)
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:auth');
