@@ -24,8 +24,27 @@ Layanan Backend ini bertindak sebagai penyedia API tunggal (*Single Source of Tr
 - [x] **Step 2.8:** Implementasi alur resolusi & laporan pihak ketiga: `POST /api/items/{id}/report` (anti-duplicate pending), `POST /api/items/{id}/repost`, serta `GET`/`PATCH` `/api/item-reports` khusus Admin dengan Dual Pessimistic Locking (`lockForUpdate()`).
 - [x] **Step 2.9:** Implementasi `LostItemPolicy` dan `ItemReportPolicy` untuk otorisasi akses (Respons 403 Forbidden).
 - [x] **Step 2.10:** Penulisan 12 Feature Test otomatis berbasis MySQL testing engine (`uts_kepl_test`).
-- [ ] **Step 2.11:** Konfigurasi runner server aplikasi FrankenPHP.
+- [x] **Step 2.11:** Konfigurasi runner server aplikasi FrankenPHP.
 - [ ] **Step 2.12:** Ekspor Postman Collection (14 endpoint lengkap) & Environment ke folder `/postman`.
+
+---
+
+## 1.1 Menjalankan FrankenPHP dengan Docker Compose
+
+Gunakan template environment root dan jangan commit file `.env`:
+
+```bash
+copy .env.example .env
+php backend/artisan key:generate --show
+docker compose up -d --build
+```
+
+Salin hasil `key:generate --show` ke `APP_KEY` pada root `.env`. Perintah
+`docker-entrypoint.sh` menunggu koneksi database melalui retry migration
+`php artisan migrate --force` sebelum FrankenPHP dijalankan. Database hanya tersedia
+di network Compose; port MySQL tidak diekspos ke host secara default. Isi
+`APP_KEY`, `DB_USERNAME`, `DB_PASSWORD`, dan `DB_ROOT_PASSWORD` wajib disediakan
+melalui `.env`.
 
 ---
 
