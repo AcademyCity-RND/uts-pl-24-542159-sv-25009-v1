@@ -84,10 +84,10 @@ Gunakan tabel ini sebagai **lembar panduan mandiri (*cheatsheet*)** saat menyusu
 - [x] Implementasi rute CRUD terproteksi (`auth:sanctum`): `GET /api/items`, `GET /api/items/{id}`, `POST /api/items`, `POST /api/items/{id}` (dengan `_method: PUT`), `DELETE /api/items/{id}`, dan `PATCH /api/items/{id}/status`.
 - [x] Implementasi alur resolusi & laporan pihak ketiga: `POST /api/items/{id}/report` (anti-duplicate pending), `POST /api/items/{id}/repost`, serta `GET`/`PATCH` `/api/item-reports` khusus Admin dengan *Dual Pessimistic Locking* (`lockForUpdate()`).
 - [x] Implementasi `LostItemPolicy` dan `ItemReportPolicy` untuk otorisasi akses (Respons 403 Forbidden).
-- [ ] Penulisan 12 Feature Test otomatis berbasis MySQL testing engine sesuai Feature Testing Matrix `PRD.md`.
+- [x] Penulisan 12 Feature Test otomatis berbasis MySQL testing engine sesuai Feature Testing Matrix `PRD.md`.
 - [ ] Konfigurasi runner server aplikasi FrankenPHP.
 - [ ] Ekspor Postman Collection (14 endpoint lengkap) & Environment ke folder `/postman`.
-- [ ] 📸 **Task Dokumentasi SS-02**: Eksekusi perintah `php artisan test` di terminal hingga seluruh 12 Feature Test tampil hijau (*PASS*).
+- [x] 📸 **Task Dokumentasi SS-02**: Eksekusi perintah `php artisan test` di terminal hingga seluruh 12 Feature Test tampil hijau (*PASS*).
 - [ ] 📸 **Task Dokumentasi SS-03**: Jalankan request di Postman (Auth, CRUD, Report, Repost) dan ambil tangkapan layar response code & payload JSON-nya.
 
 ### ⏳ Fase 3: Frontend Development (Vue.js Setup)

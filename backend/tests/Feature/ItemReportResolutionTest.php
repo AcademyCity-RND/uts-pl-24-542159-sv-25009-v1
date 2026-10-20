@@ -182,6 +182,8 @@ class ItemReportResolutionTest extends TestCase
 
         $adminToken = $admin->createToken('auth_token')->plainTextToken;
 
+        \Illuminate\Support\Facades\DB::enableQueryLog();
+
         // Skenario 9: Admin menyetujui laporan pertama (200 OK, report: accepted, item: resolve_requested)
         $respAccept1 = $this->withHeader('Authorization', 'Bearer ' . $adminToken)
                             ->patchJson('/api/item-reports/' . $report1->id . '/status', [
@@ -190,6 +192,18 @@ class ItemReportResolutionTest extends TestCase
         $respAccept1->assertStatus(200);
         $this->assertEquals('accepted', $respAccept1->json('data.status'));
         $this->assertEquals('resolve_requested', $item->fresh()->status);
+
+        // Validasi klausul FOR UPDATE di level engine database MySQL untuk kedua tabel
+        $queries = collect(\Illuminate\Support\Facades\DB::getQueryLog())->pluck('query');
+        $hasItemReportLock = $queries->contains(function ($q) {
+            return str_contains(strtolower($q), 'item_reports') && str_contains(strtolower($q), 'for update');
+        });
+        $hasLostItemLock = $queries->contains(function ($q) {
+            return str_contains(strtolower($q), 'lost_items') && str_contains(strtolower($q), 'for update');
+        });
+
+        $this->assertTrue($hasItemReportLock, 'Query item_reports wajib mengeksekusi FOR UPDATE (Pessimistic Lock).');
+        $this->assertTrue($hasLostItemLock, 'Query lost_items wajib mengeksekusi FOR UPDATE (Pessimistic Lock).');
 
         // Skenario 8: Admin mencoba menyetujui laporan kedua pada item yang sama -> 409 Conflict
         auth('sanctum')->forgetUser();
