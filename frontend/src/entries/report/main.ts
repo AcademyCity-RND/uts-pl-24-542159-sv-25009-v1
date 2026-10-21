@@ -2,21 +2,18 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import ReportItemView from '@/views/ReportItemView.vue'
 import Navbar from '@/components/Navbar.vue'
+import SiteFooter from '@/components/SiteFooter.vue'
 import '@/assets/styles/main.css'
 
 const App = {
-  components: { Navbar, ReportItemView },
+  components: { Navbar, ReportItemView, SiteFooter },
   template: `
     <div class="app-layout">
       <Navbar currentPage="report" />
       <main class="main-content">
         <ReportItemView />
       </main>
-      <footer class="footer">
-        <div class="container footer-inner">
-          <p class="footer-text">&copy; 2026 <strong>JejakBarang</strong> — Laporkan Barang.</p>
-        </div>
-      </footer>
+      <SiteFooter context="Laporkan barang hilang atau ditemukan" />
     </div>
   `
 }

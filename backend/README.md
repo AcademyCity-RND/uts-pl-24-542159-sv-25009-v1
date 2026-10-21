@@ -222,10 +222,11 @@ php artisan test
  composer install
  php artisan key:generate
  
- # 2. Jalankan migrasi dan seeder kredensial demo:
+ # 2. Jalankan migrasi dan seeder kredensial demo serta katalog barang bergambar:
  php artisan migrate:fresh --seed
  # Akun Admin: admin@jejakbarang.test / password123
  # Akun Mahasiswa: mahasiswa@jejakbarang.test / password123
+ # Seeder membuat beberapa item approved aktif dan aset gambar lokal di storage/lost_items.
  
  # 3. Tautkan penyimpanan publik untuk foto barang:
  php artisan storage:link

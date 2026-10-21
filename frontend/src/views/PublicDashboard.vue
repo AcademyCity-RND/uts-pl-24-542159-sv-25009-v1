@@ -63,6 +63,9 @@ onMounted(() => {
           Temukan barang yang hilang atau laporkan barang temuan Anda. Informasi terverifikasi anti-tenggelam.
         </p>
       </div>
+      <a href="/report" class="btn btn-cta hero-report-cta">
+        + Laporkan Barang
+      </a>
 
       <!-- Search & Quick Filters -->
       <div class="search-filter-bar">
@@ -165,13 +168,19 @@ onMounted(() => {
 
 .hero-section {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
   gap: var(--space-6);
   margin-bottom: var(--space-8);
 }
 
 .hero-content {
   max-width: 680px;
+}
+
+.hero-report-cta {
+  flex-shrink: 0;
 }
 
 .hero-title {
@@ -184,8 +193,16 @@ onMounted(() => {
 }
 
 @media (max-width: 640px) {
+  .hero-section {
+    align-items: flex-start;
+  }
+
   .hero-title {
     font-size: 24px;
+  }
+
+  .hero-report-cta {
+    width: 100%;
   }
 }
 

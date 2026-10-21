@@ -36,27 +36,13 @@ async function handleLogout() {
         <span class="brand-name">Jejak<span class="brand-name-sub">Barang</span></span>
       </a>
 
-      <!-- Navigasi & Aksi -->
-      <nav class="nav-links">
+      <nav class="nav-links" aria-label="Navigasi utama">
         <a href="/" :class="['nav-item', { 'nav-item-active': currentPage === 'home' }]">
           Beranda
         </a>
+      </nav>
 
-        <!-- Admin Link -->
-        <a
-          v-if="authStore.isAdmin"
-          href="/admin"
-          :class="['nav-item', { 'nav-item-active': currentPage === 'admin' }]"
-        >
-          Admin Panel
-        </a>
-
-        <!-- CTA Utama Amber: Laporkan Barang -->
-        <a href="/report" class="btn btn-cta cta-report">
-          <span>+ Laporkan Barang</span>
-        </a>
-
-        <!-- Toggle Theme -->
+      <div class="nav-actions">
         <button
           type="button"
           class="theme-toggle-btn"
@@ -78,9 +64,11 @@ async function handleLogout() {
           <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
+          <span>{{ themeStore.currentTheme === 'dark' ? 'Terang' : 'Gelap' }}</span>
         </button>
 
-        <!-- Auth State Buttons -->
+        <span class="nav-divider" aria-hidden="true"></span>
+
         <template v-if="authStore.isAuthenticated">
           <span class="user-greeting">
             {{ authStore.currentUser?.name?.split(' ')[0] || 'User' }}
@@ -97,7 +85,7 @@ async function handleLogout() {
             Daftar
           </a>
         </template>
-      </nav>
+      </div>
     </div>
   </header>
 </template>
@@ -116,6 +104,7 @@ async function handleLogout() {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--space-6);
   height: 64px;
 }
 
@@ -146,7 +135,14 @@ async function handleLogout() {
 .nav-links {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  flex: 1;
+  margin-left: var(--space-6);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
 }
 
 .nav-item {
@@ -166,14 +162,17 @@ async function handleLogout() {
 }
 
 .theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 7px 11px;
   background: transparent;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   color: var(--color-text);
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
   transition: background-color 0.15s ease;
 }
@@ -182,10 +181,51 @@ async function handleLogout() {
   background-color: var(--color-surface-soft);
 }
 
+.nav-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--color-border);
+}
+
 .user-greeting {
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text);
+  .navbar-inner {
+    gap: var(--space-3);
+  }
+
+  .nav-links {
+    margin-left: 0;
+  }
+
+  .nav-actions {
+    gap: var(--space-2);
+  }
+
+  .theme-toggle-btn span {
+    display: none;
+  }
+
+  .theme-toggle-btn {
+    padding: 7px 9px;
+  }
+
+  .user-greeting {
+    display: none;
+  }
+
+  .nav-divider {
+    display: none;
+  }
+
+  .nav-item {
+    font-size: 13px;
+  }
+
+  .btn-sm {
+    padding: 7px 10px;
+  }
 }
 
 .btn-sm {
@@ -194,9 +234,4 @@ async function handleLogout() {
   font-size: 13px;
 }
 
-@media (max-width: 640px) {
-  .cta-report {
-    display: none;
-  }
-}
 </style>
