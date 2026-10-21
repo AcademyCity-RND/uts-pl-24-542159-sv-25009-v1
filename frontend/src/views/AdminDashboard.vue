@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import api, { buildImageUrl, type ApiErrorDetail } from '../services/api'
 import StatusBadge from '../components/StatusBadge.vue'
 import { useAuthStore } from '../stores/auth'
-import type { LostItem, ItemReport } from '../types/api'
+import type { LostItem, ItemReport, PaginatedResponse } from '../types/api'
 
 const authStore = useAuthStore()
 
@@ -16,6 +16,7 @@ const itemReports = ref<ItemReport[]>([])
 
 const loading = ref(true)
 const actionMessage = ref('')
+const processingKey = ref<string | null>(null)
 
 onMounted(async () => {
   // Guard Admin MPA: Jika bukan admin, tendang ke login atau beranda
@@ -23,6 +24,11 @@ onMounted(async () => {
     window.location.href = '/login?redirect=' + encodeURIComponent('/admin')
     return
   }
+  
+  if (authStore.token) {
+    await authStore.fetchCurrentUser()
+  }
+
   if (!authStore.isAdmin) {
     alert('Akses Ditolak: Halaman ini khusus Administrator.')
     window.location.href = '/'
@@ -37,17 +43,17 @@ async function fetchAdminData() {
   actionMessage.value = ''
   try {
     // 1. Pending Items
-    const pendingRes = await api.get('/items', { params: { status: 'pending', per_page: 50 } })
+    const pendingRes = await api.get<PaginatedResponse<LostItem>>('/items', { params: { status: 'pending', per_page: 50 } })
     pendingItems.value = pendingRes.data.data || []
 
     // 2. Approved Items
-    const approvedRes = await api.get('/items', { params: { status: 'approved', per_page: 50 } })
+    const approvedRes = await api.get<PaginatedResponse<LostItem>>('/items', { params: { status: 'approved', per_page: 50 } })
     approvedItems.value = approvedRes.data.data || []
 
     // 3. Item Reports (Laporan Pihak Ketiga)
-    const reportsRes = await api.get('/item-reports', { params: { per_page: 50 } })
+    const reportsRes = await api.get<PaginatedResponse<ItemReport>>('/item-reports', { params: { per_page: 50 } })
     itemReports.value = reportsRes.data.data || []
-  } catch (error: any) {
+  } catch (error: unknown) {
     const err = error as ApiErrorDetail
     actionMessage.value = err.message || 'Gagal memuat data moderasi admin.'
   } finally {
@@ -57,49 +63,69 @@ async function fetchAdminData() {
 
 // Moderasi Item: Setujui (Approve) atau Tolak (Reject)
 async function handleItemStatus(itemId: number, newStatus: string) {
+  processingKey.value = `item-${itemId}-${newStatus}`
   try {
     await api.patch(`/items/${itemId}/status`, { status: newStatus })
     actionMessage.value = `Barang ID #${itemId} berhasil diubah statusnya menjadi ${newStatus}.`
-    fetchAdminData()
-  } catch (error: any) {
+    await fetchAdminData()
+  } catch (error: unknown) {
     const err = error as ApiErrorDetail
     alert(err.message || 'Gagal mengubah status barang.')
+  } finally {
+    processingKey.value = null
   }
 }
 
 // Hapus Paksa Item oleh Admin
 async function handleDeleteItem(itemId: number) {
   if (!confirm(`Hapus permanen laporan barang #${itemId}?`)) return
+  processingKey.value = `delete-${itemId}`
   try {
     await api.delete(`/items/${itemId}`)
     actionMessage.value = `Barang #${itemId} berhasil dihapus.`
-    fetchAdminData()
-  } catch (error: any) {
+    await fetchAdminData()
+  } catch (error: unknown) {
     const err = error as ApiErrorDetail
     alert(err.message || 'Gagal menghapus barang.')
+  } finally {
+    processingKey.value = null
   }
 }
 
 // Moderasi Report Pihak Ketiga: Kirim 'accepted' (memicu resolve_requested di backend) atau 'rejected'
 async function handleReportStatus(reportId: number, newStatus: string) {
+  processingKey.value = `report-${reportId}-${newStatus}`
   try {
     await api.patch(`/item-reports/${reportId}/status`, { status: newStatus })
     actionMessage.value = `Laporan pihak ketiga #${reportId} berhasil di-${newStatus}.`
-    fetchAdminData()
-  } catch (error: any) {
+    await fetchAdminData()
+  } catch (error: unknown) {
     const err = error as ApiErrorDetail
     alert(err.message || 'Gagal memproses laporan.')
+  } finally {
+    processingKey.value = null
   }
 }
 </script>
 
 <template>
   <div class="admin-page container">
-    <div class="admin-header">
-      <h1 class="admin-title">Dashboard Moderasi Admin</h1>
-      <p class="admin-subtitle">
-        Kelola pengajuan postingan baru, pantau barang aktif, dan tinjau laporan resolusi penemuan.
-      </p>
+    <div class="admin-header-row">
+      <div class="admin-header">
+        <h1 class="admin-title">Dashboard Moderasi Admin</h1>
+        <p class="admin-subtitle">
+          Kelola pengajuan postingan baru, pantau barang aktif, dan tinjau laporan resolusi penemuan.
+        </p>
+      </div>
+      <button
+        type="button"
+        class="btn btn-secondary btn-sm refresh-btn"
+        :disabled="loading"
+        @click="fetchAdminData"
+      >
+        <span v-if="loading">Memuat...</span>
+        <span v-else>🔄 Segarkan Data</span>
+      </button>
     </div>
 
     <!-- Alert Notifikasi Aksi -->
@@ -107,8 +133,12 @@ async function handleReportStatus(reportId: number, newStatus: string) {
       {{ actionMessage }}
     </div>
 
+    <div v-if="loading" class="empty-box" role="status" aria-live="polite">
+      Memuat data moderasi admin...
+    </div>
+
     <!-- 3 Tab Navigation Admin -->
-    <div class="tab-nav">
+    <div v-else class="tab-nav">
       <button
         type="button"
         :class="['tab-btn', { 'tab-btn-active': currentTab === 'pending' }]"
@@ -138,7 +168,7 @@ async function handleReportStatus(reportId: number, newStatus: string) {
     </div>
 
     <!-- Tab 1: Pengajuan Pending -->
-    <div v-if="currentTab === 'pending'" class="tab-pane">
+    <div v-if="!loading && currentTab === 'pending'" class="tab-pane">
       <div v-if="pendingItems.length === 0" class="empty-box">
         <p>Tidak ada pengajuan barang baru yang menunggu persetujuan.</p>
       </div>
@@ -180,16 +210,20 @@ async function handleReportStatus(reportId: number, newStatus: string) {
                 <button
                   type="button"
                   class="btn btn-sm btn-primary"
+                  :disabled="loading || processingKey === `item-${it.id}-approved`"
                   @click="handleItemStatus(it.id, 'approved')"
                 >
-                  ✓ Setujui (ACC)
+                  <span v-if="processingKey === `item-${it.id}-approved`">...</span>
+                  <span v-else>✓ Setujui (ACC)</span>
                 </button>
                 <button
                   type="button"
                   class="btn btn-sm btn-danger"
+                  :disabled="loading || processingKey === `item-${it.id}-rejected`"
                   @click="handleItemStatus(it.id, 'rejected')"
                 >
-                  ✕ Tolak
+                  <span v-if="processingKey === `item-${it.id}-rejected`">...</span>
+                  <span v-else>✕ Tolak</span>
                 </button>
               </td>
             </tr>
@@ -199,7 +233,7 @@ async function handleReportStatus(reportId: number, newStatus: string) {
     </div>
 
     <!-- Tab 2: Laporan Aktif Publik -->
-    <div v-if="currentTab === 'approved'" class="tab-pane">
+    <div v-if="!loading && currentTab === 'approved'" class="tab-pane">
       <div v-if="approvedItems.length === 0" class="empty-box">
         <p>Tidak ada barang yang sedang tayang aktif.</p>
       </div>
@@ -226,9 +260,11 @@ async function handleReportStatus(reportId: number, newStatus: string) {
                 <button
                   type="button"
                   class="btn btn-sm btn-danger"
+                  :disabled="loading || processingKey === `delete-${it.id}`"
                   @click="handleDeleteItem(it.id)"
                 >
-                  🗑 Hapus Tayang
+                  <span v-if="processingKey === `delete-${it.id}`">...</span>
+                  <span v-else>🗑 Hapus Tayang</span>
                 </button>
               </td>
             </tr>
@@ -238,7 +274,7 @@ async function handleReportStatus(reportId: number, newStatus: string) {
     </div>
 
     <!-- Tab 3: Pesan Resolusi (Item Reports Pihak Ketiga) -->
-    <div v-if="currentTab === 'reports'" class="tab-pane">
+    <div v-if="!loading && currentTab === 'reports'" class="tab-pane">
       <div v-if="itemReports.length === 0" class="empty-box">
         <p>Belum ada laporan klaim / penemuan pihak ketiga.</p>
       </div>
@@ -274,16 +310,20 @@ async function handleReportStatus(reportId: number, newStatus: string) {
                   <button
                     type="button"
                     class="btn btn-sm btn-primary"
+                    :disabled="loading || processingKey === `report-${rep.id}-accepted`"
                     @click="handleReportStatus(rep.id, 'accepted')"
                   >
-                    ✓ Terima Laporan
+                    <span v-if="processingKey === `report-${rep.id}-accepted`">...</span>
+                    <span v-else>✓ Terima Laporan</span>
                   </button>
                   <button
                     type="button"
                     class="btn btn-sm btn-danger"
+                    :disabled="loading || processingKey === `report-${rep.id}-rejected`"
                     @click="handleReportStatus(rep.id, 'rejected')"
                   >
-                    ✕ Tolak
+                    <span v-if="processingKey === `report-${rep.id}-rejected`">...</span>
+                    <span v-else>✕ Tolak</span>
                   </button>
                 </template>
                 <span v-else class="table-subtext">Sudah diproses</span>
@@ -302,8 +342,21 @@ async function handleReportStatus(reportId: number, newStatus: string) {
   padding-bottom: var(--space-10);
 }
 
-.admin-header {
+.admin-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   margin-bottom: var(--space-6);
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.admin-header {
+  margin-bottom: 0;
+}
+
+.refresh-btn {
+  white-space: nowrap;
 }
 
 .admin-title {

@@ -35,7 +35,7 @@ jaringan sesuai kontrak pada dokumen acuan.
 - [x] **Step 3.5:** Implementasi halaman login dan registrasi.
 - [x] **Step 3.6:** Implementasi dashboard publik dan countdown timer.
 - [x] **Step 3.7:** Implementasi form pelaporan barang dengan upload gambar.
-- [ ] **Step 3.8:** Implementasi dashboard admin dan alur moderasi.
+- [x] **Step 3.8:** Implementasi dashboard admin dan alur moderasi.
 - [ ] **Step 3.9:** Implementasi alur resolusi dan repost.
 - [ ] **Step Dokumentasi SS-04 s.d. SS-07:** Pengambilan screenshot bukti frontend.
 
@@ -44,7 +44,7 @@ jaringan sesuai kontrak pada dokumen acuan.
 - `pnpm build` berhasil menghasilkan seluruh entry point MPA.
 - Dev server dapat merender halaman publik pada `http://localhost:5173/`.
 - Dashboard publik berhasil memanggil `GET /api/public/items` pada backend lokal.
-- Step 3.1 s.d. Step 3.7 telah selesai; integrasi tiap alur berikutnya tetap
+- Step 3.1 s.d. Step 3.8 telah selesai; integrasi tiap alur berikutnya tetap
   mengikuti checklist di atas.
 
 ---
@@ -134,7 +134,7 @@ Aplikasi menerapkan sistem desain bernuansa **Teal** sebagai warna utama (*Prima
   - Dukungan upload foto barang (`multipart/form-data`) dengan preview gambar sebelum submit.
   - Status barang baru otomatis `pending` (menunggu moderasi admin).
   - 📸 **Task Dokumentasi SS-06**: Form pelaporan terisi lengkap beserta file foto dan alert konfirmasi sukses.
-- [ ] **Dashboard Admin & Moderasi (`/admin`):**
+- [x] **Dashboard Admin & Moderasi (`/admin`):**
   - Proteksi rute berbasis role (khusus akun dengan `role === 'admin'`).
   - **Tab 1 — Pengajuan Pending:** Moderasi pengajuan barang masuk (Tombol Setujui / Tolak).
   - **Tab 2 — Laporan Aktif Publik:** Monitoring barang tayang dan opsi hapus darurat.
