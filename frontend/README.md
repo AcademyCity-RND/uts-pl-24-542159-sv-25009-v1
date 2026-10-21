@@ -30,8 +30,8 @@ jaringan sesuai kontrak pada dokumen acuan.
 
 - [x] **Step 3.1:** Inisialisasi Vue.js 3 + Vite + TypeScript + Tailwind CSS (MPA).
 - [x] **Step 3.2:** Setup Axios instance, interceptor autentikasi, dan mapping error HTTP.
-- [ ] **Step 3.3:** Konfigurasi environment `VITE_API_URL` dan `VITE_STORAGE_URL`, termasuk helper URL gambar.
-- [ ] **Step 3.4:** Pembuatan komponen UI reusable dan sistem tema light/dark.
+- [x] **Step 3.3:** Konfigurasi environment `VITE_API_URL` dan `VITE_STORAGE_URL`, termasuk helper URL gambar.
+- [x] **Step 3.4:** Pembuatan komponen UI reusable dan sistem tema light/dark.
 - [ ] **Step 3.5:** Implementasi halaman login dan registrasi.
 - [ ] **Step 3.6:** Implementasi dashboard publik dan countdown timer.
 - [ ] **Step 3.7:** Implementasi form pelaporan barang dengan upload gambar.
@@ -44,7 +44,7 @@ jaringan sesuai kontrak pada dokumen acuan.
 - `pnpm build` berhasil menghasilkan seluruh entry point MPA.
 - Dev server dapat merender halaman publik pada `http://localhost:5173/`.
 - Dashboard publik berhasil memanggil `GET /api/public/items` pada backend lokal.
-- Step 3.1 dan Step 3.2 telah selesai; integrasi tiap alur berikutnya tetap
+- Step 3.1, Step 3.2, Step 3.3, dan Step 3.4 telah selesai; integrasi tiap alur berikutnya tetap
   mengikuti checklist di atas.
 
 ---
@@ -102,7 +102,7 @@ Aplikasi menerapkan sistem desain bernuansa **Teal** sebagai warna utama (*Prima
 ## 📌 Checklist Implementasi Frontend (Terkait Soal UTS)
 
 ### ⏳ Task Terkait Soal 2: Frontend Implementation (10 Poin)
-- [ ] **Setup Proyek & Lingkungan:**
+- [x] **Setup Proyek & Lingkungan:**
   - Inisialisasi scaffold Vue 3 + Vite di direktori `/frontend`.
   - Konfigurasi variabel lingkungan `.env` (`VITE_API_URL`, `VITE_STORAGE_URL`).
   - Helper utilitas `buildImageUrl(path)` untuk resolver URL gambar aset storage.

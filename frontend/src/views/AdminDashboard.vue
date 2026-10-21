@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import api, { type ApiErrorDetail } from '../services/api'
+import api, { buildImageUrl, type ApiErrorDetail } from '../services/api'
 import StatusBadge from '../components/StatusBadge.vue'
 import { useAuthStore } from '../stores/auth'
 import type { LostItem, ItemReport } from '../types/api'
@@ -157,7 +157,14 @@ async function handleReportStatus(reportId: number, newStatus: string) {
           <tbody>
             <tr v-for="it in pendingItems" :key="it.id">
               <td>#{{ it.id }}</td>
-              <td><strong>{{ it.item_name }}</strong></td>
+              <td>
+                <div><strong>{{ it.item_name }}</strong></div>
+                <div v-if="it.image_path" class="mt-1">
+                  <a :href="buildImageUrl(it.image_path) || '#'" target="_blank" rel="noopener" class="text-xs text-teal-600 hover:underline">
+                    🖼️ Lihat Foto
+                  </a>
+                </div>
+              </td>
               <td>
                 <StatusBadge :type="it.category" />
               </td>

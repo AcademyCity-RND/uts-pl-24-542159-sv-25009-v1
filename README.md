@@ -185,8 +185,8 @@ Gunakan tabel ini sebagai **lembar panduan mandiri (*cheatsheet*)** saat menyusu
 *Antarmuka Pengguna MPA, Interceptor Axios, dan State Management*
 - [x] Inisialisasi project Vue 3 + Vite dengan TypeScript dan Tailwind CSS di direktori /frontend.
 - [x] Setup Axios instance dengan Global Interceptor (Authorization: Bearer <BEARER_TOKEN>) & penanganan error semantik serta jaringan (503/Offline).
-- [ ] Konfigurasi dinamis target API via .env (VITE_API_URL dan VITE_STORAGE_URL).
-- [ ] Pembuatan komponen modular: CardItem.vue, StatusBadge.vue, CountdownTimer.vue, BaseModal.vue, Navbar.vue.
+- [x] Konfigurasi dinamis target API via .env (VITE_API_URL dan VITE_STORAGE_URL).
+- [x] Pembuatan komponen modular: CardItem.vue, StatusBadge.vue, CountdownTimer.vue, BaseModal.vue, Navbar.vue.
 - [ ] Halaman Login & Registrasi (penyimpanan token di localStorage & auto-redirect).
 - [ ] Dashboard Publik (Guest View: Card Grid barang hilang/ditemukan yang disetujui admin).
 - [ ] Halaman Pelaporan Barang (User: form submit FormData foto barang, status awal pending).
