@@ -23,7 +23,7 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'email' => ['required', 'string', 'email', 'regex:/@gmail\.com$/i', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'phone_number' => ['nullable', 'string', 'max:20'],
         ];
@@ -38,6 +38,7 @@ class RegisterRequest extends FormRequest
             'name.required' => 'Nama lengkap wajib diisi.',
             'email.required' => 'Alamat email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
+            'email.regex' => 'Email harus menggunakan domain @gmail.com.',
             'email.unique' => 'Email ini sudah terdaftar dalam sistem.',
             'password.required' => 'Kata sandi wajib diisi.',
             'password.min' => 'Kata sandi minimal 8 karakter.',
