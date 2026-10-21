@@ -13,6 +13,35 @@
 
 ---
 
+## 📚 Dokumen Acuan Proyek
+
+Gunakan dokumen berikut sebagai sumber acuan sesuai area masing-masing:
+
+| Dokumen | Peran |
+| :--- | :--- |
+| [`PRD.md`](./PRD.md) | Sumber acuan utama kebutuhan produk, aturan bisnis, arsitektur, endpoint API, state transition, schema, infrastruktur, dan matriks pengujian. |
+| [`DesignGuidelineUIUX.md`](./DesignGuidelineUIUX.md) | Acuan Fase 3 untuk design system Teal/Amber, light/dark mode, komponen Vue, UX flow, responsif, aksesibilitas, dan kontrak integrasi frontend–backend. |
+| [`backend/README.md`](./backend/README.md) | Panduan teknis dan operasional khusus backend Laravel. |
+| [`frontend/README.md`](./frontend/README.md) | Panduan teknis dan operasional khusus frontend Vue. |
+| [`postman/README.md`](./postman/README.md) | Panduan penggunaan koleksi dan environment Postman untuk verifikasi API. |
+
+### Aturan sinkronisasi dokumen
+
+- `PRD.md` dan `DesignGuidelineUIUX.md` wajib tetap selaras sebelum implementasi
+  frontend dimulai.
+- `PRD.md` menjadi sumber utama untuk aturan bisnis, status, endpoint, payload,
+  response, dan perilaku backend.
+- `DesignGuidelineUIUX.md` menjadi sumber utama untuk visual, UX,
+  aksesibilitas, responsif, serta detail integrasi frontend.
+- Jika ditemukan perbedaan, selaraskan kedua dokumen terhadap implementasi
+  backend aktual terlebih dahulu. Jangan mengubah kontrak API hanya dari sisi
+  frontend.
+- README khusus backend, frontend, dan Postman tetap menjadi panduan
+  operasional per area dan tidak menggantikan kedua dokumen acuan utama di
+  atas.
+
+---
+
 ## 🧾 Daftar Soal & Penilaian
 
 > **Catatan Bukti & Pengumpulan:**
@@ -131,7 +160,7 @@ Gunakan tabel ini sebagai **lembar panduan mandiri (*cheatsheet*)** saat menyusu
 *Penyelarasan Akhir dan Kompilasi Bukti Akademik*
 - [ ] Penggabungan (*merge*) seluruh branch fitur ke `dev` lalu ke `main` via Pull Request.
 - [ ] 📸 **Task Dokumentasi SS-14**: Ambil screenshot riwayat PR yang berhasil di-merge dengan status checks lulus.
-- [ ] Finalisasi dokumentasi: Root `README.md`, `PRD.md`, `backend/README.md`, `frontend/README.md`, dan `postman/README.md`.
+- [ ] Finalisasi dokumentasi: Root `README.md`, `PRD.md`, `DesignGuidelineUIUX.md`, `backend/README.md`, `frontend/README.md`, dan `postman/README.md`.
 - [ ] Penyusunan dokumen Laporan Resmi (PDF) memuat 14 tangkapan layar bukti, penjelasan alur data, kendala teknis, dan resolusi solusinya.
 
 ---
@@ -196,6 +225,7 @@ uts-pl-24-542159-sv-25009-v1/
 │   ├── uts-pl-local.postman_environment.json # Variabel lingkungan lokal
 │   └── README.md                             # Panduan pengujian & automasi token Postman
 ├── PRD.md                       # Dokumen pegangan resmi Product Requirements Document
+├── DesignGuidelineUIUX.md       # Acuan desain UI/UX dan kontrak integrasi Fase 3
 ├── docker-compose.yml           # Orkestrasi 3 service (Database, Backend, Frontend)
 ├── .env.example                 # Template variabel lingkungan Docker & Database
 ├── .gitignore                   # Pengecualian pelacakan Git

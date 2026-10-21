@@ -5,6 +5,11 @@
 > **Arsitektur:** Decoupled Monorepo (Laravel 11 FrankenPHP REST API & Vue.js 3 SPA)  
 > **Infrastruktur:** Docker Compose Orchestration & CI/CD GitHub Actions ke GHCR
 
+> **Dokumen acuan Fase 3:** [DesignGuidelineUIUX.md](./DesignGuidelineUIUX.md)
+> menjadi acuan visual, UX, aksesibilitas, dan kontrak integrasi frontend.
+> Jika ada perbedaan pada detail frontend/API, kedua dokumen harus diselaraskan
+> terhadap implementasi backend aktual sebelum pekerjaan frontend dilanjutkan.
+
 ---
 
 ## 1. Deskripsi Singkat & Latar Belakang
@@ -57,13 +62,16 @@ Sistem ini menerapkan alur kendali **"User Propose $\rightarrow$ Admin Approve"*
   * **Respons Sukses (`201 Created`):**
     ```json
     {
-      "message": "Pendaftaran berhasil.",
+      "message": "Registrasi berhasil.",
       "data": {
         "user": {
           "id": 1,
           "name": "Mahasiswa Contoh",
           "email": "mahasiswa@example.com",
-          "role": "user"
+          "role": "user",
+          "phone_number": "08123456789",
+          "created_at": "2026-10-21T08:00:00+00:00",
+          "updated_at": "2026-10-21T08:00:00+00:00"
         },
         "token": "<BEARER_TOKEN>"
       }
@@ -73,13 +81,16 @@ Sistem ini menerapkan alur kendali **"User Propose $\rightarrow$ Admin Approve"*
   * **Respons Sukses (`200 OK`):**
     ```json
     {
-      "message": "Autentikasi berhasil.",
+      "message": "Login berhasil.",
       "data": {
         "user": {
           "id": 1,
           "name": "Mahasiswa Contoh",
           "email": "mahasiswa@example.com",
-          "role": "user"
+          "role": "user",
+          "phone_number": "08123456789",
+          "created_at": "2026-10-21T08:00:00+00:00",
+          "updated_at": "2026-10-21T08:00:00+00:00"
         },
         "token": "<BEARER_TOKEN>"
       }
@@ -95,7 +106,7 @@ Sistem ini menerapkan alur kendali **"User Propose $\rightarrow$ Admin Approve"*
   * Seluruh endpoint CRUD dan pengelolaan wajib dilindungi Sanctum:
     * `GET /api/items`: Mengambil daftar barang untuk kebutuhan dashboard authenticated.
       * Mendukung query parameter: `?status=pending|approved|rejected|resolve_requested|resolved&page=1&per_page=10`.
-      * **Nilai Default:** `page=1`, `per_page=10` (maksimal 50). Jika parameter `status` tidak disertakan: Admin melihat seluruh item pada semua status, sedangkan User biasa melihat seluruh item miliknya sendiri.
+      * **Nilai Default:** `page=1`, `per_page=10` (maksimal 50). Jika parameter `status` tidak disertakan: Admin melihat seluruh item pada semua status, sedangkan User biasa melihat seluruh item miliknya sendiri. Untuk User biasa dengan `status=approved`, endpoint menampilkan seluruh item approved yang aktif secara publik; tambahkan `mine=true` untuk membatasi hasil approved ke item milik User tersebut. Status selain `approved` tetap dibatasi ke item milik User.
       * **Privasi Kontak Bertingkat:** Admin dapat melihat seluruh field kontak. User biasa hanya dapat melihat field kontak pada **barang miliknya sendiri**, sedangkan pada barang milik orang lain kunci field kontak **dihilangkan (omitted)** dari JSON.
     * `GET /api/items/{id}`: Menampilkan detail 1 barang secara lengkap. Kunci field kontak hanya disertakan kepada **pemilik barang** atau **admin**.
     * `POST /api/items`: Membuat laporan barang baru (otomatis berstatus `pending`, menyertakan file gambar via `multipart/form-data`).
@@ -116,7 +127,7 @@ Sistem ini menerapkan alur kendali **"User Propose $\rightarrow$ Admin Approve"*
       * **Pencegahan Spam (Anti-Duplicate):** Seorang pengguna hanya boleh memiliki maksimal 1 laporan berstatus `pending` untuk barang yang sama. Jika mencoba mengirim lagi, sistem mengembalikan respons **`409 Conflict`** (*"Anda sudah memiliki laporan aktif yang sedang ditinjau untuk barang ini"*).
       * **Ketentuan State:** Hanya dapat dilakukan jika barang berstatus `approved`, belum kedaluwarsa (`approved_at > now()->subHours(72)`), dan belum memiliki laporan lain yang berstatus `accepted` / `resolve_requested`. Jika melanggar, kembalikan respons **`409 Conflict`**.
       * **Rate Limiting:** Maksimal 10 permintaan per menit per pengguna terautentikasi (`throttle:10,1`).
-    * `POST /api/items/{id}/repost`: Memperpanjang masa tayang barang yang sudah kedaluwarsa (> 72 jam) atau berstatus `resolved`. Mengubah status menjadi `approved` serta memperbarui `approved_at = now()` dan `resolved_at = null`. Dibatasi maksimal 1 kali per 72 jam (jika dilanggar, kembalikan `409 Conflict`).
+    * `POST /api/items/{id}/repost`: Memperpanjang masa tayang barang yang sudah kedaluwarsa (> 72 jam) atau berstatus `resolved`. Mengubah status menjadi `approved`, memperbarui `approved_at = now()`, mengosongkan `resolved_at = null`, dan mencatat waktu repost pada `last_reposted_at`. Dibatasi maksimal 1 kali per 72 jam berdasarkan `last_reposted_at` (jika dilanggar, kembalikan `409 Conflict`).
     * `GET /api/item-reports`: Endpoint **khusus Admin** (User biasa ditolak dengan `403 Forbidden`). Digunakan untuk meninjau seluruh laporan pihak ketiga. Mendukung query filter: `?status=pending|accepted|rejected|closed&page=1&per_page=10`.
     * `PATCH /api/item-reports/{id}/status`: Endpoint **khusus Admin** untuk memproses laporan pihak ketiga:
       * **Payload Request:** `{ "status": "accepted" }` (Validasi ketat: `in:accepted,rejected`). Status `closed` **dilarang diset secara manual** oleh Admin (ditolak `403 Forbidden`).
@@ -162,6 +173,8 @@ Sistem ini menerapkan alur kendali **"User Propose $\rightarrow$ Admin Approve"*
     "data": { ... }
   }
   ```
+  Response autentikasi memakai `message` dan `data.token`/`data.user`.
+  API tidak menggunakan envelope `success: true`.
 * **Format Respons Error:**
   ```json
   {
@@ -216,6 +229,7 @@ Sistem ini menerapkan alur kendali **"User Propose $\rightarrow$ Admin Approve"*
 * `image_path` (String, Nullable: path relatif file gambar yang diunggah)
 * `approved_at` (Timestamp, Nullable: waktu disetujui oleh admin)
 * `resolved_at` (Timestamp, Nullable: waktu barang berhasil diselesaikan/dikembalikan)
+* `last_reposted_at` (Timestamp, Nullable: waktu repost terakhir untuk verifikasi cooldown 72 jam)
 * `created_at` & `updated_at` (Timestamp)
 * **Index Performa:**
   * `$table->index('status');`
@@ -321,20 +335,51 @@ Kasus B: Ditemukan oleh Pihak Lain (Fitur Lapor Admin)
 3. **Fitur Repost:**
    * Pelapor dapat memperpanjang masa tayang barang yang telah kedaluwarsa (*expired*) atau yang berstatus `resolved` dengan menekan tombol **Repost**.
    * Repost memperbarui `approved_at = now()`, mengosongkan `resolved_at = null`, dan mereset status ke `approved`.
-   * Batasan: **maksimal 1x repost per 72 jam** (backend memvalidasi bahwa `approved_at` barang saat ini sudah lebih dari 72 jam lalu; jika belum, kembalikan respons `409 Conflict`).
+   * Batasan: **maksimal 1x repost per 72 jam**. Backend memvalidasi `last_reposted_at`; jika repost terakhir belum melewati 72 jam, backend mengembalikan respons `409 Conflict`. Field `approved_at` tetap digunakan untuk menghitung masa tayang aktif 72 jam, sedangkan `last_reposted_at` digunakan khusus untuk cooldown antar-repost.
 
 ---
 
 ### F. Frontend SPA (Vue.js 3 & Vite)
 
-#### 1. Arsitektur Komponen Modular (Reusable Components):
+Implementasi frontend wajib mengikuti [DesignGuidelineUIUX.md](./DesignGuidelineUIUX.md).
+Guideline tersebut adalah sumber detail untuk token visual, komponen, UX,
+responsif, aksesibilitas, dan kontrak FE–BE. Ringkasan normatif yang harus
+tetap sinkron dengan guideline adalah sebagai berikut:
+
+#### 1. Design system dan responsif:
+* Identitas visual menggunakan **Teal** sebagai Primary dan **Amber** sebagai
+  satu-satunya aksen CTA. Token light/dark wajib menggunakan pasangan berikut:
+  * Primary: `#0F766E` / `#2DD4BF`
+  * Aksen: `#F59E0B` / `#F59E0B`
+  * Success: `#15803D` / `#4ADE80`
+  * Warning: `#B45309` / `#FBBF24`
+  * Info: `#0369A1` / `#38BDF8`
+  * Danger: `#B91C1C` / `#F87171`
+  * Background: `#F8FAFC` / `#0B1220`
+  * Card: `#FFFFFF` / `#121A2B`
+  * Text: `#0F172A` / `#E8EEF7`
+  * Muted: `#64748B` / `#94A3B8`
+* Komponen membaca CSS variables; hex tidak ditulis langsung di komponen.
+* Kategori `lost` memakai Danger dan `found` memakai Success. Status
+  `pending`, `approved`, `resolve_requested`, `resolved`, dan `rejected`
+  memakai Warning, Success, Info, Muted, dan Danger secara berurutan.
+* Timer memakai `remaining_seconds`: netral pada sisa minimal 24 jam,
+  Warning di bawah 24 jam, Danger di bawah 12 jam, dan Muted ketika expired.
+* Layout mobile-first: 1 kolom di bawah 640px, 2 kolom pada 640–1023px,
+  dan 3 kolom mulai 1024px. Target uji visual adalah 375px, 768px, dan
+  1280px.
+* Target aksesibilitas adalah WCAG 2.1 AA, dengan fokus keyboard terlihat,
+  label teks selain warna untuk status, `alt` pada gambar, dan dukungan
+  `prefers-reduced-motion`.
+
+#### 2. Arsitektur Komponen Modular (Reusable Components):
 * `CardItem.vue`: Kartu representasi barang lengkap dengan foto, badge kategori, lokasi, dan countdown timer.
 * `StatusBadge.vue`: Komponen penanda status visual (Pending: Kuning, Approved: Hijau, Resolve Requested: Biru, Resolved: Abu-abu, Rejected: Merah).
 * `CountdownTimer.vue`: Indikator waktu sisa pasif 72 jam secara *real-time*.
 * `BaseModal.vue`: Modal dialog reusable untuk form konfirmasi hapus, preview gambar, dan form pelaporan.
 * `Navbar.vue`: Navigasi responsif yang mendeteksi state login user/admin.
 
-#### 2. Struktur Antarmuka & Halaman:
+#### 3. Struktur Antarmuka & Halaman:
 * **Dashboard Publik (`/`):** Tampilan grid kartu barang yang berstatus `approved` tanpa memerlukan login. Field kontak **dihilangkan secara mutlak** di halaman publik.
 * **Halaman Login & Register (`/login` & `/register`):** Formulir autentikasi pengguna. Token disimpan di `localStorage` dan status peran disimpan di store state.
 * **Halaman Lapor Barang (`/report`):** Formulir submit barang hilang/ditemukan dengan upload gambar `FormData`.
@@ -343,7 +388,30 @@ Kasus B: Ditemukan oleh Pihak Lain (Fitur Lapor Admin)
   * **Tab 2 — Laporan Aktif Publik:** Memantau barang yang sedang tayang, dengan opsi hapus paksa jika melanggar.
   * **Tab 3 — Pesan Resolusi:** Memproses pengajuan laporan pihak ketiga dari tabel `item_reports` (tombol Terima Laporan $\rightarrow$ memicu `resolve_requested`, atau Tolak Laporan).
 
-#### 3. Penanganan Error Global (Error Handling UI/UX):
+#### 4. Integrasi API dan state UI:
+* Base URL API dibaca dari `VITE_API_URL`, sedangkan URL aset gambar dibaca dari
+  `VITE_STORAGE_URL`. Frontend memakai satu helper `buildImageUrl(path)` untuk
+  mengubah `image_path` relatif menjadi URL gambar.
+* Token disimpan di `localStorage`; saat aplikasi dipulihkan frontend
+  memanggil `GET /api/user`. Request terproteksi mengirim
+  `Authorization: Bearer <token>` dan `Accept: application/json`.
+* Collection menggunakan struktur Laravel `data`, `links`, dan `meta`.
+  Parameter `per_page` default 10 dan dibatasi backend pada 1 sampai 50.
+* Public resource tidak mengandung `contact_info` atau
+  `reporter_contact_info`. Pada detail terproteksi, field tersebut hanya ada
+  untuk owner atau admin dan tidak boleh diasumsikan selalu bernilai `null`.
+* Form item memakai `multipart/form-data` dengan field
+  `item_name`, `category`, `location`, `current_storage`, `contact_info`,
+  `reporter_contact_info`, `chronology`, dan `image`. Field `waktu` tidak
+  dikirim karena belum tersedia pada kontrak backend.
+* Frontend tidak mengirim status `resolve_requested` atau `closed` secara
+  manual. Status tersebut dipicu oleh alur report/resolusi backend.
+* Pemetaan error wajib konsisten: `401` menghapus session dan mengarahkan ke
+  login, `403` menampilkan akses ditolak, `404` data tidak ditemukan, `409`
+  menampilkan konflik state, `422` memetakan `errors[field]`, `429`
+  menampilkan rate limit, dan `5xx`/network error menampilkan opsi retry.
+
+#### 5. Penanganan Error Global (Error Handling UI/UX):
 * Axios Interceptor mendeteksi kegagalan koneksi (*Network Error*, *503 Service Unavailable*, atau *Connection Refused*).
 * Sistem menampilkan antarmuka ramah pengguna (*"Server Sedang Dalam Pemeliharaan / Layanan Belum Tersedia"*) alih-alih layar putih kosong (*blank screen*).
 
@@ -354,7 +422,7 @@ Kasus B: Ditemukan oleh Pihak Lain (Fitur Lapor Admin)
 ### A. Jaringan Terpadu Docker Compose
 * **Frontend Service (`frontend`):** Port host `80:80`. Berbasis Nginx 1.27 Alpine.
 * **Backend Service (`backend`):** Port host `8000:80`. Berbasis FrankenPHP 1.4 PHP 8.3.
-* **Database Service (`database`):** Port host `3306:3306`. Berbasis MySQL 8.0.
+* **Database Service (`database`):** Berbasis MySQL 8.0 dan hanya tersedia melalui jaringan internal Docker Compose secara default; port `3306` tidak dipublish ke host.
 
 ### B. MySQL Healthcheck & Urutan Startup
 Untuk mencegah kondisi *race condition* di mana container backend mencoba terhubung ke MySQL sebelum database siap menerima koneksi, konfigurasi `docker-compose.yml` wajib menyertakan:
@@ -438,6 +506,8 @@ Berkas `docker-compose.yml` mengelola 2 Named Volume penting:
 
 Sistem wajib lolos 12 skenario pengujian otomatis (`php artisan test`) untuk menjamin kepatuhan seluruh aturan bisnis:
 
+> **Catatan:** Angka 12 merujuk pada jumlah skenario wajib dalam matriks PRD, bukan jumlah seluruh test method. Implementasi dapat memiliki test tambahan untuk unit validation, policy authorization, CRUD, resolution flow, dan verifikasi konkurensi database.
+
 | No | Skenario Pengujian | Target Endpoint / Aksi | Ekspektasi Respons & State |
 | :-: | :--- | :--- | :--- |
 | 1 | **Privasi Guest** | `GET /api/public/items` | HTTP 200, kunci `contact_info` & `reporter_contact_info` **omitted** |
@@ -463,7 +533,7 @@ Sistem wajib lolos 12 skenario pengujian otomatis (`php artisan test`) untuk men
 | :-: | :--- | :--- |
 | 1 | **Branch Protection (SS-01)** | Screenshot menu `Settings > Branches` menampilkan aturan proteksi branch `main` & `dev` |
 | 2 | **Automated Tests (SS-02)** | Screenshot terminal `php artisan test` membuktikan seluruh 12 Feature Test lulus (hijau) |
-| 3 | **Postman Collection (SS-03)** | Screenshot koleksi 14 endpoint & response representatif di aplikasi Postman |
+| 3 | **Postman Collection (SS-03)** | Screenshot koleksi 15 operasi endpoint (18 request collection) & response representatif di aplikasi Postman |
 | 4 | **CI/CD Pipeline (SS-11 & SS-12)** | Screenshot tab GitHub Actions menampilkan alur CI & CD yang berjalan sukses (hijau) |
 | 5 | **GitHub Packages (SS-13)** | Screenshot halaman Packages menampilkan image Backend dan Frontend ber-tag Commit SHA |
 | 6 | **Output Docker Compose (SS-08)** | Screenshot keluaran CLI `docker compose ps` menampilkan 3 service (DB, BE, FE) berstatus `Up` |
