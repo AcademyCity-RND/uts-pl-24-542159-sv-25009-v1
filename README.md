@@ -189,7 +189,7 @@ Gunakan tabel ini sebagai **lembar panduan mandiri (*cheatsheet*)** saat menyusu
 - [x] Pembuatan komponen modular: CardItem.vue, StatusBadge.vue, CountdownTimer.vue, BaseModal.vue, Navbar.vue.
 - [x] Halaman Login & Registrasi (penyimpanan token di localStorage & auto-redirect).
 - [x] Dashboard Publik (Guest View: Card Grid barang hilang/ditemukan yang disetujui admin).
-- [ ] Halaman Pelaporan Barang (User: form submit FormData foto barang, status awal pending).
+- [x] Halaman Pelaporan Barang (User: form submit FormData foto barang, status awal pending).
 - [ ] Dashboard Admin (3 Tab Inbox: Laporan Pending, Laporan Aktif Publik, Pesan Resolusi).
 - [ ] 📸 **Task Dokumentasi SS-04**: Buka peramban di http://localhost:5173/login, buka F12 Console/Application Local Storage, dan ambil screenshot saat berhasil login.
 - [ ] 📸 **Task Dokumentasi SS-05**: Buka peramban di mode Incognito/Guest di http://localhost:5173/ dan screenshot tampilan Card Grid + Countdown Timer aktif.

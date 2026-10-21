@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import api, { type ApiErrorDetail } from '../services/api'
 import { useAuthStore } from '../stores/auth'
+import type { ApiResponse, LostItem } from '../types/api'
 
 const authStore = useAuthStore()
 
@@ -28,22 +29,49 @@ onMounted(() => {
   }
 })
 
+onUnmounted(() => {
+  if (imagePreview.value) {
+    URL.revokeObjectURL(imagePreview.value)
+  }
+})
+
 function handleFileChange(event: Event) {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
   if (file) {
     if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+      imageFile.value = null
+      if (imagePreview.value) {
+        URL.revokeObjectURL(imagePreview.value)
+        imagePreview.value = null
+      }
       errorMessage.value = 'Format file wajib berupa JPG, JPEG, atau PNG.'
       return
     }
     if (file.size > 2 * 1024 * 1024) {
+      imageFile.value = null
+      if (imagePreview.value) {
+        URL.revokeObjectURL(imagePreview.value)
+        imagePreview.value = null
+      }
       errorMessage.value = 'Ukuran gambar maksimal adalah 2 MB.'
       return
+    }
+    if (imagePreview.value) {
+      URL.revokeObjectURL(imagePreview.value)
     }
     imageFile.value = file
     imagePreview.value = URL.createObjectURL(file)
     errorMessage.value = ''
   }
+}
+
+function removeImage() {
+  if (imagePreview.value) {
+    URL.revokeObjectURL(imagePreview.value)
+  }
+  imageFile.value = null
+  imagePreview.value = null
 }
 
 async function handleSubmit() {
@@ -68,17 +96,13 @@ async function handleSubmit() {
       formData.append('image', imageFile.value)
     }
 
-    const response = await api.post('/items', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
+    const response = await api.post<ApiResponse<LostItem>>('/items', formData)
 
     successMessage.value = 'Laporan berhasil dibuat! Status barang saat ini adalah Pending (menunggu moderasi admin).'
     setTimeout(() => {
       window.location.href = `/detail?id=${response.data.data.id}`
     }, 1500)
-  } catch (error: any) {
+  } catch (error: unknown) {
     const err = error as ApiErrorDetail
     if (err.errors) {
       errors.value = err.errors
@@ -228,6 +252,11 @@ async function handleSubmit() {
 
           <div v-if="imagePreview" class="preview-box">
             <img :src="imagePreview" alt="Pratinjau Foto Barang" class="preview-img" />
+            <div class="preview-actions">
+              <button type="button" class="btn btn-sm btn-secondary" @click="removeImage">
+                ✕ Hapus Foto
+              </button>
+            </div>
           </div>
         </div>
 
@@ -353,16 +382,24 @@ async function handleSubmit() {
 .preview-box {
   margin-top: var(--space-3);
   width: 100%;
-  max-height: 220px;
   border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid var(--color-border);
+  position: relative;
 }
 
 .preview-img {
   width: 100%;
   height: 200px;
   object-fit: cover;
+  display: block;
+}
+
+.preview-actions {
+  padding: var(--space-2);
+  background-color: var(--color-surface-soft);
+  display: flex;
+  justify-content: flex-end;
 }
 
 .btn-block {

@@ -34,7 +34,7 @@ jaringan sesuai kontrak pada dokumen acuan.
 - [x] **Step 3.4:** Pembuatan komponen UI reusable dan sistem tema light/dark.
 - [x] **Step 3.5:** Implementasi halaman login dan registrasi.
 - [x] **Step 3.6:** Implementasi dashboard publik dan countdown timer.
-- [ ] **Step 3.7:** Implementasi form pelaporan barang dengan upload gambar.
+- [x] **Step 3.7:** Implementasi form pelaporan barang dengan upload gambar.
 - [ ] **Step 3.8:** Implementasi dashboard admin dan alur moderasi.
 - [ ] **Step 3.9:** Implementasi alur resolusi dan repost.
 - [ ] **Step Dokumentasi SS-04 s.d. SS-07:** Pengambilan screenshot bukti frontend.
@@ -44,7 +44,7 @@ jaringan sesuai kontrak pada dokumen acuan.
 - `pnpm build` berhasil menghasilkan seluruh entry point MPA.
 - Dev server dapat merender halaman publik pada `http://localhost:5173/`.
 - Dashboard publik berhasil memanggil `GET /api/public/items` pada backend lokal.
-- Step 3.1 s.d. Step 3.6 telah selesai; integrasi tiap alur berikutnya tetap
+- Step 3.1 s.d. Step 3.7 telah selesai; integrasi tiap alur berikutnya tetap
   mengikuti checklist di atas.
 
 ---
@@ -129,7 +129,7 @@ Aplikasi menerapkan sistem desain bernuansa **Teal** sebagai warna utama (*Prima
   - Komponen `CountdownTimer.vue`: Indikator sisa waktu pasif 72 jam secara *real-time* berbasis `remaining_seconds` (Netral $\ge$ 24j, Kuning < 24j, Merah < 12j, Abu-abu jika habis).
   - Chip filter kategori & status tipe (Hilang / Ditemukan).
   - 📸 **Task Dokumentasi SS-05**: Dashboard publik mode tamu menampilkan grid kartu barang, gambar, badge tipe, dan timer aktif.
-- [ ] **Form Pelaporan Barang (`/report` - User Authenticated):**
+- [x] **Form Pelaporan Barang (`/report` - User Authenticated):**
   - Formulir input field yang didukung backend: `item_name`, `category`, `location`, `current_storage`, `contact_info`, `reporter_contact_info`, `chronology`, dan `image`.
   - Dukungan upload foto barang (`multipart/form-data`) dengan preview gambar sebelum submit.
   - Status barang baru otomatis `pending` (menunggu moderasi admin).
