@@ -5,7 +5,7 @@ import StatusBadge from '../components/StatusBadge.vue'
 import CountdownTimer from '../components/CountdownTimer.vue'
 import BaseModal from '../components/BaseModal.vue'
 import { useAuthStore } from '../stores/auth'
-import type { LostItem } from '../types/api'
+import type { LostItem, ApiResponse } from '../types/api'
 
 const authStore = useAuthStore()
 
@@ -19,13 +19,13 @@ const actionSuccessMessage = ref('')
 
 // Modal Klaim Penemuan (Report Pihak Ketiga)
 const isReportModalOpen = ref(false)
-const claimContact = ref('')
 const claimMessage = ref('')
 const claimLoading = ref(false)
 const claimError = ref('')
+const actionLoading = ref(false)
 
 const isOwner = computed(() => {
-  return authStore.currentUser && item.value?.user_id === authStore.currentUser.id
+  return !!authStore.currentUser && item.value?.user_id === authStore.currentUser.id
 })
 
 async function fetchItemDetail() {
@@ -38,9 +38,9 @@ async function fetchItemDetail() {
   loading.value = true
   errorMessage.value = ''
   try {
-    const response = await api.get(`/items/${itemId}`)
+    const response = await api.get<ApiResponse<LostItem>>(`/items/${itemId}`)
     item.value = response.data.data
-  } catch (error: any) {
+  } catch (error: unknown) {
     const err = error as ApiErrorDetail
     if (err.status === 404) {
       errorMessage.value = 'Data barang tidak ditemukan atau telah dihapus.'
@@ -52,24 +52,27 @@ async function fetchItemDetail() {
   }
 }
 
-// Submit Laporan Pihak Ketiga
+// Submit Laporan Pihak Ketiga (Klaim Penemuan)
 async function submitClaimReport() {
   if (!item.value) return
+  if (claimMessage.value.trim().length < 10) {
+    claimError.value = 'Pesan laporan penemuan minimal 10 karakter.'
+    return
+  }
+
   claimLoading.value = true
   claimError.value = ''
 
   try {
     await api.post(`/items/${item.value.id}/report`, {
-      reporter_contact: claimContact.value,
-      message: claimMessage.value
+      message: claimMessage.value.trim()
     })
 
     actionSuccessMessage.value = 'Laporan informasi penemuan berhasil dikirim ke Admin untuk ditinjau.'
     isReportModalOpen.value = false
-    claimContact.value = ''
     claimMessage.value = ''
-    fetchItemDetail()
-  } catch (error: any) {
+    await fetchItemDetail()
+  } catch (error: unknown) {
     const err = error as ApiErrorDetail
     if (err.status === 409) {
       claimError.value = err.message || 'Konflik status: Anda sudah memiliki laporan aktif yang sedang ditinjau.'
@@ -81,34 +84,60 @@ async function submitClaimReport() {
   }
 }
 
-// Konfirmasi Resolusi oleh Owner
+// Konfirmasi Resolusi oleh Owner (Menandai Selesai)
 async function handleResolveItem() {
   if (!item.value) return
   if (!confirm('Apakah Anda yakin barang ini sudah berhasil ditemukan/dikembalikan?')) return
+  actionLoading.value = true
   try {
     await api.patch(`/items/${item.value.id}/status`, { status: 'resolved' })
     actionSuccessMessage.value = 'Barang berhasil diselesaikan (Resolved)!'
-    fetchItemDetail()
-  } catch (error: any) {
+    await fetchItemDetail()
+  } catch (error: unknown) {
     const err = error as ApiErrorDetail
     alert(err.message || 'Gagal mengubah status barang.')
+  } finally {
+    actionLoading.value = false
   }
 }
 
-// Repost Barang oleh Owner
+// Menolak Klaim Penemuan oleh Owner (Kembali ke Approved)
+async function handleRejectClaim() {
+  if (!item.value) return
+  if (!confirm('Tolak klaim penemuan ini dan lanjutkan penayangan barang di papan publik?')) return
+  actionLoading.value = true
+  try {
+    await api.patch(`/items/${item.value.id}/status`, { status: 'approved' })
+    actionSuccessMessage.value = 'Klaim penemuan ditolak. Laporan ditutup dan barang kembali berstatus Aktif (Approved).'
+    await fetchItemDetail()
+  } catch (error: unknown) {
+    const err = error as ApiErrorDetail
+    alert(err.message || 'Gagal mengubah status barang.')
+  } finally {
+    actionLoading.value = false
+  }
+}
+
+// Repost Barang oleh Owner (Perpanjang 72 Jam)
 async function handleRepostItem() {
   if (!item.value) return
+  actionLoading.value = true
   try {
     await api.post(`/items/${item.value.id}/repost`)
     actionSuccessMessage.value = 'Barang berhasil di-repost! Masa tayang diperpanjang 72 jam ke depan.'
-    fetchItemDetail()
-  } catch (error: any) {
+    await fetchItemDetail()
+  } catch (error: unknown) {
     const err = error as ApiErrorDetail
     alert(err.message || 'Gagal me-repost barang.')
+  } finally {
+    actionLoading.value = false
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  if (authStore.token && !authStore.currentUser) {
+    await authStore.fetchCurrentUser()
+  }
   fetchItemDetail()
 })
 </script>
@@ -193,7 +222,7 @@ onMounted(() => {
           <div class="detail-actions">
             <!-- Jika User Login dan Bukan Owner: Tombol Lapor Admin / Klaim -->
             <button
-              v-if="authStore.isAuthenticated && !isOwner && item.status === 'approved'"
+              v-if="authStore.isAuthenticated && !isOwner && item.status === 'approved' && !item.is_expired"
               type="button"
               class="btn btn-cta"
               @click="isReportModalOpen = true"
@@ -203,21 +232,48 @@ onMounted(() => {
 
             <!-- Aksi Khusus Pemilik Barang -->
             <template v-if="isOwner">
-              <!-- Jika status resolve_requested atau approved, bisa tandai selesai -->
+              <!-- Kasus 1: Status resolve_requested (Admin sudah accept klaim penemu, menunggu respon Owner) -->
+              <div v-if="item.status === 'resolve_requested'" class="resolution-box">
+                <p class="resolution-text">
+                  🤝 <strong>Konfirmasi Penemuan:</strong> Ada laporan informasi penemuan yang telah diverifikasi oleh Administrator. Apakah barang ini sudah berhasil Anda terima kembali?
+                </p>
+                <div class="resolution-buttons">
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    :disabled="actionLoading"
+                    @click="handleResolveItem"
+                  >
+                    ✓ Ya, Barang Sudah Diterima (Selesai)
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    :disabled="actionLoading"
+                    @click="handleRejectClaim"
+                  >
+                    ✕ Bukan Barang Saya (Lanjutkan Tayang)
+                  </button>
+                </div>
+              </div>
+
+              <!-- Kasus 2: Status approved (Owner ingin menyelesaikan barang secara mandiri) -->
               <button
-                v-if="['approved', 'resolve_requested'].includes(item.status)"
+                v-else-if="item.status === 'approved' && !item.is_expired"
                 type="button"
                 class="btn btn-primary"
+                :disabled="actionLoading"
                 @click="handleResolveItem"
               >
                 ✓ Tandai Sudah Selesai (Resolved)
               </button>
 
-              <!-- Jika barang expired atau resolved, tampilkan opsi Repost -->
+              <!-- Kasus 3: Status resolved ATAU approved tapi kedaluwarsa (Tampilkan opsi Repost) -->
               <button
-                v-if="['resolved'].includes(item.status) || item.is_expired || ((item.remaining_seconds ?? 1) <= 0)"
+                v-if="item.status === 'resolved' || (item.status === 'approved' && item.is_expired)"
                 type="button"
                 class="btn btn-secondary"
+                :disabled="actionLoading"
                 @click="handleRepostItem"
               >
                 🔄 Repost Barang (Perpanjang 72 Jam)
@@ -244,24 +300,14 @@ onMounted(() => {
 
       <form @submit.prevent="submitClaimReport">
         <div class="form-group">
-          <label class="form-label">Nomor WhatsApp / Kontak Anda</label>
-          <input
-            v-model="claimContact"
-            type="text"
-            class="form-input"
-            placeholder="08123456789"
-            required
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Pesan / Bukti Ciri Penemuan</label>
+          <label class="form-label">Pesan / Bukti Ciri Penemuan (Minimal 10 Karakter)</label>
           <textarea
             v-model="claimMessage"
             class="form-textarea"
-            rows="3"
-            placeholder="Jelaskan di mana barang Anda amankan dan ciri spesifiknya..."
+            rows="4"
+            placeholder="Contoh: Saya menemukan barang ini tertinggal di lobi utama dan telah menitipkannya di pos satpam..."
             required
+            minlength="10"
           ></textarea>
         </div>
 
@@ -447,5 +493,28 @@ onMounted(() => {
   justify-content: flex-end;
   gap: var(--space-3);
   margin-top: var(--space-4);
+}
+
+.resolution-box {
+  width: 100%;
+  padding: var(--space-4);
+  background-color: rgba(3, 105, 161, 0.08);
+  border: 1px solid var(--color-info);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.resolution-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+.resolution-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 </style>

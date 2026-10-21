@@ -36,7 +36,7 @@ jaringan sesuai kontrak pada dokumen acuan.
 - [x] **Step 3.6:** Implementasi dashboard publik dan countdown timer.
 - [x] **Step 3.7:** Implementasi form pelaporan barang dengan upload gambar.
 - [x] **Step 3.8:** Implementasi dashboard admin dan alur moderasi.
-- [ ] **Step 3.9:** Implementasi alur resolusi dan repost.
+- [x] **Step 3.9:** Implementasi alur resolusi dan repost.
 - [ ] **Step Dokumentasi SS-04 s.d. SS-07:** Pengambilan screenshot bukti frontend.
 
 ### Verifikasi saat ini
@@ -44,7 +44,7 @@ jaringan sesuai kontrak pada dokumen acuan.
 - `pnpm build` berhasil menghasilkan seluruh entry point MPA.
 - Dev server dapat merender halaman publik pada `http://localhost:5173/`.
 - Dashboard publik berhasil memanggil `GET /api/public/items` pada backend lokal.
-- Step 3.1 s.d. Step 3.8 telah selesai; integrasi tiap alur berikutnya tetap
+- Step 3.1 s.d. Step 3.9 telah selesai; integrasi tiap alur berikutnya tetap
   mengikuti checklist di atas.
 
 ---
@@ -140,7 +140,7 @@ Aplikasi menerapkan sistem desain bernuansa **Teal** sebagai warna utama (*Prima
   - **Tab 2 — Laporan Aktif Publik:** Monitoring barang tayang dan opsi hapus darurat.
   - **Tab 3 — Pesan Resolusi:** Memproses pengajuan laporan pihak ketiga dari `GET /api/item-reports` (Terima Laporan $\rightarrow$ kirim `accepted`; backend memicu `resolve_requested`, atau Tolak Laporan).
   - 📸 **Task Dokumentasi SS-07**: Dashboard admin dengan 3 tab inbox dan aksi moderasi.
-- [ ] **Alur Resolusi & Repost (Sisi Pemilik):**
+- [x] **Alur Resolusi & Repost (Sisi Pemilik):**
   - Halaman / dialog detail barang untuk konfirmasi penerimaan resolusi (`PATCH /api/items/{id}/status`).
   - Fitur Repost (`POST /api/items/{id}/repost`) untuk barang kedaluwarsa/selesai dengan proteksi cooldown 72 jam.
 
