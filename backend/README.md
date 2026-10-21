@@ -25,7 +25,7 @@ Layanan Backend ini bertindak sebagai penyedia API tunggal (*Single Source of Tr
 - [x] **Step 2.9:** Implementasi `LostItemPolicy` dan `ItemReportPolicy` untuk otorisasi akses (Respons 403 Forbidden).
 - [x] **Step 2.10:** Penulisan 12 Feature Test otomatis berbasis MySQL testing engine (`uts_kepl_test`).
 - [x] **Step 2.11:** Konfigurasi runner server aplikasi FrankenPHP.
-- [ ] **Step 2.12:** Ekspor Postman Collection (14 endpoint lengkap) & Environment ke folder `/postman`.
+- [x] **Step 2.12:** Ekspor Postman Collection (14 endpoint lengkap) & Environment ke folder `/postman`.
 
 ---
 
