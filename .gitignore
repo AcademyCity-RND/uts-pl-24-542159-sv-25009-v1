@@ -9,6 +9,7 @@
 .env.*.local
 *.pem
 *.key
+/roadmap.html
 
 # --- Backend (Laravel) ---
 /backend/.env
