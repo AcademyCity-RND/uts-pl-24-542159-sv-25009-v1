@@ -1,0 +1,496 @@
+{
+  "info": {
+    "_postman_id": "b9f2c8d1-7294-4a5c-8df2-140798a213e4",
+    "name": "JejakBarang REST API",
+    "description": "Koleksi resmi pengujian 14 endpoint RESTful API JejakBarang (UTS Konstruksi dan Evolusi Perangkat Lunak 2026). Mendukung autentikasi Bearer Token Sanctum, alur verifikasi barang, perpanjangan masa tayang, pelaporan penemuan pihak ketiga, dan Dual Pessimistic Locking.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Autentikasi",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.token) {",
+                  "        pm.environment.set('token', json.data.token);",
+                  "        console.log('Token user berhasil diperbarui:', json.data.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mahasiswa Test Postman\",\n  \"email\": \"mhs_postman@jejakbarang.test\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"phone_number\": \"081234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/register",
+              "host": ["{{base_url}}"],
+              "path": ["register"]
+            },
+            "description": "Pendaftaran akun baru dengan role default 'user' (hardcoded) dan otomatis menerbitkan token Sanctum."
+          }
+        },
+        {
+          "name": "Login User Mahasiswa",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.token) {",
+                  "        pm.environment.set('token', json.data.token);",
+                  "        console.log('Token mahasiswa aktif:', json.data.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"mahasiswa@jejakbarang.test\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/login",
+              "host": ["{{base_url}}"],
+              "path": ["login"]
+            },
+            "description": "Autentikasi akun mahasiswa demo."
+          }
+        },
+        {
+          "name": "Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.token) {",
+                  "        pm.environment.set('admin_token', json.data.token);",
+                  "        console.log('Token admin aktif:', json.data.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@jejakbarang.test\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/login",
+              "host": ["{{base_url}}"],
+              "path": ["login"]
+            },
+            "description": "Autentikasi akun admin untuk operasi review laporan dan persetujuan barang."
+          }
+        },
+        {
+          "name": "Get User Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/user",
+              "host": ["{{base_url}}"],
+              "path": ["user"]
+            },
+            "description": "Mengambil profil pengguna yang sedang login saat ini."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/logout",
+              "host": ["{{base_url}}"],
+              "path": ["logout"]
+            },
+            "description": "Merevokasi dan menghapus token Sanctum aktif."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Publik (Tamu)",
+      "item": [
+        {
+          "name": "Get Public Items (Guest)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/public/items?page=1&per_page=10",
+              "host": ["{{base_url}}"],
+              "path": ["public", "items"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "per_page", "value": "10" }
+              ]
+            },
+            "description": "Papan penjelajahan barang publik tanpa token autentikasi. Menampilkan barang berstatus approved aktif (< 72 jam). Field kontak sensitif dihilangkan (omitted)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Manajemen Barang (CRUD)",
+      "item": [
+        {
+          "name": "Get Items List (Authenticated)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/items?status=approved&page=1&per_page=10",
+              "host": ["{{base_url}}"],
+              "path": ["items"],
+              "query": [
+                { "key": "status", "value": "approved" },
+                { "key": "page", "value": "1" },
+                { "key": "per_page", "value": "10" }
+              ]
+            },
+            "description": "Mengambil daftar barang untuk pengguna terautentikasi dengan privasi kontak bertingkat."
+          }
+        },
+        {
+          "name": "Get Item Detail",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/items/{{item_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["items", "{{item_id}}"]
+            },
+            "description": "Mengambil detail 1 barang secara lengkap. Kunci kontak hanya disertakan kepada pemilik barang atau admin."
+          }
+        },
+        {
+          "name": "Create Lost Item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.environment.set('item_id', json.data.id);",
+                  "        console.log('ID Item baru tersimpan:', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "item_name", "value": "Kunci Motor Vario Hitam", "type": "text" },
+                { "key": "category", "value": "lost", "type": "text" },
+                { "key": "location", "value": "Parkiran Belakang SV", "type": "text" },
+                { "key": "current_storage", "value": "Dibawa sendiri", "type": "text" },
+                { "key": "contact_info", "value": "081234567890", "type": "text" },
+                { "key": "reporter_contact_info", "value": "089988776655", "type": "text" },
+                { "key": "chronology", "value": "Terjatuh di dekat loket tiket parkir pada sore hari.", "type": "text" },
+                { "key": "image", "type": "file", "src": [] }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/items",
+              "host": ["{{base_url}}"],
+              "path": ["items"]
+            },
+            "description": "Membuat laporan barang baru (status default: pending). Mendukung unggahan gambar multipart/form-data."
+          }
+        },
+        {
+          "name": "Update Item (Method Spoofing PUT)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "_method", "value": "PUT", "type": "text" },
+                { "key": "item_name", "value": "Kunci Motor Honda Vario 160", "type": "text" },
+                { "key": "chronology", "value": "Revisi: Ada gantungan kunci logo UGM berwarna perak.", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/items/{{item_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["items", "{{item_id}}"]
+            },
+            "description": "Memperbarui data laporan barang menggunakan HTTP Method Spoofing '_method: PUT' via POST. Jika status barang sebelumnya rejected, status otomatis di-reset menjadi pending."
+          }
+        },
+        {
+          "name": "Admin Approve Item",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }]
+            },
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/items/{{item_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["items", "{{item_id}}", "status"]
+            },
+            "description": "Admin menyetujui barang (pending -> approved). approved_at otomatis diisi waktu saat ini (now)."
+          }
+        },
+        {
+          "name": "Owner Resolve Item",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"resolved\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/items/{{item_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["items", "{{item_id}}", "status"]
+            },
+            "description": "Pemilik menyelesaikan barang (approved -> resolved). resolved_at otomatis diisi waktu saat ini (now)."
+          }
+        },
+        {
+          "name": "Repost Item",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/items/{{item_id}}/repost",
+              "host": ["{{base_url}}"],
+              "path": ["items", "{{item_id}}", "repost"]
+            },
+            "description": "Pemilik memperpanjang masa tayang barang yang kedaluwarsa (> 72 jam) atau resolved. Dibatasi 1x per 72 jam (409 Conflict jika belum habis)."
+          }
+        },
+        {
+          "name": "Delete Item",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/items/{{item_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["items", "{{item_id}}"]
+            },
+            "description": "Menghapus data laporan barang (khusus pemilik atau admin)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Laporan Penemuan & Alur Resolusi",
+      "item": [
+        {
+          "name": "Submit Item Report (Non-owner)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    if (json.data && json.data.id) {",
+                  "        pm.environment.set('report_id', json.data.id);",
+                  "        console.log('ID Laporan baru tersimpan:', json.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Barang saya lihat sudah diamankan di meja staf lantai 2 prodi.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/items/{{item_id}}/report",
+              "host": ["{{base_url}}"],
+              "path": ["items", "{{item_id}}", "report"]
+            },
+            "description": "Pelaporan penemuan barang oleh pihak ketiga. Anti self-reporting (403), anti-duplicate pending (409), rate limit 10/menit."
+          }
+        },
+        {
+          "name": "Get Admin Item Reports",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/item-reports?status=pending&page=1&per_page=10",
+              "host": ["{{base_url}}"],
+              "path": ["item-reports"],
+              "query": [
+                { "key": "status", "value": "pending" },
+                { "key": "page", "value": "1" },
+                { "key": "per_page", "value": "10" }
+              ]
+            },
+            "description": "Inbox tinjauan laporan penemuan pihak ketiga (khusus Admin, 403 Forbidden untuk user biasa)."
+          }
+        },
+        {
+          "name": "Admin Accept Item Report (Dual Pessimistic Lock)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }]
+            },
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"accepted\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/item-reports/{{report_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["item-reports", "{{report_id}}", "status"]
+            },
+            "description": "Admin menyetujui laporan pihak ketiga dengan proteksi Dual Pessimistic Locking. Report status menjadi 'accepted' dan item otomatis menjadi 'resolve_requested'."
+          }
+        },
+        {
+          "name": "Admin Reject Item Report",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{admin_token}}", "type": "string" }]
+            },
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"rejected\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/item-reports/{{report_id}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["item-reports", "{{report_id}}", "status"]
+            },
+            "description": "Admin menolak laporan pihak ketiga tanpa mengubah status barang utama."
+          }
+        }
+      ]
+    }
+  ]
+}

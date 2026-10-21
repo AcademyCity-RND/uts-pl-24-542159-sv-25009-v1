@@ -1,0 +1,40 @@
+<?php
+
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ItemController;
+use App\Http\Controllers\Api\ItemReportController;
+use App\Http\Controllers\Api\PublicItemController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+// Endpoint Publik Terbuka
+Route::get('/public/items', [PublicItemController::class, 'index']);
+
+// Endpoint Autentikasi Publik (Rate Limit: 5 req/menit per IP)
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:auth');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:auth');
+
+// Endpoint Terproteksi (Bearer Token Sanctum)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user', function (Request $request) {
+        return response()->json([
+            'message' => 'Profil pengguna berhasil diambil.',
+            'data' => $request->user(),
+        ]);
+    });
+
+    // Operasional CRUD Barang
+    Route::get('/items', [ItemController::class, 'index']);
+    Route::get('/items/{id}', [ItemController::class, 'show']);
+    Route::post('/items', [ItemController::class, 'store']);
+    Route::match(['post', 'put'], '/items/{id}', [ItemController::class, 'update']);
+    Route::delete('/items/{id}', [ItemController::class, 'destroy']);
+    Route::patch('/items/{id}/status', [ItemController::class, 'updateStatus']);
+    Route::post('/items/{id}/repost', [ItemController::class, 'repost']);
+
+    // Laporan Penemuan Pihak Ketiga & Resolusi
+    Route::post('/items/{id}/report', [ItemReportController::class, 'store'])->middleware('throttle:10,1');
+    Route::get('/item-reports', [ItemReportController::class, 'index']);
+    Route::patch('/item-reports/{id}/status', [ItemReportController::class, 'updateStatus']);
+});
