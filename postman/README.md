@@ -58,7 +58,7 @@ masih memakai `{{item_id}}`.
 
 | No | Request Name | Method & Endpoint | Auth | Ekspektasi Status | Deskripsi Singkat |
 | :-: | :--- | :--- | :--- | :-: | :--- |
-| 1 | Register User Baru | `POST /api/register` | None | `201 Created` | Pendaftaran akun mahasiswa baru dengan validasi password & email domain |
+| 1 | Register User Baru | `POST /api/register` | None | `201 Created` | Pendaftaran akun mahasiswa baru dengan validasi password & domain `@gmail.com` |
 | 2 | Login Mahasiswa (Valid) | `POST /api/login` | None | `200 OK` | Login akun demo Budi Santoso, otomatis simpan ke `{{token}}` |
 | 3 | Login Admin (Valid) | `POST /api/login` | None | `200 OK` | Login akun demo Admin, otomatis simpan ke `{{admin_token}}` |
 | 4 | Browsing Publik Tamu | `GET /api/public/items` | None | `200 OK` | Menampilkan item `approved` aktif < 72 jam, nomor kontak disembunyikan |

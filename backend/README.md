@@ -96,7 +96,7 @@ melalui `.env`.
     "user": {
       "id": 1,
       "name": "Mahasiswa Contoh",
-      "email": "mahasiswa@example.com",
+      "email": "mahasiswa@gmail.com",
       "role": "user"
     },
     "token": "<BEARER_TOKEN>"
@@ -112,7 +112,7 @@ melalui `.env`.
     "user": {
       "id": 2,
       "name": "Mahasiswa Baru",
-      "email": "maba@example.com",
+      "email": "maba@gmail.com",
       "role": "user"
     },
     "token": "<BEARER_TOKEN>"

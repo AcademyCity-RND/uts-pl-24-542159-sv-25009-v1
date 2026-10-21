@@ -242,16 +242,17 @@ untuk ditampilkan kepada pengguna, bukan untuk menentukan alur aplikasi.
 ```json
 {
   "name": "Mahasiswa Contoh",
-  "email": "mahasiswa@example.com",
+  "email": "mahasiswa@gmail.com",
   "password": "password123",
   "password_confirmation": "password123",
   "phone_number": "08123456789"
 }
 ```
 
-`name` maksimal 255 karakter, `email` harus unik dan valid, password minimal
-8 karakter serta harus dikonfirmasi, dan `phone_number` opsional maksimal 20
-karakter. Field `role` tidak pernah dikirim dari frontend.
+`name` maksimal 255 karakter, `email` harus unik, valid, dan menggunakan
+domain `@gmail.com`, password minimal 8 karakter serta harus dikonfirmasi,
+dan `phone_number` opsional maksimal 20 karakter. Field `role` tidak pernah
+dikirim dari frontend.
 
 #### Item baru dan update
 

@@ -38,7 +38,7 @@ class FormRequestValidationTest extends TestCase
         // 2. Uji kegagalan jika password_confirmation tidak cocok
         $mismatchValidator = Validator::make([
             'name' => 'Budi Santoso',
-            'email' => 'budi@example.com',
+            'email' => 'budi@gmail.com',
             'password' => 'password123',
             'password_confirmation' => 'password456',
         ], $rules, $messages);
@@ -47,10 +47,20 @@ class FormRequestValidationTest extends TestCase
         $this->assertArrayHasKey('password', $mismatchValidator->errors()->toArray());
         $this->assertEquals('Konfirmasi kata sandi tidak cocok.', $mismatchValidator->errors()->first('password'));
 
+        $domainValidator = Validator::make([
+            'name' => 'Budi Santoso',
+            'email' => 'budi@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ], $rules, $messages);
+
+        $this->assertTrue($domainValidator->fails());
+        $this->assertArrayHasKey('email', $domainValidator->errors()->toArray());
+
         // 3. Uji keberhasilan ketika password_confirmation cocok
         $validValidator = Validator::make([
             'name' => 'Budi Santoso',
-            'email' => 'budi@example.com',
+            'email' => 'budi@gmail.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'phone_number' => '08123456789',

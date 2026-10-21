@@ -50,13 +50,13 @@ Sistem ini menerapkan alur kendali **"User Propose $\rightarrow$ Admin Approve"*
     ```json
     {
       "name": "Mahasiswa Contoh",
-      "email": "mahasiswa@example.com",
+      "email": "mahasiswa@gmail.com",
       "password": "password123",
       "password_confirmation": "password123",
       "phone_number": "08123456789"
     }
     ```
-  * **Aturan Validasi:** `name` (required, string, max:255), `email` (required, email, unique:users), `password` (required, min:8, confirmed), `phone_number` (nullable, string, max:20).
+  * **Aturan Validasi:** `name` (required, string, max:255), `email` (required, email, domain `@gmail.com`, unique:users), `password` (required, min:8, confirmed), `phone_number` (nullable, string, max:20).
   * **Rate Limiting:** Maksimal 5 permintaan per menit per alamat IP (`throttle:5,1`).
   * **Proteksi Keamanan:** Kolom `role` **wajib di-hardcode menjadi `user`** di dalam Controller — tidak boleh diterima dari body request untuk mencegah *privilege escalation*.
   * **Respons Sukses (`201 Created`):**
@@ -67,7 +67,7 @@ Sistem ini menerapkan alur kendali **"User Propose $\rightarrow$ Admin Approve"*
         "user": {
           "id": 1,
           "name": "Mahasiswa Contoh",
-          "email": "mahasiswa@example.com",
+          "email": "mahasiswa@gmail.com",
           "role": "user",
           "phone_number": "08123456789",
           "created_at": "2026-10-21T08:00:00+00:00",
@@ -86,7 +86,7 @@ Sistem ini menerapkan alur kendali **"User Propose $\rightarrow$ Admin Approve"*
         "user": {
           "id": 1,
           "name": "Mahasiswa Contoh",
-          "email": "mahasiswa@example.com",
+          "email": "mahasiswa@gmail.com",
           "role": "user",
           "phone_number": "08123456789",
           "created_at": "2026-10-21T08:00:00+00:00",
@@ -386,7 +386,7 @@ tetap sinkron dengan guideline adalah sebagai berikut:
 * **Dashboard Admin (`/admin`):**
   * **Tab 1 — Pengajuan Pending:** Meninjau laporan barang masuk (tombol ACC / Tolak).
   * **Tab 2 — Laporan Aktif Publik:** Memantau barang yang sedang tayang, dengan opsi hapus paksa jika melanggar.
-  * **Tab 3 — Pesan Resolusi:** Memproses pengajuan laporan pihak ketiga dari tabel `item_reports` (tombol Terima Laporan $\rightarrow$ memicu `resolve_requested`, atau Tolak Laporan).
+  * **Tab 3 — Pesan Resolusi:** Memproses pengajuan laporan pihak ketiga dari tabel `item_reports` (tombol Terima Laporan $\rightarrow$ mengirim `accepted`; backend memicu `resolve_requested`, atau Tolak Laporan).
 
 #### 4. Integrasi API dan state UI:
 * Base URL API dibaca dari `VITE_API_URL`, sedangkan URL aset gambar dibaca dari
