@@ -4,14 +4,49 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 
+const pageRoutes: Record<string, string> = {
+  '/': '/pages/index.html',
+  '/login': '/pages/login.html',
+  '/register': '/pages/register.html',
+  '/report': '/pages/report.html',
+  '/detail': '/pages/detail.html',
+  '/admin': '/pages/admin.html'
+}
+
+function rewriteMpaRoute(request: { url?: string }) {
+  if (!request.url) return
+
+  const [pathname, query] = request.url.split('?')
+  const page = pageRoutes[pathname]
+  if (page) {
+    request.url = query ? `${page}?${query}` : page
+  }
+}
+
 export default defineConfig({
   plugins: [
     vue(),
-    tailwindcss()
+    tailwindcss(),
+    {
+      name: 'mpa-dev-routes',
+      configureServer(server) {
+        server.middlewares.use((request, _response, next) => {
+          rewriteMpaRoute(request)
+          next()
+        })
+      },
+      configurePreviewServer(server) {
+        server.middlewares.use((request, _response, next) => {
+          rewriteMpaRoute(request)
+          next()
+        })
+      }
+    }
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      vue: 'vue/dist/vue.esm-bundler.js'
     }
   },
   server: {

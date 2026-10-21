@@ -23,7 +23,7 @@ async function handleLogin() {
     if (redirectUrl) {
       window.location.href = redirectUrl
     } else if (result.user?.role === 'admin') {
-      window.location.href = '/admin.html'
+      window.location.href = '/admin'
     } else {
       window.location.href = '/'
     }
@@ -94,7 +94,7 @@ async function handleLogin() {
       <div class="auth-footer">
         <p class="auth-footer-text">
           Belum punya akun?
-          <a href="/register.html" class="auth-link">Daftar Akun Baru</a>
+          <a href="/register" class="auth-link">Daftar Akun Baru</a>
         </p>
       </div>
     </div>

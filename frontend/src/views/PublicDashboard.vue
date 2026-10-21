@@ -155,7 +155,7 @@ watch(selectedCategory, () => {
       <p class="empty-desc">
         Belum ada laporan barang yang aktif atau sesuai dengan kriteria pencarian Anda.
       </p>
-      <a href="/report.html" class="btn btn-cta">
+      <a href="/report" class="btn btn-cta">
         Laporkan Barang Sekarang
       </a>
     </div>

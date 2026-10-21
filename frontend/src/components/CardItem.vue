@@ -58,7 +58,7 @@ const imageUrl = computed(() => {
           v-if="props.item.remaining_seconds !== undefined"
           :remaining-seconds="props.item.remaining_seconds"
         />
-        <a :href="`/detail.html?id=${props.item.id}`" class="card-link">
+        <a :href="`/detail?id=${props.item.id}`" class="card-link">
           Detail &rarr;
         </a>
       </div>

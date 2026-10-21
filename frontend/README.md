@@ -39,6 +39,14 @@ jaringan sesuai kontrak pada dokumen acuan.
 - [ ] **Step 3.9:** Implementasi alur resolusi dan repost.
 - [ ] **Step Dokumentasi SS-04 s.d. SS-07:** Pengambilan screenshot bukti frontend.
 
+### Verifikasi saat ini
+
+- `pnpm build` berhasil menghasilkan seluruh entry point MPA.
+- Dev server dapat merender halaman publik pada `http://localhost:5173/`.
+- Dashboard publik berhasil memanggil `GET /api/public/items` pada backend lokal.
+- Verifikasi ini belum menandai Step 3.2–3.9 selesai; integrasi tiap alur tetap
+  mengikuti checklist di atas.
+
 ---
 
 ## 1.1 Spesifikasi Tech Stack

@@ -38,14 +38,14 @@ async function handleLogout() {
         <!-- Admin Link -->
         <a
           v-if="authStore.isAdmin"
-          href="/admin.html"
+          href="/admin"
           :class="['nav-item', { 'nav-item-active': currentPage === 'admin' }]"
         >
           Admin Panel
         </a>
 
         <!-- CTA Utama Amber: Laporkan Barang -->
-        <a href="/report.html" class="btn btn-cta cta-report">
+        <a href="/report" class="btn btn-cta cta-report">
           <span>+ Laporkan Barang</span>
         </a>
 
@@ -83,10 +83,10 @@ async function handleLogout() {
           </button>
         </template>
         <template v-else>
-          <a href="/login.html" class="nav-item">
+          <a href="/login" class="nav-item">
             Masuk
           </a>
-          <a href="/register.html" class="btn btn-secondary btn-sm">
+          <a href="/register" class="btn btn-secondary btn-sm">
             Daftar
           </a>
         </template>

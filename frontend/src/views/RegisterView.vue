@@ -141,7 +141,7 @@ async function handleRegister() {
       <div class="auth-footer">
         <p class="auth-footer-text">
           Sudah punya akun?
-          <a href="/login.html" class="auth-link">Masuk ke Sini</a>
+          <a href="/login" class="auth-link">Masuk ke Sini</a>
         </p>
       </div>
     </div>

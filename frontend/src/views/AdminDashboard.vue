@@ -20,7 +20,7 @@ const actionMessage = ref('')
 onMounted(async () => {
   // Guard Admin MPA: Jika bukan admin, tendang ke login atau beranda
   if (!authStore.isAuthenticated) {
-    window.location.href = '/login.html?redirect=' + encodeURIComponent('/admin.html')
+    window.location.href = '/login?redirect=' + encodeURIComponent('/admin')
     return
   }
   if (!authStore.isAdmin) {

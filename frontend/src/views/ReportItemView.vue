@@ -25,9 +25,9 @@ const successMessage = ref('')
 const errors = ref<Record<string, string[]>>({})
 
 onMounted(() => {
-  // Guard sederhana MPA: Jika belum login, alihkan ke login.html
+  // Guard sederhana MPA: Jika belum login, alihkan ke halaman login.
   if (!authStore.isAuthenticated) {
-    window.location.href = '/login.html?redirect=' + encodeURIComponent('/report.html')
+    window.location.href = '/login?redirect=' + encodeURIComponent('/report')
   }
 })
 
@@ -82,7 +82,7 @@ async function handleSubmit() {
 
     successMessage.value = 'Laporan berhasil dibuat! Status barang saat ini adalah Pending (menunggu moderasi admin).'
     setTimeout(() => {
-      window.location.href = `/detail.html?id=${response.data.data.id}`
+      window.location.href = `/detail?id=${response.data.data.id}`
     }, 1500)
   } catch (error: any) {
     if (error.response?.data?.errors) {
