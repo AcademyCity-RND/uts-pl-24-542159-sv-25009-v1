@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import api, { type ApiErrorDetail } from '../services/api'
 import CardItem from '../components/CardItem.vue'
-import type { LostItem } from '../types/api'
+import type { LostItem, PaginatedResponse } from '../types/api'
 
 const items = ref<LostItem[]>([])
 const loading = ref(true)
@@ -11,9 +11,7 @@ const isNetworkError = ref(false)
 
 // Filter & Search State
 const searchQuery = ref('')
-const selectedType = ref('all') // 'all', 'lost', 'found'
-const selectedCategory = ref('all')
-const categories = ['lost', 'found']
+const selectedType = ref<'all' | 'lost' | 'found'>('all')
 
 async function fetchPublicItems() {
   loading.value = true
@@ -21,13 +19,9 @@ async function fetchPublicItems() {
   isNetworkError.value = false
 
   try {
-    const params: Record<string, any> = { per_page: 50 }
-    if (selectedCategory.value !== 'all') {
-      params.category = selectedCategory.value
-    }
-    const response = await api.get('/public/items', { params })
+    const response = await api.get<PaginatedResponse<LostItem>>('/public/items', { params: { per_page: 50 } })
     items.value = response.data.data || []
-  } catch (error: any) {
+  } catch (error: unknown) {
     const err = error as ApiErrorDetail
     isNetworkError.value = !!err.isNetworkError
     errorMessage.value = err.message || 'Gagal memuat daftar barang publik.'
@@ -36,29 +30,25 @@ async function fetchPublicItems() {
   }
 }
 
-// Client-side search and type filtering
-const filteredItems = () => {
+// Client-side search and category filtering
+const filteredItems = computed(() => {
   return items.value.filter(item => {
-    // Type/Category filter
+    // Filter kategori lost/found
     if (selectedType.value !== 'all' && item.category !== selectedType.value) {
       return false
     }
-    // Search query filter
+    // Filter pencarian nama / lokasi
     if (searchQuery.value.trim()) {
-      const q = searchQuery.value.toLowerCase()
+      const q = searchQuery.value.toLowerCase().trim()
       const matchName = item.item_name?.toLowerCase().includes(q)
       const matchLoc = item.location?.toLowerCase().includes(q)
       return matchName || matchLoc
     }
     return true
   })
-}
-
-onMounted(() => {
-  fetchPublicItems()
 })
 
-watch(selectedCategory, () => {
+onMounted(() => {
   fetchPublicItems()
 })
 </script>
@@ -145,7 +135,7 @@ watch(selectedCategory, () => {
     </div>
 
     <!-- State: Data Kosong -->
-    <div v-else-if="filteredItems().length === 0" class="empty-state">
+    <div v-else-if="filteredItems.length === 0" class="empty-state">
       <div class="empty-icon" aria-hidden="true">📦</div>
       <h3 class="empty-title">Tidak ada barang yang cocok</h3>
       <p class="empty-desc">
@@ -159,7 +149,7 @@ watch(selectedCategory, () => {
     <!-- State: Grid Barang Aktif -->
     <div v-else class="items-grid">
       <CardItem
-        v-for="item in filteredItems()"
+        v-for="item in filteredItems"
         :key="item.id"
         :item="item"
       />

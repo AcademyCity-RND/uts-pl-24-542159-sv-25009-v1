@@ -33,7 +33,7 @@ jaringan sesuai kontrak pada dokumen acuan.
 - [x] **Step 3.3:** Konfigurasi environment `VITE_API_URL` dan `VITE_STORAGE_URL`, termasuk helper URL gambar.
 - [x] **Step 3.4:** Pembuatan komponen UI reusable dan sistem tema light/dark.
 - [x] **Step 3.5:** Implementasi halaman login dan registrasi.
-- [ ] **Step 3.6:** Implementasi dashboard publik dan countdown timer.
+- [x] **Step 3.6:** Implementasi dashboard publik dan countdown timer.
 - [ ] **Step 3.7:** Implementasi form pelaporan barang dengan upload gambar.
 - [ ] **Step 3.8:** Implementasi dashboard admin dan alur moderasi.
 - [ ] **Step 3.9:** Implementasi alur resolusi dan repost.
@@ -44,7 +44,7 @@ jaringan sesuai kontrak pada dokumen acuan.
 - `pnpm build` berhasil menghasilkan seluruh entry point MPA.
 - Dev server dapat merender halaman publik pada `http://localhost:5173/`.
 - Dashboard publik berhasil memanggil `GET /api/public/items` pada backend lokal.
-- Step 3.1 s.d. Step 3.5 telah selesai; integrasi tiap alur berikutnya tetap
+- Step 3.1 s.d. Step 3.6 telah selesai; integrasi tiap alur berikutnya tetap
   mengikuti checklist di atas.
 
 ---
@@ -123,7 +123,7 @@ Aplikasi menerapkan sistem desain bernuansa **Teal** sebagai warna utama (*Prima
   - Validasi konfirmasi password dan domain email `@gmail.com`, sesuai
     validasi backend.
   - 📸 **Task Dokumentasi SS-04**: Form login terisi dan DevTools LocalStorage memperlihatkan token tersimpan.
-- [ ] **Dashboard Publik (`/` - Mode Tamu/Guest):**
+- [x] **Dashboard Publik (`/` - Mode Tamu/Guest):**
   - Grid kartu barang yang berstatus `approved` dari `GET /api/public/items` (responsif 1 kolom mobile, 2 kolom tablet, 3 kolom desktop).
   - Privasi kontak terlindungi: field kontak tidak ditampilkan untuk pengunjung publik.
   - Komponen `CountdownTimer.vue`: Indikator sisa waktu pasif 72 jam secara *real-time* berbasis `remaining_seconds` (Netral $\ge$ 24j, Kuning < 24j, Merah < 12j, Abu-abu jika habis).
