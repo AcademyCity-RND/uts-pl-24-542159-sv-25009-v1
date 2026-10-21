@@ -1,6 +1,23 @@
-# 🎨 Frontend Service — JejakBarang (Vue.js 3 & Vite)
+# 🎨 JejakBarang — Frontend Multi-Page Application
 
-Layanan antarmuka pengguna untuk sistem **JejakBarang** (Pusat Informasi *Lost & Found* Kampus) yang dibangun menggunakan **Vue.js 3 (Composition API `<script setup>`)** dan bundler modern **Vite**. Antarmuka ini terintegrasi secara asinkron dengan RESTful API Backend Laravel 11 melalui **Axios** dengan arsitektur komponen modular, sistem token desain Teal/Amber, dukungan tema Terang/Gelap (Light/Dark mode), serta penanganan galat jaringan yang tangguh.
+> **Layanan:** Frontend Multi-Page Application (MPA) untuk antarmuka pengguna
+> **Teknologi:** Vue.js 3, Vite, TypeScript, Tailwind CSS, Axios, Pinia
+> **Arsitektur:** Decoupled Monorepo Service
+
+---
+
+## 1. Ikhtisar Layanan
+
+Layanan Frontend ini menyediakan antarmuka pengguna untuk sistem **JejakBarang**
+(Pusat Informasi *Lost & Found* Kampus). Aplikasi dibangun menggunakan
+**Vue.js 3** dengan Composition API, dikompilasi oleh **Vite** menggunakan
+**pnpm**, dan diarahkan ke arsitektur **Multi-Page Application (MPA)** dengan
+entry point halaman terpisah.
+
+Frontend terintegrasi secara asinkron dengan RESTful API Backend Laravel 11
+melalui **Axios**, menggunakan komponen modular, design token Teal/Amber,
+dukungan tema Terang/Gelap, state management Pinia, dan penanganan galat
+jaringan sesuai kontrak pada dokumen acuan.
 
 > **Dokumen Acuan Terpadu:**
 > - [PRD.md](../PRD.md): Aturan bisnis, kontrak endpoint API, state transition matrix, dan alur resolusi.
@@ -9,14 +26,46 @@ Layanan antarmuka pengguna untuk sistem **JejakBarang** (Pusat Informasi *Lost &
 
 ---
 
-## 🛠️ Spesifikasi Tech Stack
+## 📌 Status Implementasi Fitur Frontend (Fase 3)
+
+- [x] **Step 3.1:** Inisialisasi Vue.js 3 + Vite + TypeScript + Tailwind CSS.
+- [ ] **Step 3.2:** Setup Axios instance, interceptor autentikasi, dan mapping error HTTP.
+- [ ] **Step 3.3:** Konfigurasi environment `VITE_API_URL` dan `VITE_STORAGE_URL`, termasuk helper URL gambar.
+- [ ] **Step 3.4:** Pembuatan komponen UI reusable dan sistem tema light/dark.
+- [ ] **Step 3.5:** Implementasi halaman login dan registrasi.
+- [ ] **Step 3.6:** Implementasi dashboard publik dan countdown timer.
+- [ ] **Step 3.7:** Implementasi form pelaporan barang dengan upload gambar.
+- [ ] **Step 3.8:** Implementasi dashboard admin dan alur moderasi.
+- [ ] **Step 3.9:** Implementasi alur resolusi dan repost.
+- [ ] **Step Dokumentasi SS-04 s.d. SS-07:** Pengambilan screenshot bukti frontend.
+
+---
+
+## 1.1 Spesifikasi Tech Stack
 - **Framework**: Vue.js 3 (`<script setup>` SFC)
 - **Tooling / Bundler**: Vite
-- **Routing**: Vue Router 4 (HTML5 History Mode & Navigation Guards)
+- **Arsitektur halaman**: Multi-Page Application (MPA) dengan entry point halaman terpisah
 - **HTTP Client**: Axios dengan Global Request/Response Interceptor
 - **State Management**: LocalStorage / Pinia
 - **Design Tokens & Styling**: CSS Variables (`--color-*`), tipografi Inter, utilitas CSS responsif murni tanpa hardcoded hex di komponen
 - **Production Web Server**: Nginx 1.27-Alpine (Multi-stage Dockerfile)
+
+---
+
+## 2. Ketentuan Teknis & Panduan Kepatuhan
+
+1. **Arsitektur MPA:**
+   * Setiap halaman utama memiliki entry point sendiri yang dibuild oleh Vite.
+   * Navigasi ant halaman menggunakan URL halaman, bukan Vue Router history mode.
+2. **Kepatuhan Kontrak API:**
+   * Endpoint, payload, response resource, status, dan aturan privasi mengikuti
+     [PRD.md](../PRD.md).
+   * Detail visual, responsif, aksesibilitas, dan error UX mengikuti
+     [DesignGuidelineUIUX.md](../DesignGuidelineUIUX.md).
+3. **Manajemen Dependensi:**
+   * Gunakan `pnpm` dan lockfile `pnpm-lock.yaml`.
+   * Jangan mencampur workflow package manager lain dengan pengembangan
+     berbasis pnpm.
 
 ---
 
@@ -89,7 +138,7 @@ Aplikasi menerapkan sistem desain bernuansa **Teal** sebagai warna utama (*Prima
   - Stage 1: Build aset statis menggunakan image `node:20-alpine`.
   - Stage 2: Sajikan aset statis menggunakan image ringan `nginx:1.27-alpine`.
 - [ ] Konfigurasi `nginx.conf`:
-  - Direktif `try_files $uri $uri/ /index.html;` (pencegahan galat 404 pada routing SPA/history mode).
+  - Konfigurasi pemetaan entry point MPA dan fallback aset sesuai struktur halaman yang dibuild Vite.
   - Reverse proxy path `/api/` ke service Docker backend (`http://backend:80/api/`).
   - Reverse proxy path `/storage/` ke service Docker backend (`http://backend:80/storage/`).
 - [ ] Pembuatan berkas `frontend/.dockerignore`.
@@ -112,8 +161,8 @@ frontend/
 │   │   ├── BaseModal.vue        # Modal dialog reusable (konfirmasi hapus, preview, klaim)
 │   │   ├── ToastNotification.vue# Notifikasi toast global
 │   │   └── Navbar.vue           # Navigasi utama dengan deteksi auth & toggle dark mode
-│   ├── router/                  # Konfigurasi Vue Router & route navigation guards
-│   │   └── index.js
+│   ├── pages/                   # Entry point halaman MPA
+│   │   └── index.ts
 │   ├── services/                # Konfigurasi Axios & API helper
 │   │   └── api.js               # Global interceptor & URL builder
 │   ├── stores/                  # Pinia store untuk state autentikasi & tema
@@ -127,32 +176,43 @@ frontend/
 │   │   ├── ItemDetailView.vue   # Halaman detail barang & alur resolusi
 │   │   └── AdminDashboard.vue   # Dashboard manajemen moderasi 3 tab admin
 │   ├── App.vue                  # Root component
-│   └── main.js                  # Entry point aplikasi Vue 3
+│   └── main.ts                  # Entry point fondasi aplikasi Vue 3
 ├── nginx.conf                   # Konfigurasi Nginx untuk Docker production
 ├── Dockerfile                   # Multi-stage Dockerfile
 ├── .dockerignore                # Pengecualian Docker build
 ├── .env.example                 # Template variabel lingkungan frontend
-├── package.json                 # Dependensi Node.js & npm scripts
-├── vite.config.js               # Konfigurasi Vite bundler
+├── package.json                 # Dependensi dan scripts pnpm
+├── pnpm-lock.yaml               # Lockfile dependensi pnpm
+├── vite.config.ts               # Konfigurasi Vite bundler
 └── README.md                    # Dokumentasi frontend
 ```
 
 ---
 
-## ⚡ Panduan Menjalankan Frontend Secara Lokal (Dev Mode)
+## ⚡ 3. Panduan Menjalankan Frontend Secara Lokal (Dev Mode)
 
 ```bash
 # 1. Pindah ke direktori frontend
 cd frontend
 
-# 2. Pasang dependensi
-npm install
+# 2. Pasang dependensi sesuai lockfile
+pnpm install
 
 # 3. Salin file template lingkungan
 cp .env.example .env
 
 # 4. Jalankan development server
-npm run dev
+pnpm dev
 ```
 
 Aplikasi default dapat diakses pada `http://localhost:5173`.
+
+### Perintah validasi
+
+```bash
+# Build production
+pnpm build
+
+# Preview hasil build production
+pnpm preview
+```

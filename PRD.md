@@ -2,7 +2,7 @@
 # JejakBarang — Pusat Lost & Found Anti-Tenggelam
 
 > **Repositori Pegangan Teknis:** UTS Konstruksi dan Evolusi Perangkat Lunak (KEPL)  
-> **Arsitektur:** Decoupled Monorepo (Laravel 11 FrankenPHP REST API & Vue.js 3 SPA)  
+> **Arsitektur:** Decoupled Monorepo (Laravel 11 FrankenPHP REST API & Vue.js 3 MPA)
 > **Infrastruktur:** Docker Compose Orchestration & CI/CD GitHub Actions ke GHCR
 
 > **Dokumen acuan Fase 3:** [DesignGuidelineUIUX.md](./DesignGuidelineUIUX.md)
@@ -16,7 +16,7 @@
 
 **JejakBarang** adalah aplikasi web *client-server* modern yang berfungsi sebagai papan pengumuman interaktif terpusat untuk barang hilang dan ditemukan (*Lost & Found*) di lingkungan kampus. Masalah utama yang diselesaikan adalah fenomena pengumuman barang hilang di grup obrolan (WhatsApp/Telegram) dan media sosial yang sangat cepat **tenggelam** tertimbun pesan lain, tidak terverifikasi, dan sulit dilacak status akhirnya (apakah sudah kembali ke pemiliknya atau belum).
 
-Sistem ini menerapkan alur kendali **"User Propose $\rightarrow$ Admin Approve"** untuk menjamin keabsahan informasi sebelum tayang di ranah publik. Aplikasi dibangun dengan pemisahan peran yang tegas (*Decoupled Architecture*): Backend Laravel 11 berperforma tinggi di atas server aplikasi **FrankenPHP**, Frontend SPA interaktif berbasis **Vue.js 3**, penyimpanan relasional **MySQL** yang persisten, serta kontainerisasi penuh menggunakan **Docker Compose**.
+Sistem ini menerapkan alur kendali **"User Propose $\rightarrow$ Admin Approve"** untuk menjamin keabsahan informasi sebelum tayang di ranah publik. Aplikasi dibangun dengan pemisahan peran yang tegas (*Decoupled Architecture*): Backend Laravel 11 berperforma tinggi di atas server aplikasi **FrankenPHP**, Frontend MPA interaktif berbasis **Vue.js 3** dengan entry point halaman terpisah, penyimpanan relasional **MySQL** yang persisten, serta kontainerisasi penuh menggunakan **Docker Compose**.
 
 ### Glosarium Terminologi:
 * **Item / Laporan Barang (`lost_items`):** Entitas postingan pengumuman barang hilang atau barang temuan yang diajukan oleh pengguna pemilik/penemu awal.
@@ -31,8 +31,8 @@ Sistem ini menerapkan alur kendali **"User Propose $\rightarrow$ Admin Approve"*
 | **Backend Framework** | Laravel 11.x | Framework PHP inti penyedia RESTful API murni (JSON) |
 | **Application Server** | FrankenPHP (PHP 8.3) | Pengganti modern untuk PHP-FPM / Nginx / `artisan serve` |
 | **Authentication** | Laravel Sanctum | Autentikasi berbasis *Personal Access Token* (Bearer Token) |
-| **Frontend Framework**| Vue.js 3 | Single Page Application (SPA) berbasis Composition API (`<script setup>`) |
-| **HTTP Client & Router**| Axios & Vue Router 4 | Penanganan request asinkron dengan interceptor & manajemen rute SPA |
+| **Frontend Framework**| Vue.js 3 | Multi-Page Application (MPA) berbasis Composition API (`<script setup>`) |
+| **HTTP Client & Navigation**| Axios & page entry points Vite | Penanganan request asinkron dengan interceptor dan navigasi antarhalaman |
 | **Database** | MySQL 8.x | RDBMS dengan persistensi data via Docker Named Volume |
 | **Infrastructure** | Docker & Docker Compose | Kontainerisasi multi-layanan (DB, BE, FE) dalam satu jaringan virtual |
 | **CI/CD Pipeline** | GitHub Actions & GHCR | Pengujian otomatis, kompilasi aset, build Docker, & push ke `ghcr.io` |
@@ -339,7 +339,7 @@ Kasus B: Ditemukan oleh Pihak Lain (Fitur Lapor Admin)
 
 ---
 
-### F. Frontend SPA (Vue.js 3 & Vite)
+### F. Frontend MPA (Vue.js 3 & Vite)
 
 Implementasi frontend wajib mengikuti [DesignGuidelineUIUX.md](./DesignGuidelineUIUX.md).
 Guideline tersebut adalah sumber detail untuk token visual, komponen, UX,
@@ -444,7 +444,7 @@ services:
 ```
 
 ### C. Konfigurasi Nginx Reverse Proxy (`frontend/nginx.conf`)
-Menghubungkan frontend SPA ke service backend melalui nama jaringan Docker internal:
+Menghubungkan frontend MPA ke service backend melalui nama jaringan Docker internal:
 ```nginx
 server {
     listen 80;
@@ -452,7 +452,7 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
-    # SPA Routing Fallback
+    # MPA entry point dan asset fallback
     location / {
         try_files $uri $uri/ /index.html;
     }
