@@ -1,15 +1,17 @@
-<script setup>
-import { RouterLink, useRouter } from 'vue-router'
+<script setup lang="ts">
 import { useAuthStore } from '../stores/auth'
 import { useThemeStore } from '../stores/theme'
 
+defineProps<{
+  currentPage?: 'home' | 'login' | 'register' | 'report' | 'detail' | 'admin'
+}>()
+
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
-const router = useRouter()
 
 async function handleLogout() {
   await authStore.logout()
-  router.push('/')
+  window.location.href = '/'
 }
 </script>
 
@@ -17,7 +19,7 @@ async function handleLogout() {
   <header class="navbar">
     <div class="container navbar-inner">
       <!-- Logo Brand -->
-      <RouterLink to="/" class="brand-link">
+      <a href="/" class="brand-link">
         <div class="brand-logo" aria-hidden="true">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
@@ -25,28 +27,27 @@ async function handleLogout() {
           </svg>
         </div>
         <span class="brand-name">Jejak<span class="brand-name-sub">Barang</span></span>
-      </RouterLink>
+      </a>
 
       <!-- Navigasi & Aksi -->
       <nav class="nav-links">
-        <RouterLink to="/" class="nav-item" active-class="nav-item-active" exact>
+        <a href="/" :class="['nav-item', { 'nav-item-active': currentPage === 'home' }]">
           Beranda
-        </RouterLink>
+        </a>
 
         <!-- Admin Link -->
-        <RouterLink
+        <a
           v-if="authStore.isAdmin"
-          to="/admin"
-          class="nav-item"
-          active-class="nav-item-active"
+          href="/admin.html"
+          :class="['nav-item', { 'nav-item-active': currentPage === 'admin' }]"
         >
           Admin Panel
-        </RouterLink>
+        </a>
 
         <!-- CTA Utama Amber: Laporkan Barang -->
-        <RouterLink to="/report" class="btn btn-cta cta-report">
+        <a href="/report.html" class="btn btn-cta cta-report">
           <span>+ Laporkan Barang</span>
-        </RouterLink>
+        </a>
 
         <!-- Toggle Theme -->
         <button
@@ -82,12 +83,12 @@ async function handleLogout() {
           </button>
         </template>
         <template v-else>
-          <RouterLink to="/login" class="nav-item">
+          <a href="/login.html" class="nav-item">
             Masuk
-          </RouterLink>
-          <RouterLink to="/register" class="btn btn-secondary btn-sm">
+          </a>
+          <a href="/register.html" class="btn btn-secondary btn-sm">
             Daftar
-          </RouterLink>
+          </a>
         </template>
       </nav>
     </div>

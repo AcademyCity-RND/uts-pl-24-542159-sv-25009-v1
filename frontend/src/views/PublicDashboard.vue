@@ -1,10 +1,10 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import { RouterLink } from 'vue-router'
 import api from '../services/api'
 import CardItem from '../components/CardItem.vue'
+import type { LostItem } from '../types/api'
 
-const items = ref([])
+const items = ref<LostItem[]>([])
 const loading = ref(true)
 const errorMessage = ref('')
 const isNetworkError = ref(false)
@@ -21,13 +21,13 @@ async function fetchPublicItems() {
   isNetworkError.value = false
 
   try {
-    const params = { per_page: 50 }
+    const params: Record<string, any> = { per_page: 50 }
     if (selectedCategory.value !== 'all') {
       params.category = selectedCategory.value
     }
     const response = await api.get('/public/items', { params })
     items.value = response.data.data || []
-  } catch (error) {
+  } catch (error: any) {
     if (error.isNetworkError) {
       isNetworkError.value = true
       errorMessage.value = error.message
@@ -155,9 +155,9 @@ watch(selectedCategory, () => {
       <p class="empty-desc">
         Belum ada laporan barang yang aktif atau sesuai dengan kriteria pencarian Anda.
       </p>
-      <RouterLink to="/report" class="btn btn-cta">
+      <a href="/report.html" class="btn btn-cta">
         Laporkan Barang Sekarang
-      </RouterLink>
+      </a>
     </div>
 
     <!-- State: Grid Barang Aktif -->

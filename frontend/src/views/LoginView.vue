@@ -1,16 +1,17 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter, useRoute, RouterLink } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
-const router = useRouter()
-const route = useRoute()
 const authStore = useAuthStore()
+
+const urlParams = new URLSearchParams(window.location.search)
+const isExpired = urlParams.get('expired')
+const redirectUrl = urlParams.get('redirect')
 
 const email = ref('budi@mail.ugm.ac.id')
 const password = ref('Password123!')
-const errorMessage = ref(route.query.expired ? 'Sesi Anda telah berakhir. Silakan masuk kembali.' : '')
-const errors = ref({})
+const errorMessage = ref(isExpired ? 'Sesi Anda telah berakhir. Silakan masuk kembali.' : '')
+const errors = ref<Record<string, string[]>>({})
 
 async function handleLogin() {
   errorMessage.value = ''
@@ -19,8 +20,13 @@ async function handleLogin() {
   const result = await authStore.login(email.value, password.value)
 
   if (result.success) {
-    const redirectPath = route.query.redirect || (result.user.role === 'admin' ? '/admin' : '/')
-    router.push(redirectPath)
+    if (redirectUrl) {
+      window.location.href = redirectUrl
+    } else if (result.user?.role === 'admin') {
+      window.location.href = '/admin.html'
+    } else {
+      window.location.href = '/'
+    }
   } else {
     errorMessage.value = result.error
     if (result.errors) {
@@ -35,7 +41,7 @@ async function handleLogin() {
     <div class="auth-card">
       <div class="auth-header">
         <h1 class="auth-title">Masuk ke JejakBarang</h1>
-        <p class="auth-subtitle">Gunakan akun civitas akademika UGM Anda</p>
+        <p class="auth-subtitle">Gunakan akun civitas akademika Anda</p>
       </div>
 
       <!-- Pesan Galat -->
@@ -45,7 +51,7 @@ async function handleLogin() {
 
       <form @submit.prevent="handleLogin" class="auth-form">
         <div class="form-group">
-          <label for="email" class="form-label">Alamat Email (@mail.ugm.ac.id)</label>
+          <label for="email" class="form-label">Alamat Email (@mail.ugm.ac.id / @gmail.com)</label>
           <input
             id="email"
             v-model="email"
@@ -88,7 +94,7 @@ async function handleLogin() {
       <div class="auth-footer">
         <p class="auth-footer-text">
           Belum punya akun?
-          <RouterLink to="/register" class="auth-link">Daftar Akun Baru</RouterLink>
+          <a href="/register.html" class="auth-link">Daftar Akun Baru</a>
         </p>
       </div>
     </div>

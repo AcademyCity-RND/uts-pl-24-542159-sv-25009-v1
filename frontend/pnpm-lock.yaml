@@ -17,9 +17,6 @@ importers:
       vue:
         specifier: ^3.5.13
         version: 3.5.44(typescript@7.0.2)
-      vue-router:
-        specifier: ^4.5.0
-        version: 4.6.4(vue@3.5.44(typescript@7.0.2))
     devDependencies:
       '@tailwindcss/vite':
         specifier: ^4.3.3
@@ -972,11 +969,6 @@ packages:
       '@vue/composition-api':
         optional: true
 
-  vue-router@4.6.4:
-    resolution: {integrity: sha512-Hz9q5sa33Yhduglwz6g9skT8OBPii+4bFn88w6J+J4MfEo4KRRpmiNG/hHHkdbRFlLBOqxN8y8gf2Fb0MTUgVg==}
-    peerDependencies:
-      vue: ^3.5.0
-
   vue@3.5.44:
     resolution: {integrity: sha512-dvvmaOCG7lAMkJTPqPwWeGMsPS6DIsFsfZDUgBp9V6mHf9b3+/wyVwYR4Es+WV6uJC0FKRxp81Obcq0ZwUcGFQ==}
     peerDependencies:
@@ -1697,11 +1689,6 @@ snapshots:
 
   vue-demi@0.14.10(vue@3.5.44(typescript@7.0.2)):
     dependencies:
-      vue: 3.5.44(typescript@7.0.2)
-
-  vue-router@4.6.4(vue@3.5.44(typescript@7.0.2)):
-    dependencies:
-      '@vue/devtools-api': 6.6.4
       vue: 3.5.44(typescript@7.0.2)
 
   vue@3.5.44(typescript@7.0.2):

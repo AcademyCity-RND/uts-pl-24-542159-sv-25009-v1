@@ -1,12 +1,12 @@
-<script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import api from '../services/api'
+import { useAuthStore } from '../stores/auth'
 
-const router = useRouter()
+const authStore = useAuthStore()
 
-// Form Data State (Sesuai field backend aktual & PRD)
-const type = ref('lost') // 'lost' atau 'found'
+// Form Data State
+const type = ref<'lost' | 'found'>('lost')
 const itemName = ref('')
 const category = ref('Elektronik')
 const location = ref('')
@@ -14,18 +14,26 @@ const currentStorage = ref('')
 const contactInfo = ref('')
 const reporterContactInfo = ref('')
 const chronology = ref('')
-const imageFile = ref(null)
-const imagePreview = ref(null)
+const imageFile = ref<File | null>(null)
+const imagePreview = ref<string | null>(null)
 
 const categories = ['Elektronik', 'Dokumen / Kartu', 'Aksesoris & Pakaian', 'Kunci', 'Lain-lain']
 
 const loading = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
-const errors = ref({})
+const errors = ref<Record<string, string[]>>({})
 
-function handleFileChange(event) {
-  const file = event.target.files[0]
+onMounted(() => {
+  // Guard sederhana MPA: Jika belum login, alihkan ke login.html
+  if (!authStore.isAuthenticated) {
+    window.location.href = '/login.html?redirect=' + encodeURIComponent('/report.html')
+  }
+})
+
+function handleFileChange(event: Event) {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
   if (file) {
     if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
       errorMessage.value = 'Format file wajib berupa JPG, JPEG, atau PNG.'
@@ -72,11 +80,11 @@ async function handleSubmit() {
       }
     })
 
-    successMessage.value = 'Laporan berhasil dibuat! Status barang saat ini adalah Pending (menunggu peninjauan admin).'
+    successMessage.value = 'Laporan berhasil dibuat! Status barang saat ini adalah Pending (menunggu moderasi admin).'
     setTimeout(() => {
-      router.push(`/items/${response.data.data.id}`)
-    }, 1800)
-  } catch (error) {
+      window.location.href = `/detail.html?id=${response.data.data.id}`
+    }, 1500)
+  } catch (error: any) {
     if (error.response?.data?.errors) {
       errors.value = error.response.data.errors
     }
@@ -219,7 +227,7 @@ async function handleSubmit() {
             class="form-textarea"
             :class="{ 'is-invalid': errors.chronology }"
             rows="3"
-            placeholder="Jelaskan ciri khusus, gantungan kunci, warna, atau waktu kejadian secara jelas..."
+            placeholder="Jelaskan ciri khusus, stiker, warna, atau detail spesifik lainnya..."
             required
           ></textarea>
           <span v-if="errors.chronology" class="form-error">{{ errors.chronology[0] }}</span>

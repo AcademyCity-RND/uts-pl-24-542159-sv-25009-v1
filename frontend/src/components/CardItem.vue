@@ -1,16 +1,13 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
-import { RouterLink } from 'vue-router'
 import StatusBadge from './StatusBadge.vue'
 import CountdownTimer from './CountdownTimer.vue'
 import { buildImageUrl } from '../services/api'
+import type { LostItem } from '../types/api'
 
-const props = defineProps({
-  item: {
-    type: Object,
-    required: true
-  }
-})
+const props = defineProps<{
+  item: LostItem
+}>()
 
 const imageUrl = computed(() => {
   return buildImageUrl(props.item.image_path)
@@ -55,15 +52,15 @@ const imageUrl = computed(() => {
         <span class="location-text">{{ props.item.location }}</span>
       </div>
 
-      <!-- Footer Kartu: Timer & Link Aksi -->
+      <!-- Footer Kartu: Timer & Link Aksi MPA -->
       <div class="card-footer">
         <CountdownTimer
           v-if="props.item.remaining_seconds !== undefined"
           :remaining-seconds="props.item.remaining_seconds"
         />
-        <RouterLink :to="`/items/${props.item.id}`" class="card-link">
+        <a :href="`/detail.html?id=${props.item.id}`" class="card-link">
           Detail &rarr;
-        </RouterLink>
+        </a>
       </div>
     </div>
   </div>

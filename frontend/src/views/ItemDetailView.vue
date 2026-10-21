@@ -1,17 +1,18 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import api, { buildImageUrl } from '../services/api'
 import StatusBadge from '../components/StatusBadge.vue'
 import CountdownTimer from '../components/CountdownTimer.vue'
 import BaseModal from '../components/BaseModal.vue'
 import { useAuthStore } from '../stores/auth'
+import type { LostItem } from '../types/api'
 
-const route = useRoute()
-const router = useRouter()
 const authStore = useAuthStore()
 
-const item = ref(null)
+const urlParams = new URLSearchParams(window.location.search)
+const itemId = urlParams.get('id')
+
+const item = ref<LostItem | null>(null)
 const loading = ref(true)
 const errorMessage = ref('')
 const actionSuccessMessage = ref('')
@@ -28,12 +29,18 @@ const isOwner = computed(() => {
 })
 
 async function fetchItemDetail() {
+  if (!itemId) {
+    errorMessage.value = 'ID barang tidak ditentukan.'
+    loading.value = false
+    return
+  }
+
   loading.value = true
   errorMessage.value = ''
   try {
-    const response = await api.get(`/items/${route.params.id}`)
+    const response = await api.get(`/items/${itemId}`)
     item.value = response.data.data
-  } catch (error) {
+  } catch (error: any) {
     if (error.response?.status === 404) {
       errorMessage.value = 'Barang tidak ditemukan atau telah dihapus.'
     } else {
@@ -46,6 +53,7 @@ async function fetchItemDetail() {
 
 // Submit Laporan Pihak Ketiga
 async function submitClaimReport() {
+  if (!item.value) return
   claimLoading.value = true
   claimError.value = ''
 
@@ -60,7 +68,7 @@ async function submitClaimReport() {
     claimContact.value = ''
     claimMessage.value = ''
     fetchItemDetail()
-  } catch (error) {
+  } catch (error: any) {
     if (error.response?.status === 409) {
       claimError.value = error.response.data.message || 'Anda sudah memiliki laporan aktif yang sedang ditinjau.'
     } else {
@@ -73,23 +81,25 @@ async function submitClaimReport() {
 
 // Konfirmasi Resolusi oleh Owner
 async function handleResolveItem() {
+  if (!item.value) return
   if (!confirm('Apakah Anda yakin barang ini sudah berhasil ditemukan/dikembalikan?')) return
   try {
     await api.patch(`/items/${item.value.id}/status`, { status: 'resolved' })
     actionSuccessMessage.value = 'Barang berhasil diselesaikan (Resolved)!'
     fetchItemDetail()
-  } catch (error) {
+  } catch (error: any) {
     alert(error.response?.data?.message || 'Gagal mengubah status barang.')
   }
 }
 
 // Repost Barang oleh Owner
 async function handleRepostItem() {
+  if (!item.value) return
   try {
     await api.post(`/items/${item.value.id}/repost`)
     actionSuccessMessage.value = 'Barang berhasil di-repost! Masa tayang diperpanjang 72 jam ke depan.'
     fetchItemDetail()
-  } catch (error) {
+  } catch (error: any) {
     alert(error.response?.data?.message || 'Gagal me-repost barang.')
   }
 }
@@ -108,7 +118,7 @@ onMounted(() => {
     <div v-else-if="errorMessage" class="detail-error">
       <h2>Pemberitahuan</h2>
       <p>{{ errorMessage }}</p>
-      <button class="btn btn-secondary" @click="router.push('/')">Kembali ke Beranda</button>
+      <a href="/" class="btn btn-secondary">Kembali ke Beranda</a>
     </div>
 
     <div v-else-if="item" class="detail-layout">
@@ -123,7 +133,7 @@ onMounted(() => {
           <div class="media-card">
             <img
               v-if="item.image_path"
-              :src="buildImageUrl(item.image_path)"
+              :src="buildImageUrl(item.image_path) || ''"
               :alt="item.item_name"
               class="item-full-image"
             />
@@ -201,7 +211,7 @@ onMounted(() => {
 
               <!-- Jika barang expired atau resolved, tampilkan opsi Repost -->
               <button
-                v-if="['resolved', 'expired'].includes(item.status) || (item.remaining_seconds <= 0)"
+                v-if="['resolved', 'expired'].includes(item.status) || ((item.remaining_seconds ?? 1) <= 0)"
                 type="button"
                 class="btn btn-secondary"
                 @click="handleRepostItem"

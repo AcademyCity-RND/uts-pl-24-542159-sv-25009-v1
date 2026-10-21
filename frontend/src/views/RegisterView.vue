@@ -1,9 +1,7 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
-const router = useRouter()
 const authStore = useAuthStore()
 
 const name = ref('')
@@ -12,13 +10,13 @@ const phoneNumber = ref('')
 const password = ref('')
 const passwordConfirmation = ref('')
 const errorMessage = ref('')
-const errors = ref({})
+const errors = ref<Record<string, string[]>>({})
 
 async function handleRegister() {
   errorMessage.value = ''
   errors.value = {}
 
-  const payload = {
+  const payload: Record<string, string> = {
     name: name.value,
     email: email.value,
     password: password.value,
@@ -32,7 +30,7 @@ async function handleRegister() {
   const result = await authStore.register(payload)
 
   if (result.success) {
-    router.push('/')
+    window.location.href = '/'
   } else {
     errorMessage.value = result.error
     if (result.errors) {
@@ -47,7 +45,7 @@ async function handleRegister() {
     <div class="auth-card">
       <div class="auth-header">
         <h1 class="auth-title">Daftar Akun JejakBarang</h1>
-        <p class="auth-subtitle">Gunakan email kampus resmi untuk validasi akun</p>
+        <p class="auth-subtitle">Gunakan email aktif Anda untuk verifikasi akun</p>
       </div>
 
       <!-- Pesan Galat -->
@@ -72,14 +70,14 @@ async function handleRegister() {
         </div>
 
         <div class="form-group">
-          <label for="email" class="form-label">Email Kampus (@mail.ugm.ac.id)</label>
+          <label for="email" class="form-label">Email (@mail.ugm.ac.id / @gmail.com)</label>
           <input
             id="email"
             v-model="email"
             type="email"
             class="form-input"
             :class="{ 'is-invalid': errors.email }"
-            placeholder="nama@mail.ugm.ac.id"
+            placeholder="nama@gmail.com"
             required
             autocomplete="email"
           />
@@ -143,7 +141,7 @@ async function handleRegister() {
       <div class="auth-footer">
         <p class="auth-footer-text">
           Sudah punya akun?
-          <RouterLink to="/login" class="auth-link">Masuk ke Sini</RouterLink>
+          <a href="/login.html" class="auth-link">Masuk ke Sini</a>
         </p>
       </div>
     </div>

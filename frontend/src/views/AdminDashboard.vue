@@ -1,17 +1,36 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import api from '../services/api'
 import StatusBadge from '../components/StatusBadge.vue'
+import { useAuthStore } from '../stores/auth'
+import type { LostItem, ItemReport } from '../types/api'
+
+const authStore = useAuthStore()
 
 // Tab Active State: 'pending', 'approved', 'reports'
-const currentTab = ref('pending')
+const currentTab = ref<'pending' | 'approved' | 'reports'>('pending')
 
-const pendingItems = ref([])
-const approvedItems = ref([])
-const itemReports = ref([])
+const pendingItems = ref<LostItem[]>([])
+const approvedItems = ref<LostItem[]>([])
+const itemReports = ref<ItemReport[]>([])
 
 const loading = ref(true)
 const actionMessage = ref('')
+
+onMounted(async () => {
+  // Guard Admin MPA: Jika bukan admin, tendang ke login atau beranda
+  if (!authStore.isAuthenticated) {
+    window.location.href = '/login.html?redirect=' + encodeURIComponent('/admin.html')
+    return
+  }
+  if (!authStore.isAdmin) {
+    alert('Akses Ditolak: Halaman ini khusus Administrator.')
+    window.location.href = '/'
+    return
+  }
+
+  fetchAdminData()
+})
 
 async function fetchAdminData() {
   loading.value = true
@@ -36,42 +55,38 @@ async function fetchAdminData() {
 }
 
 // Moderasi Item: Setujui (Approve) atau Tolak (Reject)
-async function handleItemStatus(itemId, newStatus) {
+async function handleItemStatus(itemId: number, newStatus: string) {
   try {
     await api.patch(`/items/${itemId}/status`, { status: newStatus })
     actionMessage.value = `Barang ID #${itemId} berhasil diubah statusnya menjadi ${newStatus}.`
     fetchAdminData()
-  } catch (error) {
+  } catch (error: any) {
     alert(error.response?.data?.message || 'Gagal mengubah status barang.')
   }
 }
 
 // Hapus Paksa Item oleh Admin
-async function handleDeleteItem(itemId) {
+async function handleDeleteItem(itemId: number) {
   if (!confirm(`Hapus permanen laporan barang #${itemId}?`)) return
   try {
     await api.delete(`/items/${itemId}`)
     actionMessage.value = `Barang #${itemId} berhasil dihapus.`
     fetchAdminData()
-  } catch (error) {
+  } catch (error: any) {
     alert(error.response?.data?.message || 'Gagal menghapus barang.')
   }
 }
 
-// Moderasi Report Pihak Ketiga: Terima (Accepted -> trigger item resolve_requested) atau Tolak (Rejected)
-async function handleReportStatus(reportId, newStatus) {
+// Moderasi Report Pihak Ketiga: Kirim 'accepted' (memicu resolve_requested di backend) atau 'rejected'
+async function handleReportStatus(reportId: number, newStatus: string) {
   try {
     await api.patch(`/item-reports/${reportId}/status`, { status: newStatus })
     actionMessage.value = `Laporan pihak ketiga #${reportId} berhasil di-${newStatus}.`
     fetchAdminData()
-  } catch (error) {
+  } catch (error: any) {
     alert(error.response?.data?.message || 'Gagal memproses laporan.')
   }
 }
-
-onMounted(() => {
-  fetchAdminData()
-})
 </script>
 
 <template>
