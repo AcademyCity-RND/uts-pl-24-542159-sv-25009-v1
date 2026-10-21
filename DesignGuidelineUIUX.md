@@ -99,7 +99,7 @@ Komponen berikut dibuat sebagai komponen Vue modular yang hanya membaca token wa
 | Search dan filter | Search bar radius 12px. Chip filter pill: Semua, Hilang, Ditemukan, kategori. Chip aktif memakai latar Primary. |
 | Input form | Tinggi 44px, border 1px, radius 12px. Fokus: ring 2px Primary. Error: border dan pesan Danger di bawah field. |
 | Modal | Card dengan radius 16px, overlay gelap 50%, tombol tutup, fokus terkunci di dalam modal. |
-| Toast | Muncul 4 detik di pojok. Warna mengikuti Success, Danger, atau Info. |
+| Notifikasi aksi | Banner atau alert inline setelah aksi. Warna mengikuti Success, Danger, atau Info. |
 
 ## Mapping status UI
 
@@ -107,11 +107,11 @@ Status laporan dan tipe barang adalah dua hal berbeda dan ditampilkan terpisah: 
 
 | Status API | Label UI | Warna | Tampil di |
 | --- | --- | --- | --- |
-| pending | Menunggu review | Warning | Laporan saya, admin |
-| approved | Aktif | Success | Laporan saya, admin |
-| resolve requested | Menunggu konfirmasi | Info | Laporan saya, admin |
-| resolved | Selesai | Muted | Laporan saya, admin |
-| rejected | Ditolak | Danger | Laporan saya, admin |
+| pending | Menunggu review | Warning | Detail item dan admin |
+| approved | Aktif | Success | Detail item dan admin |
+| resolve requested | Menunggu konfirmasi | Info | Detail item dan admin |
+| resolved | Selesai | Muted | Detail item dan admin |
+| rejected | Ditolak | Danger | Detail item dan admin |
 
 Alur status berjalan Pending, Approved, Resolve requested, lalu Resolved. Dari Pending, laporan juga bisa berakhir di Rejected. Kartu di beranda publik hanya menampilkan laporan Approved, jadi badge status tidak perlu ditampilkan di sana.
 
@@ -151,7 +151,7 @@ Alur dirancang agar pengunjung bisa mencari tanpa login, sedangkan login baru di
 2. Pengunjung membuka kartu untuk melihat detail barang.
 3. Pengunjung menekan "Laporkan Barang". Jika belum login, ia diarahkan ke halaman login lalu kembali ke form setelah berhasil.
 4. Pelapor mengisi form (tipe, nama barang, lokasi penyimpanan, kontak, deskripsi, foto) dan mengirim.
-5. Laporan berstatus Pending sampai admin menyetujui atau menolak. Pelapor melihat statusnya di halaman Laporan saya.
+5. Laporan berstatus Pending sampai admin menyetujui atau menolak. Setelah submit, pelapor diarahkan ke halaman detail item untuk melihat hasil laporan dan statusnya.
 6. Setelah barang kembali, pelapor mengajukan penyelesaian. Status berubah ke Menunggu konfirmasi, lalu Selesai setelah dikonfirmasi.
 
 **State yang wajib dirancang**
@@ -164,14 +164,15 @@ Alur dirancang agar pengunjung bisa mencari tanpa login, sedangkan login baru di
 | Error 401 | Arahkan ke login dan kembali ke halaman asal setelah berhasil. |
 | Error 403 | Halaman "Akses ditolak" dengan tombol kembali ke beranda. |
 | Error jaringan atau 5xx | Banner di atas konten dengan tombol "Coba lagi". Data yang sudah tampil tidak dihapus. |
-| Sukses | Toast Success, lalu arahkan ke Laporan saya. |
+| Sukses | Tampilkan pesan sukses inline, lalu arahkan ke halaman detail item yang baru dibuat. |
 
 **Aturan interaksi**
 
-- Aksi yang tidak bisa dibatalkan (tolak laporan, hapus) selalu memakai modal konfirmasi dengan teks tombol yang spesifik, misalnya "Tolak laporan", bukan "Ya".
+- Aksi yang tidak bisa dibatalkan (tolak laporan, hapus) meminta konfirmasi sebelum request dikirim. Implementasi saat ini menggunakan konfirmasi browser dengan teks aksi yang spesifik.
 - Upload foto menampilkan pratinjau sebelum dikirim dan pesan jelas jika format atau ukuran tidak sesuai.
 - Informasi kontak mengikuti aturan privasi dari API publik dan tidak ditampilkan di kartu.
-- Panel admin (`/admin`) memakai tampilan terpisah yang hanya muncul untuk role admin, dengan filter status dan aksi setujui atau tolak langsung dari daftar.
+- Panel admin (`/admin`) memakai tampilan terpisah yang hanya muncul untuk role admin, dengan tiga tab status dan aksi setujui, tolak, proses laporan, atau hapus langsung dari daftar.
+- Pada layar kecil, tabel admin saat ini tetap berada dalam container dengan scroll horizontal agar seluruh kolom aksi dan data tetap tersedia.
 
 ## Kontrak integrasi frontend-backend
 
@@ -242,16 +243,17 @@ untuk ditampilkan kepada pengguna, bukan untuk menentukan alur aplikasi.
 ```json
 {
   "name": "Mahasiswa Contoh",
-  "email": "mahasiswa@example.com",
+  "email": "mahasiswa@gmail.com",
   "password": "password123",
   "password_confirmation": "password123",
   "phone_number": "08123456789"
 }
 ```
 
-`name` maksimal 255 karakter, `email` harus unik dan valid, password minimal
-8 karakter serta harus dikonfirmasi, dan `phone_number` opsional maksimal 20
-karakter. Field `role` tidak pernah dikirim dari frontend.
+`name` maksimal 255 karakter, `email` harus unik, valid, dan menggunakan
+domain `@gmail.com`, password minimal 8 karakter serta harus dikonfirmasi,
+dan `phone_number` opsional maksimal 20 karakter. Field `role` tidak pernah
+dikirim dari frontend.
 
 #### Item baru dan update
 
@@ -406,12 +408,12 @@ Implementasi di Vue memakai CSS variables sehingga komponen cukup membaca `var(-
 
 Fase 3 dianggap sesuai guideline jika seluruh butir berikut terpenuhi.
 
-- [ ] Token warna light dan dark tersedia sebagai CSS variables dan tidak ada hex yang ditulis langsung di komponen.
-- [ ] Toggle light dan dark berfungsi, preferensinya tersimpan, dan tidak ada kedipan saat halaman dimuat.
-- [ ] Hanya satu tombol Aksen per layar.
-- [ ] Kartu barang menampilkan badge tipe, lokasi, dan timer dengan aturan warna yang benar.
-- [ ] Semua state (loading, kosong, error validasi, 401, 403, jaringan) sudah dirancang dan diuji.
-- [ ] Tampilan diuji di lebar 375px, 768px, dan 1280px.
-- [ ] Pasangan teks dan latar lolos kontras AA di kedua mode.
-- [ ] Seluruh elemen interaktif bisa dioperasikan dengan keyboard dengan fokus terlihat.
-- [ ] Tampilan untuk bukti SS-04 sampai SS-07 mengikuti guideline ini.
+- [x] Token warna light dan dark tersedia sebagai CSS variables dan tidak ada hex yang ditulis langsung di komponen.
+- [x] Toggle light dan dark berfungsi, preferensinya tersimpan, dan tidak ada kedipan saat halaman dimuat.
+- [x] Hanya satu tombol Aksen per layar.
+- [x] Kartu barang menampilkan badge tipe, lokasi, dan timer dengan aturan warna yang benar.
+- [x] Semua state (loading, kosong, error validasi, 401, 403, jaringan) sudah dirancang dan diuji.
+- [x] Tampilan diuji di lebar 375px, 768px, dan 1280px.
+- [x] Pasangan teks dan latar lolos kontras AA di kedua mode.
+- [x] Seluruh elemen interaktif bisa dioperasikan dengan keyboard dengan fokus terlihat.
+- [x] Tampilan untuk bukti SS-04 sampai SS-07 mengikuti guideline ini.

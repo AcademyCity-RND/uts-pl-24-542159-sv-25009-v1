@@ -36,7 +36,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Mahasiswa Test Postman\",\n  \"email\": \"mhs_postman@jejakbarang.test\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"phone_number\": \"081234567890\"\n}"
+              "raw": "{\n  \"name\": \"Mahasiswa Test Postman\",\n  \"email\": \"mhs_postman@gmail.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"phone_number\": \"081234567890\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/register",

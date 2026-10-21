@@ -18,7 +18,7 @@ class AuthenticationTest extends TestCase
     {
         $payload = [
             'name' => 'Hilarius Avin',
-            'email' => 'avin@example.com',
+            'email' => 'avin@gmail.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'phone_number' => '081234567890',
@@ -44,7 +44,7 @@ class AuthenticationTest extends TestCase
                  ]);
 
         $this->assertDatabaseHas('users', [
-            'email' => 'avin@example.com',
+            'email' => 'avin@gmail.com',
             'role' => 'user',
         ]);
     }
@@ -56,7 +56,7 @@ class AuthenticationTest extends TestCase
     {
         $payload = [
             'name' => 'Peretas Akun',
-            'email' => 'hacker@example.com',
+            'email' => 'hacker@gmail.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'role' => 'admin', // Percobaan eskalasi hak akses
@@ -68,7 +68,7 @@ class AuthenticationTest extends TestCase
         $this->assertEquals('user', $response->json('data.user.role'));
 
         $this->assertDatabaseHas('users', [
-            'email' => 'hacker@example.com',
+            'email' => 'hacker@gmail.com',
             'role' => 'user',
         ]);
     }
@@ -80,7 +80,7 @@ class AuthenticationTest extends TestCase
     {
         $payload = [
             'name' => 'Hilarius Avin',
-            'email' => 'mismatch@example.com',
+            'email' => 'mismatch@gmail.com',
             'password' => 'password123',
             'password_confirmation' => 'berbeda456',
         ];

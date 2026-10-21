@@ -7,6 +7,7 @@ use App\Models\LostItem;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class DatabaseSeeder extends Seeder
 {
@@ -71,6 +72,15 @@ class DatabaseSeeder extends Seeder
         ItemReport::query()->delete();
         LostItem::query()->delete();
 
+        $seedImage = static function (string $filename): string {
+            $source = database_path("seeders/assets/{$filename}");
+            $target = "lost_items/{$filename}";
+
+            Storage::disk('public')->put($target, file_get_contents($source));
+
+            return $target;
+        };
+
         // [Item 1] Status: APPROVED (Aktif di Papan Publik, usia 4 jam)
         $item1 = new LostItem([
             'item_name' => 'Laptop ASUS ROG Zephyrus G14',
@@ -80,6 +90,7 @@ class DatabaseSeeder extends Seeder
             'contact_info' => '081298765432',
             'reporter_contact_info' => '081122334455',
             'chronology' => 'Tertinggal di bilik belajar mandiri sebelah timur dekat jendela pada siang hari.',
+            'image_path' => $seedImage('laptop.svg'),
         ]);
         $item1->user_id = $mahasiswa->id;
         $item1->status = 'approved';
@@ -95,6 +106,7 @@ class DatabaseSeeder extends Seeder
             'contact_info' => '081399887766',
             'reporter_contact_info' => null,
             'chronology' => 'Ditemukan tertinggal di atas meja ruang tunggu seminar.',
+            'image_path' => $seedImage('tumbler.svg'),
         ]);
         $item2->user_id = $penemu->id;
         $item2->status = 'approved';
@@ -110,6 +122,7 @@ class DatabaseSeeder extends Seeder
             'contact_info' => '081298765432',
             'reporter_contact_info' => null,
             'chronology' => 'Terjatuh saat membayar makanan di kasir kantin barat.',
+            'image_path' => $seedImage('wallet.svg'),
         ]);
         $item3->user_id = $mahasiswa->id;
         $item3->status = 'pending';
@@ -124,6 +137,7 @@ class DatabaseSeeder extends Seeder
             'contact_info' => '081298765432',
             'reporter_contact_info' => '081399887766',
             'chronology' => 'Terjatuh saat mengeluarkan karcis parkir motor pagi tadi.',
+            'image_path' => $seedImage('keys.svg'),
         ]);
         $item4->user_id = $mahasiswa->id;
         $item4->status = 'resolve_requested';
@@ -139,6 +153,7 @@ class DatabaseSeeder extends Seeder
             'contact_info' => '081544332211',
             'reporter_contact_info' => '081298765432',
             'chronology' => 'Tertinggal di meja PC 08 setelah ujian praktikum basis data.',
+            'image_path' => $seedImage('calculator.svg'),
         ]);
         $item5->user_id = $userLain->id;
         $item5->status = 'resolved';
@@ -155,6 +170,7 @@ class DatabaseSeeder extends Seeder
             'contact_info' => '081298765432',
             'reporter_contact_info' => null,
             'chronology' => 'Deskripsi lama kurang spesifik tanpa merk.',
+            'image_path' => $seedImage('hoodie.svg'),
         ]);
         $item6->user_id = $mahasiswa->id;
         $item6->status = 'rejected';
@@ -169,11 +185,44 @@ class DatabaseSeeder extends Seeder
             'contact_info' => '081298765432',
             'reporter_contact_info' => null,
             'chronology' => 'Tertinggal di rak payung lobi saat hujan deras 4 hari yang lalu.',
+            'image_path' => $seedImage('umbrella.svg'),
         ]);
         $item7->user_id = $mahasiswa->id;
         $item7->status = 'approved';
         $item7->approved_at = now()->subHours(80); // Lebih dari 72 jam
         $item7->save();
+
+        // [Item 8] Status: APPROVED (Aktif di Papan Publik, usia 20 jam)
+        $item8 = new LostItem([
+            'item_name' => 'Headphone Sony WH-CH520 Hitam',
+            'category' => 'lost',
+            'location' => 'Ruang Baca Gedung Perpustakaan',
+            'current_storage' => 'Meja Informasi Perpustakaan',
+            'contact_info' => '081544332211',
+            'reporter_contact_info' => null,
+            'chronology' => 'Tertinggal di kursi dekat colokan listrik setelah mengikuti kelas daring.',
+            'image_path' => $seedImage('headphones.svg'),
+        ]);
+        $item8->user_id = $userLain->id;
+        $item8->status = 'approved';
+        $item8->approved_at = now()->subHours(20);
+        $item8->save();
+
+        // [Item 9] Status: APPROVED (Aktif di Papan Publik, usia 30 jam)
+        $item9 = new LostItem([
+            'item_name' => 'Tas Ransel Fjallraven Biru Tua',
+            'category' => 'found',
+            'location' => 'Halaman Student Center',
+            'current_storage' => 'Pos Satpam Student Center',
+            'contact_info' => '081399887766',
+            'reporter_contact_info' => null,
+            'chronology' => 'Ditemukan di bangku taman dekat pintu masuk Student Center.',
+            'image_path' => $seedImage('backpack.svg'),
+        ]);
+        $item9->user_id = $penemu->id;
+        $item9->status = 'approved';
+        $item9->approved_at = now()->subHours(30);
+        $item9->save();
 
         // ---------------------------------------------------------------------
         // 3. Data Dummy Laporan Pihak Ketiga (Item Reports)
