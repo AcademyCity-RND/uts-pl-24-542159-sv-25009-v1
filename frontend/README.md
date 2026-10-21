@@ -37,15 +37,14 @@ jaringan sesuai kontrak pada dokumen acuan.
 - [x] **Step 3.7:** Implementasi form pelaporan barang dengan upload gambar.
 - [x] **Step 3.8:** Implementasi dashboard admin dan alur moderasi.
 - [x] **Step 3.9:** Implementasi alur resolusi dan repost.
-- [ ] **Step Dokumentasi SS-04 s.d. SS-07:** Pengambilan screenshot bukti frontend.
+- [x] **Step Dokumentasi SS-04 s.d. SS-07:** Pengambilan screenshot bukti frontend.
 
 ### Verifikasi saat ini
 
 - `pnpm build` berhasil menghasilkan seluruh entry point MPA.
 - Dev server dapat merender halaman publik pada `http://localhost:5173/`.
 - Dashboard publik berhasil memanggil `GET /api/public/items` pada backend lokal.
-- Step 3.1 s.d. Step 3.9 telah selesai; integrasi tiap alur berikutnya tetap
-  mengikuti checklist di atas.
+- Step 3.1 s.d. Step 3.9 dan dokumentasi SS-04 s.d. SS-07 telah selesai.
 
 ---
 
@@ -101,7 +100,7 @@ Aplikasi menerapkan sistem desain bernuansa **Teal** sebagai warna utama (*Prima
 
 ## 📌 Checklist Implementasi Frontend (Terkait Soal UTS)
 
-### ⏳ Task Terkait Soal 2: Frontend Implementation (10 Poin)
+### ✅ Task Terkait Soal 2: Frontend Implementation (10 Poin - Selesai)
 - [x] **Setup Proyek & Lingkungan:**
   - Inisialisasi scaffold Vue 3 + Vite di direktori `/frontend`.
   - Konfigurasi variabel lingkungan `.env` (`VITE_API_URL`, `VITE_STORAGE_URL`).
@@ -145,14 +144,15 @@ Aplikasi menerapkan sistem desain bernuansa **Teal** sebagai warna utama (*Prima
   - Fitur Repost (`POST /api/items/{id}/repost`) untuk barang kedaluwarsa/selesai dengan proteksi cooldown 72 jam.
 
 ### ⏳ Task Terkait Soal 5: Multi-Stage Dockerfile (20 Poin)
-- [ ] Pembuatan `frontend/Dockerfile` dengan strategi multi-stage:
+- [x] Berkas `frontend/Dockerfile` tersedia dengan strategi multi-stage:
   - Stage 1: Build aset statis menggunakan image `node:20-alpine`.
   - Stage 2: Sajikan aset statis menggunakan image ringan `nginx:1.27-alpine`.
-- [ ] Konfigurasi `nginx.conf`:
+- [x] Berkas `nginx.conf` tersedia dengan konfigurasi:
   - Konfigurasi pemetaan entry point MPA dan fallback aset sesuai struktur halaman yang dibuild Vite.
   - Reverse proxy path `/api/` ke service Docker backend (`http://backend:80/api/`).
   - Reverse proxy path `/storage/` ke service Docker backend (`http://backend:80/storage/`).
-- [ ] Pembuatan berkas `frontend/.dockerignore`.
+- [x] Berkas `frontend/.dockerignore` tersedia.
+- [ ] Validasi integrasi container frontend melalui `docker compose up -d --build` masih menunggu penyelesaian Fase 4.
 
 ---
 
@@ -169,26 +169,26 @@ frontend/
 ├── public/                      # Aset publik statis (favicon, logo, dll)
 ├── src/
 │   ├── assets/
-│   │   ├── css/
-│   │   │   └── main.css         # Token CSS variables (Light/Dark mode) & styling dasar
+│   │   └── styles/
+│   │       └── main.css         # Tailwind entry, token CSS variables & styling dasar
 │   ├── components/              # Komponen modular reusable
 │   │   ├── CardItem.vue         # Kartu informasi barang (foto, badge, lokasi, timer)
 │   │   ├── StatusBadge.vue      # Badge status (Pending, Approved, Resolved, dll)
 │   │   ├── CountdownTimer.vue   # Indikator hitung mundur 72 jam real-time
 │   │   ├── BaseModal.vue        # Modal dialog reusable (konfirmasi hapus, preview, klaim)
-│   │   ├── ToastNotification.vue# Notifikasi toast global
 │   │   └── Navbar.vue           # Navigasi utama dengan deteksi auth & toggle dark mode
 │   ├── entries/                 # Bootstrap TypeScript untuk setiap entry HTML
-│   │   ├── index.ts
-│   │   ├── login.ts
-│   │   ├── register.ts
-│   │   ├── report.ts
-│   │   └── admin.ts
+│   │   ├── home/main.ts
+│   │   ├── login/main.ts
+│   │   ├── register/main.ts
+│   │   ├── report/main.ts
+│   │   ├── detail/main.ts
+│   │   └── admin/main.ts
 │   ├── services/                # Konfigurasi Axios & API helper
-│   │   └── api.js               # Global interceptor & URL builder
+│   │   └── api.ts               # Global interceptor & URL builder
 │   ├── stores/                  # Pinia store untuk state autentikasi & tema
-│   │   ├── auth.js
-│   │   └── theme.js
+│   │   ├── auth.ts
+│   │   └── theme.ts
 │   ├── views/                   # Halaman antarmuka utama
 │   │   ├── PublicDashboard.vue  # Beranda browsing publik tamu
 │   │   ├── LoginView.vue        # Halaman autentikasi login
@@ -196,8 +196,6 @@ frontend/
 │   │   ├── ReportItemView.vue   # Form submit laporan barang hilang/temuan
 │   │   ├── ItemDetailView.vue   # Halaman detail barang & alur resolusi
 │   │   └── AdminDashboard.vue   # Dashboard manajemen moderasi 3 tab admin
-│   ├── App.vue                  # Root component
-│   └── main.ts                  # Entry point fondasi/shared Vue 3
 ├── nginx.conf                   # Konfigurasi Nginx untuk Docker production
 ├── Dockerfile                   # Multi-stage Dockerfile
 ├── .dockerignore                # Pengecualian Docker build
