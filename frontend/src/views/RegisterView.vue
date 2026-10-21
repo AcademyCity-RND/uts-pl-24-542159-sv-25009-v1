@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useAuthStore } from '../stores/auth'
 
 const authStore = useAuthStore()
@@ -12,9 +12,35 @@ const passwordConfirmation = ref('')
 const errorMessage = ref('')
 const errors = ref<Record<string, string[]>>({})
 
+onMounted(() => {
+  // Jika sudah terautentikasi, alihkan dari halaman pendaftaran
+  if (authStore.isAuthenticated) {
+    if (authStore.isAdmin) {
+      window.location.href = '/admin'
+    } else {
+      window.location.href = '/'
+    }
+  }
+})
+
 async function handleRegister() {
   errorMessage.value = ''
   errors.value = {}
+
+  if (!/@gmail\.com$/i.test(email.value.trim())) {
+    errors.value = {
+      email: ['Email harus menggunakan domain @gmail.com.']
+    }
+    return
+  }
+
+  // Validasi client-side cepat untuk kecocokan konfirmasi password
+  if (password.value !== passwordConfirmation.value) {
+    errors.value = {
+      password_confirmation: ['Konfirmasi kata sandi tidak cocok.']
+    }
+    return
+  }
 
   const payload: Record<string, string> = {
     name: name.value,

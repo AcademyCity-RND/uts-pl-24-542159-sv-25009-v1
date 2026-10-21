@@ -187,7 +187,7 @@ Gunakan tabel ini sebagai **lembar panduan mandiri (*cheatsheet*)** saat menyusu
 - [x] Setup Axios instance dengan Global Interceptor (Authorization: Bearer <BEARER_TOKEN>) & penanganan error semantik serta jaringan (503/Offline).
 - [x] Konfigurasi dinamis target API via .env (VITE_API_URL dan VITE_STORAGE_URL).
 - [x] Pembuatan komponen modular: CardItem.vue, StatusBadge.vue, CountdownTimer.vue, BaseModal.vue, Navbar.vue.
-- [ ] Halaman Login & Registrasi (penyimpanan token di localStorage & auto-redirect).
+- [x] Halaman Login & Registrasi (penyimpanan token di localStorage & auto-redirect).
 - [ ] Dashboard Publik (Guest View: Card Grid barang hilang/ditemukan yang disetujui admin).
 - [ ] Halaman Pelaporan Barang (User: form submit FormData foto barang, status awal pending).
 - [ ] Dashboard Admin (3 Tab Inbox: Laporan Pending, Laporan Aktif Publik, Pesan Resolusi).

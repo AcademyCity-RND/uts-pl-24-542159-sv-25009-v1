@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { useThemeStore } from '../stores/theme'
 
@@ -8,6 +9,12 @@ defineProps<{
 
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
+
+onMounted(async () => {
+  if (authStore.token) {
+    await authStore.fetchCurrentUser()
+  }
+})
 
 async function handleLogout() {
   await authStore.logout()

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useAuthStore } from '../stores/auth'
 
 const authStore = useAuthStore()
@@ -12,6 +12,31 @@ const email = ref('mahasiswa@jejakbarang.test')
 const password = ref('password123')
 const errorMessage = ref(isExpired ? 'Sesi Anda telah berakhir. Silakan masuk kembali.' : '')
 const errors = ref<Record<string, string[]>>({})
+
+onMounted(() => {
+  // Jika sudah terautentikasi, alihkan dari halaman login
+  if (authStore.isAuthenticated) {
+    if (redirectUrl) {
+      window.location.href = redirectUrl
+    } else if (authStore.isAdmin) {
+      window.location.href = '/admin'
+    } else {
+      window.location.href = '/'
+    }
+  }
+})
+
+function setDemoAccount(role: 'admin' | 'mahasiswa') {
+  if (role === 'admin') {
+    email.value = 'admin@jejakbarang.test'
+    password.value = 'password123'
+  } else {
+    email.value = 'mahasiswa@jejakbarang.test'
+    password.value = 'password123'
+  }
+  errorMessage.value = ''
+  errors.value = {}
+}
 
 async function handleLogin() {
   errorMessage.value = ''
@@ -90,6 +115,29 @@ async function handleLogin() {
           <span v-else>Masuk Sekarang</span>
         </button>
       </form>
+
+      <!-- Opsi Cepat Akun Demo Pengujian -->
+      <div class="demo-box">
+        <span class="demo-label">Pilih Akun Demo Cepat:</span>
+        <div class="demo-actions">
+          <button
+            type="button"
+            class="btn btn-sm"
+            :class="email === 'mahasiswa@jejakbarang.test' ? 'btn-primary' : 'btn-secondary'"
+            @click="setDemoAccount('mahasiswa')"
+          >
+            👤 Mahasiswa
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm"
+            :class="email === 'admin@jejakbarang.test' ? 'btn-primary' : 'btn-secondary'"
+            @click="setDemoAccount('admin')"
+          >
+            🛡️ Admin Kampus
+          </button>
+        </div>
+      </div>
 
       <div class="auth-footer">
         <p class="auth-footer-text">
@@ -179,5 +227,30 @@ async function handleLogin() {
 
 .auth-link:hover {
   text-decoration: underline;
+}
+
+.demo-box {
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  background-color: var(--color-surface-soft);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--color-border);
+  text-align: center;
+}
+
+.demo-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-2);
+}
+
+.demo-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
 }
 </style>

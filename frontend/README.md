@@ -32,7 +32,7 @@ jaringan sesuai kontrak pada dokumen acuan.
 - [x] **Step 3.2:** Setup Axios instance, interceptor autentikasi, dan mapping error HTTP.
 - [x] **Step 3.3:** Konfigurasi environment `VITE_API_URL` dan `VITE_STORAGE_URL`, termasuk helper URL gambar.
 - [x] **Step 3.4:** Pembuatan komponen UI reusable dan sistem tema light/dark.
-- [ ] **Step 3.5:** Implementasi halaman login dan registrasi.
+- [x] **Step 3.5:** Implementasi halaman login dan registrasi.
 - [ ] **Step 3.6:** Implementasi dashboard publik dan countdown timer.
 - [ ] **Step 3.7:** Implementasi form pelaporan barang dengan upload gambar.
 - [ ] **Step 3.8:** Implementasi dashboard admin dan alur moderasi.
@@ -44,7 +44,7 @@ jaringan sesuai kontrak pada dokumen acuan.
 - `pnpm build` berhasil menghasilkan seluruh entry point MPA.
 - Dev server dapat merender halaman publik pada `http://localhost:5173/`.
 - Dashboard publik berhasil memanggil `GET /api/public/items` pada backend lokal.
-- Step 3.1, Step 3.2, Step 3.3, dan Step 3.4 telah selesai; integrasi tiap alur berikutnya tetap
+- Step 3.1 s.d. Step 3.5 telah selesai; integrasi tiap alur berikutnya tetap
   mengikuti checklist di atas.
 
 ---
@@ -117,7 +117,7 @@ Aplikasi menerapkan sistem desain bernuansa **Teal** sebagai warna utama (*Prima
     - `422 Unprocessable Entity`: Petakan array `errors[field]` ke field formulir terkait.
     - `429 Too Many Requests`: Tampilkan notifikasi pembatasan laju (*rate limiting*).
     - `5xx / Network Error`: Tampilkan banner ramah pengguna (*"Layanan Sedang Dalam Pemeliharaan / Belum Tersedia"*) beserta tombol *Retry*.
-- [ ] **Sistem Autentikasi (`/login` & `/register`):**
+- [x] **Sistem Autentikasi (`/login` & `/register`):**
   - Form Login & Register terintegrasi API (`POST /api/login` & `POST /api/register`).
   - Simpan token di `localStorage` dan sinkronkan state profil via `GET /api/user`.
   - Validasi konfirmasi password dan domain email `@gmail.com`, sesuai
