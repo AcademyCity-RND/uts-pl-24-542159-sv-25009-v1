@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import api, { buildImageUrl } from '../services/api'
+import api, { buildImageUrl, type ApiErrorDetail } from '../services/api'
 import StatusBadge from '../components/StatusBadge.vue'
 import CountdownTimer from '../components/CountdownTimer.vue'
 import BaseModal from '../components/BaseModal.vue'
@@ -41,10 +41,11 @@ async function fetchItemDetail() {
     const response = await api.get(`/items/${itemId}`)
     item.value = response.data.data
   } catch (error: any) {
-    if (error.response?.status === 404) {
-      errorMessage.value = 'Barang tidak ditemukan atau telah dihapus.'
+    const err = error as ApiErrorDetail
+    if (err.status === 404) {
+      errorMessage.value = 'Data barang tidak ditemukan atau telah dihapus.'
     } else {
-      errorMessage.value = error.response?.data?.message || 'Gagal memuat detail barang.'
+      errorMessage.value = err.message || 'Gagal memuat detail barang.'
     }
   } finally {
     loading.value = false
@@ -69,10 +70,11 @@ async function submitClaimReport() {
     claimMessage.value = ''
     fetchItemDetail()
   } catch (error: any) {
-    if (error.response?.status === 409) {
-      claimError.value = error.response.data.message || 'Anda sudah memiliki laporan aktif yang sedang ditinjau.'
+    const err = error as ApiErrorDetail
+    if (err.status === 409) {
+      claimError.value = err.message || 'Konflik status: Anda sudah memiliki laporan aktif yang sedang ditinjau.'
     } else {
-      claimError.value = error.response?.data?.message || 'Gagal mengirim laporan penemuan.'
+      claimError.value = err.message || 'Gagal mengirim laporan penemuan.'
     }
   } finally {
     claimLoading.value = false
@@ -88,7 +90,8 @@ async function handleResolveItem() {
     actionSuccessMessage.value = 'Barang berhasil diselesaikan (Resolved)!'
     fetchItemDetail()
   } catch (error: any) {
-    alert(error.response?.data?.message || 'Gagal mengubah status barang.')
+    const err = error as ApiErrorDetail
+    alert(err.message || 'Gagal mengubah status barang.')
   }
 }
 
@@ -100,7 +103,8 @@ async function handleRepostItem() {
     actionSuccessMessage.value = 'Barang berhasil di-repost! Masa tayang diperpanjang 72 jam ke depan.'
     fetchItemDetail()
   } catch (error: any) {
-    alert(error.response?.data?.message || 'Gagal me-repost barang.')
+    const err = error as ApiErrorDetail
+    alert(err.message || 'Gagal me-repost barang.')
   }
 }
 
@@ -146,12 +150,12 @@ onMounted(() => {
         <!-- Kolom Informasi Lengkap -->
         <div class="detail-info">
           <div class="detail-header-badges">
-            <StatusBadge :type="item.type" />
+            <StatusBadge :type="item.category" />
             <StatusBadge :status="item.status" />
           </div>
 
           <h1 class="item-title">{{ item.item_name }}</h1>
-          <p class="item-category-tag">{{ item.category }}</p>
+          <p class="item-category-tag">{{ item.category === 'lost' ? 'Barang Hilang' : 'Barang Ditemukan' }}</p>
 
           <!-- Countdown Timer jika approved -->
           <div v-if="item.status === 'approved' && item.remaining_seconds !== undefined" class="timer-wrapper">
@@ -211,7 +215,7 @@ onMounted(() => {
 
               <!-- Jika barang expired atau resolved, tampilkan opsi Repost -->
               <button
-                v-if="['resolved', 'expired'].includes(item.status) || ((item.remaining_seconds ?? 1) <= 0)"
+                v-if="['resolved'].includes(item.status) || item.is_expired || ((item.remaining_seconds ?? 1) <= 0)"
                 type="button"
                 class="btn btn-secondary"
                 @click="handleRepostItem"

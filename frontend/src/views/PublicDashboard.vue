@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import api from '../services/api'
+import api, { type ApiErrorDetail } from '../services/api'
 import CardItem from '../components/CardItem.vue'
 import type { LostItem } from '../types/api'
 
@@ -13,7 +13,7 @@ const isNetworkError = ref(false)
 const searchQuery = ref('')
 const selectedType = ref('all') // 'all', 'lost', 'found'
 const selectedCategory = ref('all')
-const categories = ['Elektronik', 'Dokumen / Kartu', 'Aksesoris & Pakaian', 'Kunci', 'Lain-lain']
+const categories = ['lost', 'found']
 
 async function fetchPublicItems() {
   loading.value = true
@@ -28,12 +28,9 @@ async function fetchPublicItems() {
     const response = await api.get('/public/items', { params })
     items.value = response.data.data || []
   } catch (error: any) {
-    if (error.isNetworkError) {
-      isNetworkError.value = true
-      errorMessage.value = error.message
-    } else {
-      errorMessage.value = error.response?.data?.message || 'Gagal memuat daftar barang publik.'
-    }
+    const err = error as ApiErrorDetail
+    isNetworkError.value = !!err.isNetworkError
+    errorMessage.value = err.message || 'Gagal memuat daftar barang publik.'
   } finally {
     loading.value = false
   }
@@ -42,8 +39,8 @@ async function fetchPublicItems() {
 // Client-side search and type filtering
 const filteredItems = () => {
   return items.value.filter(item => {
-    // Type filter
-    if (selectedType.value !== 'all' && item.type !== selectedType.value) {
+    // Type/Category filter
+    if (selectedType.value !== 'all' && item.category !== selectedType.value) {
       return false
     }
     // Search query filter
@@ -51,8 +48,7 @@ const filteredItems = () => {
       const q = searchQuery.value.toLowerCase()
       const matchName = item.item_name?.toLowerCase().includes(q)
       const matchLoc = item.location?.toLowerCase().includes(q)
-      const matchCat = item.category?.toLowerCase().includes(q)
-      return matchName || matchLoc || matchCat
+      return matchName || matchLoc
     }
     return true
   })
@@ -89,7 +85,7 @@ watch(selectedCategory, () => {
             v-model="searchQuery"
             type="text"
             class="search-input"
-            placeholder="Cari nama barang, lokasi, atau kategori..."
+            placeholder="Cari nama barang atau lokasi..."
             aria-label="Cari barang"
           />
         </div>

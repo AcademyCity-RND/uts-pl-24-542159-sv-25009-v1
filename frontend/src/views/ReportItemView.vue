@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import api from '../services/api'
+import api, { type ApiErrorDetail } from '../services/api'
 import { useAuthStore } from '../stores/auth'
 
 const authStore = useAuthStore()
 
 // Form Data State
-const type = ref<'lost' | 'found'>('lost')
+const category = ref<'lost' | 'found'>('lost')
 const itemName = ref('')
-const category = ref('Elektronik')
 const location = ref('')
 const currentStorage = ref('')
 const contactInfo = ref('')
@@ -16,8 +15,6 @@ const reporterContactInfo = ref('')
 const chronology = ref('')
 const imageFile = ref<File | null>(null)
 const imagePreview = ref<string | null>(null)
-
-const categories = ['Elektronik', 'Dokumen / Kartu', 'Aksesoris & Pakaian', 'Kunci', 'Lain-lain']
 
 const loading = ref(false)
 const errorMessage = ref('')
@@ -57,16 +54,13 @@ async function handleSubmit() {
 
   try {
     const formData = new FormData()
-    formData.append('type', type.value)
-    formData.append('item_name', itemName.value)
+    formData.append('item_name', itemName.value.trim())
     formData.append('category', category.value)
-    formData.append('location', location.value)
-    formData.append('current_storage', currentStorage.value)
-    formData.append('chronology', chronology.value)
+    formData.append('location', location.value.trim())
+    formData.append('current_storage', currentStorage.value.trim())
+    formData.append('contact_info', contactInfo.value.trim())
+    formData.append('chronology', chronology.value.trim())
 
-    if (contactInfo.value.trim()) {
-      formData.append('contact_info', contactInfo.value.trim())
-    }
     if (reporterContactInfo.value.trim()) {
       formData.append('reporter_contact_info', reporterContactInfo.value.trim())
     }
@@ -85,10 +79,11 @@ async function handleSubmit() {
       window.location.href = `/detail?id=${response.data.data.id}`
     }, 1500)
   } catch (error: any) {
-    if (error.response?.data?.errors) {
-      errors.value = error.response.data.errors
+    const err = error as ApiErrorDetail
+    if (err.errors) {
+      errors.value = err.errors
     }
-    errorMessage.value = error.response?.data?.message || 'Gagal mengirim laporan barang.'
+    errorMessage.value = err.message || 'Gagal mengirim laporan barang.'
   } finally {
     loading.value = false
   }
@@ -114,19 +109,20 @@ async function handleSubmit() {
       </div>
 
       <form @submit.prevent="handleSubmit" class="report-form">
-        <!-- Tipe Laporan -->
+        <!-- Jenis Laporan (category: lost / found) -->
         <div class="form-group">
           <label class="form-label">Jenis Laporan</label>
           <div class="type-toggle-group">
-            <label :class="['type-option', { 'type-selected-lost': type === 'lost' }]">
-              <input type="radio" v-model="type" value="lost" class="sr-only" />
+            <label :class="['type-option', { 'type-selected-lost': category === 'lost' }]">
+              <input type="radio" v-model="category" value="lost" class="sr-only" />
               <span>🔴 Barang Hilang (Kehilangan)</span>
             </label>
-            <label :class="['type-option', { 'type-selected-found': type === 'found' }]">
-              <input type="radio" v-model="type" value="found" class="sr-only" />
+            <label :class="['type-option', { 'type-selected-found': category === 'found' }]">
+              <input type="radio" v-model="category" value="found" class="sr-only" />
               <span>🟢 Barang Ditemukan (Temuan)</span>
             </label>
           </div>
+          <span v-if="errors.category" class="form-error">{{ errors.category[0] }}</span>
         </div>
 
         <!-- Nama Barang -->
@@ -144,24 +140,9 @@ async function handleSubmit() {
           <span v-if="errors.item_name" class="form-error">{{ errors.item_name[0] }}</span>
         </div>
 
-        <!-- Kategori -->
-        <div class="form-group">
-          <label for="category" class="form-label">Kategori</label>
-          <select
-            id="category"
-            v-model="category"
-            class="form-select"
-            :class="{ 'is-invalid': errors.category }"
-            required
-          >
-            <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
-          </select>
-          <span v-if="errors.category" class="form-error">{{ errors.category[0] }}</span>
-        </div>
-
         <!-- Lokasi -->
         <div class="form-group">
-          <label for="location" class="form-label">Lokasi Terakhir / Ditemukan</label>
+          <label for="location" class="form-label">Lokasi Kejadian / Ditemukan</label>
           <input
             id="location"
             v-model="location"
@@ -192,27 +173,28 @@ async function handleSubmit() {
         <!-- Kontak Pribadi / Pemilik (Privat) -->
         <div class="form-row">
           <div class="form-group col-half">
-            <label for="contact_info" class="form-label">Kontak Pribadi (WhatsApp / HP)</label>
+            <label for="contact_info" class="form-label">Kontak Penanggung Jawab (WhatsApp / HP)</label>
             <input
               id="contact_info"
               v-model="contactInfo"
               type="text"
               class="form-input"
               :class="{ 'is-invalid': errors.contact_info }"
-              placeholder="08123456789"
+              placeholder="Contoh: 08123456789"
+              required
             />
             <span v-if="errors.contact_info" class="form-error">{{ errors.contact_info[0] }}</span>
           </div>
 
           <div class="form-group col-half">
-            <label for="reporter_contact_info" class="form-label">Kontak Alternatif / Medsos</label>
+            <label for="reporter_contact_info" class="form-label">Kontak Alternatif (Opsional)</label>
             <input
               id="reporter_contact_info"
               v-model="reporterContactInfo"
               type="text"
               class="form-input"
               :class="{ 'is-invalid': errors.reporter_contact_info }"
-              placeholder="@username_ig atau kontak lain"
+              placeholder="Contoh: @username_ig atau kontak lain"
             />
             <span v-if="errors.reporter_contact_info" class="form-error">{{ errors.reporter_contact_info[0] }}</span>
           </div>

@@ -28,8 +28,8 @@ jaringan sesuai kontrak pada dokumen acuan.
 
 ## 📌 Status Implementasi Fitur Frontend (Fase 3)
 
-- [x] **Step 3.1:** Inisialisasi Vue.js 3 + Vite + TypeScript + Tailwind CSS.
-- [ ] **Step 3.2:** Setup Axios instance, interceptor autentikasi, dan mapping error HTTP.
+- [x] **Step 3.1:** Inisialisasi Vue.js 3 + Vite + TypeScript + Tailwind CSS (MPA).
+- [x] **Step 3.2:** Setup Axios instance, interceptor autentikasi, dan mapping error HTTP.
 - [ ] **Step 3.3:** Konfigurasi environment `VITE_API_URL` dan `VITE_STORAGE_URL`, termasuk helper URL gambar.
 - [ ] **Step 3.4:** Pembuatan komponen UI reusable dan sistem tema light/dark.
 - [ ] **Step 3.5:** Implementasi halaman login dan registrasi.
@@ -44,7 +44,7 @@ jaringan sesuai kontrak pada dokumen acuan.
 - `pnpm build` berhasil menghasilkan seluruh entry point MPA.
 - Dev server dapat merender halaman publik pada `http://localhost:5173/`.
 - Dashboard publik berhasil memanggil `GET /api/public/items` pada backend lokal.
-- Verifikasi ini belum menandai Step 3.2–3.9 selesai; integrasi tiap alur tetap
+- Step 3.1 dan Step 3.2 telah selesai; integrasi tiap alur berikutnya tetap
   mengikuti checklist di atas.
 
 ---
@@ -107,7 +107,7 @@ Aplikasi menerapkan sistem desain bernuansa **Teal** sebagai warna utama (*Prima
   - Konfigurasi variabel lingkungan `.env` (`VITE_API_URL`, `VITE_STORAGE_URL`).
   - Helper utilitas `buildImageUrl(path)` untuk resolver URL gambar aset storage.
   - Implementasi CSS variables theme loader (`light` & `dark`) tanpa kedipan (*flash of unstyled theme*).
-- [ ] **Konfigurasi Axios Instance & Interceptors (`services/api.js`):**
+- [x] **Konfigurasi Axios Instance & Interceptors (`services/api.ts`):**
   - Menyematkan header `Authorization: Bearer <token>` dan `Accept: application/json` secara otomatis.
   - Penanganan error HTTP semantik sesuai PRD & Guideline:
     - `401 Unauthorized`: Bersihkan session `localStorage` dan alihkan ke `/login`.

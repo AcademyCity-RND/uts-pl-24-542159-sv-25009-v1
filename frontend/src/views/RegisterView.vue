@@ -70,7 +70,7 @@ async function handleRegister() {
         </div>
 
         <div class="form-group">
-          <label for="email" class="form-label">Email (@mail.ugm.ac.id / @gmail.com)</label>
+          <label for="email" class="form-label">Email (@gmail.com)</label>
           <input
             id="email"
             v-model="email"

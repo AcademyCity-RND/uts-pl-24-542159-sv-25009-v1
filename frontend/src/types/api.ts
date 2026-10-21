@@ -10,14 +10,14 @@ export interface User {
   updated_at?: string
 }
 
-export type ItemType = 'lost' | 'found'
-export type ItemStatus = 'pending' | 'approved' | 'rejected' | 'resolve_requested' | 'resolved' | 'expired'
-export type ItemCategory = 'Elektronik' | 'Dokumen / Kartu' | 'Aksesoris & Pakaian' | 'Kunci' | 'Lain-lain'
+// Sesuai skema database enum lost_items: 'lost' atau 'found'
+export type ItemCategory = 'lost' | 'found'
+// Sesuai skema database status lost_items
+export type ItemStatus = 'pending' | 'approved' | 'rejected' | 'resolve_requested' | 'resolved'
 
 export interface LostItem {
   id: number
   user_id: number
-  type: ItemType
   item_name: string
   category: ItemCategory
   location: string
@@ -29,37 +29,49 @@ export interface LostItem {
   status: ItemStatus
   approved_at?: string | null
   resolved_at?: string | null
-  last_reposted_at?: string | null
+  expires_at?: string | null
+  is_expired?: boolean
   remaining_seconds?: number
   user?: User
   created_at?: string
   updated_at?: string
 }
 
+// Sesuai skema database status item_reports: 'pending', 'accepted', 'rejected', 'closed'
 export type ReportStatus = 'pending' | 'accepted' | 'rejected' | 'closed'
 
 export interface ItemReport {
   id: number
   lost_item_id: number
-  user_id: number
-  reporter_contact: string
+  reporter_user_id: number
   message: string
   status: ReportStatus
-  user?: User
-  lost_item?: LostItem
+  reporter?: {
+    id: number
+    name: string
+    email: string
+  }
+  lost_item?: {
+    id: number
+    user_id: number
+    item_name: string
+    category: ItemCategory
+    status: ItemStatus
+    location: string
+    image_path?: string | null
+    approved_at?: string | null
+  }
   created_at?: string
   updated_at?: string
 }
 
+// Struktur respons baku backend Laravel (tanpa wrapper properti success di root)
 export interface ApiResponse<T> {
-  success: boolean
-  message: string
+  message?: string
   data: T
 }
 
 export interface PaginatedResponse<T> {
-  success: boolean
-  message: string
   data: T[]
   links?: {
     first?: string

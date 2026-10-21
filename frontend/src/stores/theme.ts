@@ -2,9 +2,9 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useThemeStore = defineStore('theme', () => {
-  const currentTheme = ref(document.documentElement.getAttribute('data-theme') || 'light')
+  const currentTheme = ref<string>(document.documentElement.getAttribute('data-theme') || 'light')
 
-  function setTheme(theme) {
+  function setTheme(theme: 'light' | 'dark') {
     currentTheme.value = theme
     document.documentElement.setAttribute('data-theme', theme)
     localStorage.setItem('jb_theme', theme)

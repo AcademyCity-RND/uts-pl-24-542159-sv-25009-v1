@@ -8,8 +8,8 @@ const urlParams = new URLSearchParams(window.location.search)
 const isExpired = urlParams.get('expired')
 const redirectUrl = urlParams.get('redirect')
 
-const email = ref('budi@mail.ugm.ac.id')
-const password = ref('Password123!')
+const email = ref('mahasiswa@jejakbarang.test')
+const password = ref('password123')
 const errorMessage = ref(isExpired ? 'Sesi Anda telah berakhir. Silakan masuk kembali.' : '')
 const errors = ref<Record<string, string[]>>({})
 
@@ -41,7 +41,7 @@ async function handleLogin() {
     <div class="auth-card">
       <div class="auth-header">
         <h1 class="auth-title">Masuk ke JejakBarang</h1>
-        <p class="auth-subtitle">Gunakan akun civitas akademika Anda</p>
+        <p class="auth-subtitle">Gunakan akun terdaftar Anda untuk melanjutkan</p>
       </div>
 
       <!-- Pesan Galat -->
@@ -51,14 +51,14 @@ async function handleLogin() {
 
       <form @submit.prevent="handleLogin" class="auth-form">
         <div class="form-group">
-          <label for="email" class="form-label">Alamat Email (@mail.ugm.ac.id / @gmail.com)</label>
+          <label for="email" class="form-label">Alamat Email</label>
           <input
             id="email"
             v-model="email"
             type="email"
             class="form-input"
             :class="{ 'is-invalid': errors.email }"
-            placeholder="nama@mail.ugm.ac.id"
+            placeholder="nama@gmail.com"
             required
             autocomplete="email"
           />

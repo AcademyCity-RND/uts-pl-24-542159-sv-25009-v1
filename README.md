@@ -184,7 +184,7 @@ Gunakan tabel ini sebagai **lembar panduan mandiri (*cheatsheet*)** saat menyusu
 ### ⏳ Fase 3: Frontend Development (Vue.js MPA - Dalam Pengerjaan)
 *Antarmuka Pengguna MPA, Interceptor Axios, dan State Management*
 - [x] Inisialisasi project Vue 3 + Vite dengan TypeScript dan Tailwind CSS di direktori /frontend.
-- [ ] Setup Axios instance dengan Global Interceptor (Authorization: Bearer <BEARER_TOKEN>) & penanganan error semantik serta jaringan (503/Offline).
+- [x] Setup Axios instance dengan Global Interceptor (Authorization: Bearer <BEARER_TOKEN>) & penanganan error semantik serta jaringan (503/Offline).
 - [ ] Konfigurasi dinamis target API via .env (VITE_API_URL dan VITE_STORAGE_URL).
 - [ ] Pembuatan komponen modular: CardItem.vue, StatusBadge.vue, CountdownTimer.vue, BaseModal.vue, Navbar.vue.
 - [ ] Halaman Login & Registrasi (penyimpanan token di localStorage & auto-redirect).

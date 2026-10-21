@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import api from '../services/api'
+import api, { type ApiErrorDetail } from '../services/api'
 import StatusBadge from '../components/StatusBadge.vue'
 import { useAuthStore } from '../stores/auth'
 import type { LostItem, ItemReport } from '../types/api'
@@ -47,8 +47,9 @@ async function fetchAdminData() {
     // 3. Item Reports (Laporan Pihak Ketiga)
     const reportsRes = await api.get('/item-reports', { params: { per_page: 50 } })
     itemReports.value = reportsRes.data.data || []
-  } catch (error) {
-    actionMessage.value = 'Gagal memuat data moderasi admin.'
+  } catch (error: any) {
+    const err = error as ApiErrorDetail
+    actionMessage.value = err.message || 'Gagal memuat data moderasi admin.'
   } finally {
     loading.value = false
   }
@@ -61,7 +62,8 @@ async function handleItemStatus(itemId: number, newStatus: string) {
     actionMessage.value = `Barang ID #${itemId} berhasil diubah statusnya menjadi ${newStatus}.`
     fetchAdminData()
   } catch (error: any) {
-    alert(error.response?.data?.message || 'Gagal mengubah status barang.')
+    const err = error as ApiErrorDetail
+    alert(err.message || 'Gagal mengubah status barang.')
   }
 }
 
@@ -73,7 +75,8 @@ async function handleDeleteItem(itemId: number) {
     actionMessage.value = `Barang #${itemId} berhasil dihapus.`
     fetchAdminData()
   } catch (error: any) {
-    alert(error.response?.data?.message || 'Gagal menghapus barang.')
+    const err = error as ApiErrorDetail
+    alert(err.message || 'Gagal menghapus barang.')
   }
 }
 
@@ -84,7 +87,8 @@ async function handleReportStatus(reportId: number, newStatus: string) {
     actionMessage.value = `Laporan pihak ketiga #${reportId} berhasil di-${newStatus}.`
     fetchAdminData()
   } catch (error: any) {
-    alert(error.response?.data?.message || 'Gagal memproses laporan.')
+    const err = error as ApiErrorDetail
+    alert(err.message || 'Gagal memproses laporan.')
   }
 }
 </script>
@@ -144,7 +148,7 @@ async function handleReportStatus(reportId: number, newStatus: string) {
             <tr>
               <th>ID</th>
               <th>Nama Barang</th>
-              <th>Tipe & Kategori</th>
+              <th>Kategori</th>
               <th>Pelapor / Kontak</th>
               <th>Lokasi & Kronologi</th>
               <th>Aksi Moderasi</th>
@@ -155,8 +159,7 @@ async function handleReportStatus(reportId: number, newStatus: string) {
               <td>#{{ it.id }}</td>
               <td><strong>{{ it.item_name }}</strong></td>
               <td>
-                <StatusBadge :type="it.type" />
-                <div class="table-subtext">{{ it.category }}</div>
+                <StatusBadge :type="it.category" />
               </td>
               <td>
                 <div>{{ it.user?.name || 'User #' + it.user_id }}</div>
@@ -199,7 +202,7 @@ async function handleReportStatus(reportId: number, newStatus: string) {
             <tr>
               <th>ID</th>
               <th>Nama Barang</th>
-              <th>Tipe</th>
+              <th>Kategori</th>
               <th>Lokasi Penyimpanan</th>
               <th>Kontak Pelapor</th>
               <th>Aksi</th>
@@ -209,7 +212,7 @@ async function handleReportStatus(reportId: number, newStatus: string) {
             <tr v-for="it in approvedItems" :key="it.id">
               <td>#{{ it.id }}</td>
               <td><strong>{{ it.item_name }}</strong></td>
-              <td><StatusBadge :type="it.type" /></td>
+              <td><StatusBadge :type="it.category" /></td>
               <td>{{ it.current_storage }}</td>
               <td>{{ it.contact_info || it.user?.email || '-' }}</td>
               <td>
@@ -252,8 +255,8 @@ async function handleReportStatus(reportId: number, newStatus: string) {
                 <div class="table-subtext">{{ rep.lost_item?.item_name || 'Item Terkait' }}</div>
               </td>
               <td>
-                <div>{{ rep.user?.name || 'Pelapor #' + rep.user_id }}</div>
-                <div class="table-subtext">{{ rep.reporter_contact }}</div>
+                <div>{{ rep.reporter?.name || 'Pelapor #' + rep.reporter_user_id }}</div>
+                <div class="table-subtext">{{ rep.reporter?.email || '-' }}</div>
               </td>
               <td>{{ rep.message }}</td>
               <td>

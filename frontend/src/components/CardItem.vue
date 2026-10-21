@@ -33,15 +33,15 @@ const imageUrl = computed(() => {
         </svg>
       </div>
 
-      <!-- Badge Tipe di kiri atas foto -->
+      <!-- Badge Kategori di kiri atas foto -->
       <div class="card-type-badge">
-        <StatusBadge :type="props.item.type" />
+        <StatusBadge :type="props.item.category" />
       </div>
     </div>
 
     <!-- Isi Kartu -->
     <div class="card-content">
-      <div class="card-category">{{ props.item.category }}</div>
+      <div class="card-category">{{ props.item.category === 'lost' ? 'Barang Hilang' : 'Barang Temuan' }}</div>
       <h3 class="card-title">{{ props.item.item_name }}</h3>
 
       <div class="card-location">
