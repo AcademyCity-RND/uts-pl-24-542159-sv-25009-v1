@@ -82,11 +82,12 @@ kontrak API pada [PRD.md](./PRD.md):
 
 ```text
 frontend/
+├── pages/                 # Entry HTML MPA (index, login, register, report, admin)
 ├── src/
 │   ├── assets/styles/       # CSS variables, Tailwind entry, global styles
 │   ├── components/          # Card, badge, timer, modal, navbar, form controls
 │   ├── composables/         # Theme, countdown, image URL, reusable UI logic
-│   ├── pages/               # Entry point halaman MPA (public, auth, report, detail, admin)
+│   ├── entries/             # Bootstrap TypeScript untuk setiap entry HTML MPA
 │   ├── services/            # Axios instance and API service modules
 │   ├── stores/              # Pinia auth, user, theme, and UI state
 │   ├── types/               # TypeScript API/resource/payload types

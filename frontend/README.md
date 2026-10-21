@@ -55,7 +55,10 @@ jaringan sesuai kontrak pada dokumen acuan.
 ## 2. Ketentuan Teknis & Panduan Kepatuhan
 
 1. **Arsitektur MPA:**
-   * Setiap halaman utama memiliki entry point sendiri yang dibuild oleh Vite.
+   * Setiap halaman utama memiliki file HTML tipis di `frontend/pages/` dan
+     bootstrap TypeScript terkait di `src/entries/`.
+   * Markup, state, dan logika halaman tetap berada di komponen Vue `.vue`;
+     file HTML hanya menjadi mount point Vite.
    * Navigasi ant halaman menggunakan URL halaman, bukan Vue Router history mode.
 2. **Kepatuhan Kontrak API:**
    * Endpoint, payload, response resource, status, dan aturan privasi mengikuti
@@ -149,6 +152,12 @@ Aplikasi menerapkan sistem desain bernuansa **Teal** sebagai warna utama (*Prima
 
 ```text
 frontend/
+├── pages/                      # Entry HTML MPA (index, login, register, report, admin)
+│   ├── index.html              # Entry halaman publik
+│   ├── login.html              # Entry halaman login
+│   ├── register.html           # Entry halaman registrasi
+│   ├── report.html             # Entry halaman pelaporan
+│   └── admin.html              # Entry dashboard admin
 ├── public/                      # Aset publik statis (favicon, logo, dll)
 ├── src/
 │   ├── assets/
@@ -161,8 +170,12 @@ frontend/
 │   │   ├── BaseModal.vue        # Modal dialog reusable (konfirmasi hapus, preview, klaim)
 │   │   ├── ToastNotification.vue# Notifikasi toast global
 │   │   └── Navbar.vue           # Navigasi utama dengan deteksi auth & toggle dark mode
-│   ├── pages/                   # Entry point halaman MPA
-│   │   └── index.ts
+│   ├── entries/                 # Bootstrap TypeScript untuk setiap entry HTML
+│   │   ├── index.ts
+│   │   ├── login.ts
+│   │   ├── register.ts
+│   │   ├── report.ts
+│   │   └── admin.ts
 │   ├── services/                # Konfigurasi Axios & API helper
 │   │   └── api.js               # Global interceptor & URL builder
 │   ├── stores/                  # Pinia store untuk state autentikasi & tema
@@ -176,7 +189,7 @@ frontend/
 │   │   ├── ItemDetailView.vue   # Halaman detail barang & alur resolusi
 │   │   └── AdminDashboard.vue   # Dashboard manajemen moderasi 3 tab admin
 │   ├── App.vue                  # Root component
-│   └── main.ts                  # Entry point fondasi aplikasi Vue 3
+│   └── main.ts                  # Entry point fondasi/shared Vue 3
 ├── nginx.conf                   # Konfigurasi Nginx untuk Docker production
 ├── Dockerfile                   # Multi-stage Dockerfile
 ├── .dockerignore                # Pengecualian Docker build

@@ -21,12 +21,12 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'index.html'),
-        login: resolve(__dirname, 'login.html'),
-        register: resolve(__dirname, 'register.html'),
-        report: resolve(__dirname, 'report.html'),
-        detail: resolve(__dirname, 'detail.html'),
-        admin: resolve(__dirname, 'admin.html')
+        main: resolve(__dirname, 'pages/index.html'),
+        login: resolve(__dirname, 'pages/login.html'),
+        register: resolve(__dirname, 'pages/register.html'),
+        report: resolve(__dirname, 'pages/report.html'),
+        detail: resolve(__dirname, 'pages/detail.html'),
+        admin: resolve(__dirname, 'pages/admin.html')
       }
     }
   }
