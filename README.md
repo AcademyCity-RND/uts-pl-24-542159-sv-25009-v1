@@ -196,16 +196,16 @@ Gunakan tabel ini sebagai **lembar panduan mandiri (*cheatsheet*)** saat menyusu
 - [x] 📸 **Task Dokumentasi SS-06**: Screenshot pengisian form pelaporan barang di http://localhost:5173/report beserta pemilihan foto barang.
 - [x] 📸 **Task Dokumentasi SS-07**: Screenshot halaman http://localhost:5173/admin menampilkan 3 tab inbox dan tombol approval.
 
-### ⏳ Fase 4: Containerization & Orchestration
+### ✅ Fase 4: Containerization & Orchestration (Selesai)
 *Bungkus Layanan dengan Docker & Orkestrasi Terpadu*
-- [ ] Pembuatan `backend/Dockerfile` (Base image `dunglas/frankenphp:1.4-php8.3-bookworm` & layer caching composer).
-- [ ] Pembuatan `frontend/Dockerfile` (Multi-stage build: Node.js 20 builder $\rightarrow$ Nginx 1.27 Alpine).
-- [ ] Konfigurasi `nginx.conf` di frontend untuk melayani entry point MPA dan reverse proxy rute `/api/` serta `/storage/`.
-- [ ] Pembuatan `docker-compose.yml` di root (Service: `database`, `backend`, `frontend`, dan Named Volumes: `db_data` & `backend_storage`).
-- [ ] Pengujian integrasi lokal `docker compose up -d --build`.
-- [ ] 📸 **Task Dokumentasi SS-08**: Jalankan perintah `docker compose ps` di terminal dan ambil screenshot tabel 3 service yang berstatus `Up`.
-- [ ] 📸 **Task Dokumentasi SS-09**: Jalankan `docker compose logs backend` dan ambil screenshot log runtime FrankenPHP yang melayani HTTP request.
-- [ ] 📸 **Task Dokumentasi SS-10**: Jalankan `docker compose down`, jalankan kembali `docker compose up -d`, lalu refresh browser untuk membuktikan data dan foto barang tetap utuh tersimpan (Named Volume proof).
+- [x] Pembuatan `backend/Dockerfile` (Base image `dunglas/frankenphp:1.4-php8.3-bookworm` & layer caching composer).
+- [x] Pembuatan `frontend/Dockerfile` (Multi-stage build: Node.js 20 builder $\rightarrow$ Nginx 1.27 Alpine).
+- [x] Konfigurasi `nginx.conf` di frontend untuk melayani entry point MPA dan reverse proxy rute `/api/` serta `/storage/`.
+- [x] Pembuatan `docker-compose.yml` di root (Service: `database`, `backend`, `frontend`, dan Named Volumes: `db_data` & `backend_storage`).
+- [x] Pengujian integrasi lokal `docker compose up -d --build`.
+- [x] 📸 **Task Dokumentasi SS-08**: Jalankan perintah `docker compose ps` di terminal dan ambil screenshot tabel 3 service yang berstatus `Up`.
+- [x] 📸 **Task Dokumentasi SS-09**: Jalankan `docker compose logs backend` dan ambil screenshot log runtime FrankenPHP yang melayani HTTP request.
+- [x] 📸 **Task Dokumentasi SS-10**: Jalankan `docker compose down`, jalankan kembali `docker compose up -d`, lalu refresh browser untuk membuktikan data dan foto barang tetap utuh tersimpan (Named Volume proof).
 
 ### ⏳ Fase 5: CI/CD Pipeline Implementation
 *Otomatisasi Pengujian, Build, dan Publikasi Container ke GHCR*
