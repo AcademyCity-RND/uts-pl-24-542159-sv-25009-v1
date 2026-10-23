@@ -145,7 +145,7 @@ Aplikasi menerapkan sistem desain bernuansa **Teal** sebagai warna utama (*Prima
 
 ### ✅ Task Terkait Soal 5: Multi-Stage Dockerfile (20 Poin - Selesai)
 - [x] Berkas `frontend/Dockerfile` tersedia dengan strategi multi-stage:
-  - Stage 1: Build aset statis menggunakan image `node:20-alpine`.
+  - Stage 1: Build aset statis menggunakan image `node:22-alpine`.
   - Stage 2: Sajikan aset statis menggunakan image ringan `nginx:1.27-alpine`.
 - [x] Berkas `nginx.conf` tersedia dengan konfigurasi:
   - Konfigurasi pemetaan entry point MPA dan fallback aset sesuai struktur halaman yang dibuild Vite.

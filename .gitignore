@@ -14,6 +14,7 @@
 # --- Backend (Laravel) ---
 /backend/.env
 /backend/.env.*
+!/backend/.env.example
 /backend/vendor/
 /backend/storage/*.key
 /backend/storage/logs/*
