@@ -1,7 +1,11 @@
 # ⚙️ JejakBarang — Backend REST API Service
 
+**UTS Konstruksi & Evolusi Perangkat Lunak 2026**  
+**Hilarius Christiano Avin Paliling (24/542159/SV/25009)**  
+*D4 Teknologi Rekayasa Perangkat Lunak — Sekolah Vokasi UGM*
+
 > **Layanan:** Backend RESTful API murni (JSON)  
-> **Teknologi:** Laravel 11.x, FrankenPHP (PHP 8.3), MySQL 8.x, Laravel Sanctum  
+> **Teknologi:** Laravel 11.x, FrankenPHP (PHP 8.3.36), MySQL 8.0, Laravel Sanctum  
 > **Arsitektur:** Decoupled Monorepo Service
 
 ---
@@ -25,7 +29,7 @@ Layanan Backend ini bertindak sebagai penyedia API tunggal (*Single Source of Tr
 - [x] **Step 2.9:** Implementasi `LostItemPolicy` dan `ItemReportPolicy` untuk otorisasi akses (Respons 403 Forbidden).
 - [x] **Step 2.10:** Penulisan 12 Feature Test otomatis berbasis MySQL testing engine (`uts_kepl_test`).
 - [x] **Step 2.11:** Konfigurasi runner server aplikasi FrankenPHP.
-- [x] **Step 2.12:** Ekspor Postman Collection (14 endpoint lengkap) & Environment ke folder `/postman`.
+- [x] **Step 2.12:** Ekspor Postman Collection (15 operasi endpoint, 18 request) & Environment ke folder `/postman`.
 
 ---
 

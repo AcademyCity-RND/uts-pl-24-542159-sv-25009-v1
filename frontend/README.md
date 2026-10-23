@@ -1,9 +1,12 @@
 # 🎨 JejakBarang — Frontend Multi-Page Application
 
-> **Layanan:** Frontend Multi-Page Application (MPA) untuk antarmuka pengguna
-> **Teknologi:** Vue.js 3, Vite, TypeScript, Tailwind CSS, Axios, Pinia
-> **Arsitektur:** Decoupled Monorepo Service
+**UTS Konstruksi & Evolusi Perangkat Lunak 2026**  
+**Hilarius Christiano Avin Paliling (24/542159/SV/25009)**  
+*D4 Teknologi Rekayasa Perangkat Lunak — Sekolah Vokasi UGM*
 
+> **Layanan:** Frontend Multi-Page Application (MPA) untuk antarmuka pengguna  
+> **Teknologi:** Vue.js 3, Vite, TypeScript, Tailwind CSS, Axios, Pinia, Nginx 1.27  
+> **Arsitektur:** Decoupled Monorepo Service
 ---
 
 ## 1. Ikhtisar Layanan
