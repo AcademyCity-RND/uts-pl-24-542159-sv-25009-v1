@@ -1,4 +1,4 @@
-FROM dunglas/frankenphp:1.4-php8.3-bookworm
+FROM dunglas/frankenphp:php8.3-bookworm
 
 # Install ekstensi PHP yang dibutuhkan Laravel: pdo_mysql, gd, intl, zip, opcache
 RUN install-php-extensions \

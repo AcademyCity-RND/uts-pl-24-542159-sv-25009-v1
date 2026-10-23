@@ -1,5 +1,9 @@
 # 📮 Koleksi Pengujian API Postman — JejakBarang
 
+**UTS Konstruksi & Evolusi Perangkat Lunak 2026**  
+**Hilarius Christiano Avin Paliling (24/542159/SV/25009)**  
+*D4 Teknologi Rekayasa Perangkat Lunak — Sekolah Vokasi UGM*
+
 Repositori ini menyediakan berkas koleksi Postman resmi (**`uts-pl-api.postman_collection.json`**) dan environment (**`uts-pl-local.postman_environment.json`**) untuk menguji **15 operasi endpoint** melalui **18 request** RESTful API **JejakBarang** secara menyeluruh, terotomatisasi, dan siap pakai.
 
 ---
