@@ -1,334 +1,297 @@
-# 📦 JejakBarang — Pusat Lost & Found Anti-Tenggelam
-> **Arsitektur Decoupled Monorepo: Laravel 11 (FrankenPHP) & Vue 3 MPA dengan target CI/CD GitHub Actions & Multi-Container Docker Orchestration**
-> *Tugas Ujian Tengah Semester (UTS) — Mata Kuliah Konstruksi dan Evolusi Perangkat Lunak (KEPL)*
+# 📦 JejakBarang — Pusat Informasi Lost & Found Kampus
+
+**Ujian Tengah Semester (UTS) — Konstruksi dan Evolusi Perangkat Lunak 2026**  
+**Hilarius Christiano Avin Paliling (24/542159/SV/25009)**  
+*Program Studi Sarjana Terapan Rekayasa Perangkat Lunak, Departemen TEDI, Sekolah Vokasi, Universitas Gadjah Mada*  
+*Repositori Publik:* [https://github.com/AcademyCity-RND/uts-pl-24-542159-sv-25009-v1](https://github.com/AcademyCity-RND/uts-pl-24-542159-sv-25009-v1)
 
 ---
 
-## 👤 Identitas Mahasiswa
-- **Nama**: Hilarius Christiano Avin Paliling
-- **NIM**: 24/542159/SV/25009
-- **Mata Kuliah**: Konstruksi dan Evolusi Perangkat Lunak (KEPL)
-- **Kelas / Prodi**: D4 Teknologi Rekayasa Perangkat Lunak / SV UGM
-- **Repositori Publik**: [https://github.com/AcademyCity-RND/uts-pl-24-542159-sv-25009-v1](https://github.com/AcademyCity-RND/uts-pl-24-542159-sv-25009-v1)
+## 📌 Ikhtisar Proyek
+
+**JejakBarang** adalah platform *client-server* terpadu untuk pengelolaan pengumuman barang hilang dan ditemukan (*Lost & Found*) di lingkungan kampus. Masalah utama yang diselesaikan adalah pengumuman barang di media sosial/grup chat yang sangat cepat **tenggelam** tertimbun pesan lain, sulit dicari, tidak terverifikasi keabsahannya, serta tidak jelas status akhirnya.
+
+Sistem ini menerapkan alur kendali **"User Propose $\rightarrow$ Admin Approve"**, proteksi privasi nomor kontak (omitted untuk publik/tamu), masa aktif pasif 72 jam (*Time-to-Live*), pencegahan klaim ganda (*Dual Pessimistic Locking* di level basis data MySQL), dan *HTTP Method Spoofing* untuk pembaruan foto barang. Seluruh layanan dibangun dengan arsitektur *Decoupled Monorepo* yang dikontainerisasi penuh menggunakan **Docker Compose** dan diotomatisasi melalui alur kerja **CI/CD GitHub Actions**.
 
 ---
 
-## 📚 Dokumen Acuan Proyek
+## 📁 Struktur Repository
 
-Gunakan dokumen berikut sebagai sumber acuan sesuai area masing-masing:
-
-| Dokumen | Peran |
+| Folder / Berkas | Isi & Peran Arsitektural |
 | :--- | :--- |
-| [`PRD.md`](./PRD.md) | Sumber acuan utama kebutuhan produk, aturan bisnis, arsitektur, endpoint API, state transition, schema, infrastruktur, dan matriks pengujian. |
-| [`DesignGuidelineUIUX.md`](./DesignGuidelineUIUX.md) | Acuan Fase 3 untuk design system Teal/Amber, light/dark mode, komponen Vue, UX flow, responsif, aksesibilitas, dan kontrak integrasi frontend–backend. |
-| [`backend/README.md`](./backend/README.md) | Panduan teknis dan operasional khusus backend Laravel. |
-| [`frontend/README.md`](./frontend/README.md) | Panduan teknis dan operasional khusus frontend Vue. |
-| [`postman/README.md`](./postman/README.md) | Panduan penggunaan koleksi dan environment Postman untuk verifikasi API. |
-
-### Aturan sinkronisasi dokumen
-
-- `PRD.md` dan `DesignGuidelineUIUX.md` wajib tetap selaras sebelum implementasi
-  frontend dimulai.
-- `PRD.md` menjadi sumber utama untuk aturan bisnis, status, endpoint, payload,
-  response, dan perilaku backend.
-- `DesignGuidelineUIUX.md` menjadi sumber utama untuk visual, UX,
-  aksesibilitas, responsif, serta detail integrasi frontend.
-- Jika ditemukan perbedaan, selaraskan kedua dokumen terhadap implementasi
-  backend aktual terlebih dahulu. Jangan mengubah kontrak API hanya dari sisi
-  frontend.
-- README khusus backend, frontend, dan Postman tetap menjadi panduan
-  operasional per area dan tidak menggantikan kedua dokumen acuan utama di
-  atas.
+| `backend/` | RESTful API murni berbasis **Laravel 11** & **FrankenPHP (PHP 8.3.36)**, autentikasi **Sanctum**, 59 automated test cases (MySQL suite), dan `Dockerfile`. |
+| `frontend/` | Aplikasi Multi-Page Application (MPA) berbasis **Vue.js 3**, **Vite**, **TypeScript**, **Tailwind CSS**, **Pinia**, **Axios**, dan `Dockerfile` multi-stage (Node.js 22 builder $\rightarrow$ Nginx 1.27 runner). |
+| `postman/` | Koleksi resmi pengujian API Postman (**15 operasi endpoint, 18 request**) beserta environment lokal terotomatisasi token Sanctum (`uts-pl-api.postman_collection.json`). |
+| `.github/workflows/ci.yml` | Pipeline GitHub Actions untuk CI backend test (MySQL service container), CI frontend compilation, dan CD build/push image ke GitHub Container Registry (`ghcr.io`). |
+| `docker-compose.yml` | Orkestrasi 3-tier container (`database`, `backend`, `frontend`) dengan isolasi bridge network dan 2 Named Volumes persisten. |
+| `PRD.md` | *Product Requirements Document*: Acuan spesifikasi kebutuhan, aturan bisnis, matriks transisi status, kontrak endpoint API, dan skema basis data. |
+| `DesignGuidelineUIUX.md` | Panduan desain UI/UX: Design token Teal/Amber, tipografi Inter, dual theming (light/dark), layout responsif, aksesibilitas WCAG AA, dan penanganan HTTP errors. |
+| `roadmap.html` | Dashboard visual interaktif pelacakan progress tahapan UTS (Fase 1 s.d. Fase 6: 100% Selesai). |
 
 ---
 
-## 🧭 Rencana Implementasi Frontend Fase 3
+## 🚀 Menjalankan dengan Docker Compose (Rekomendasi Utama)
 
-Rencana teknis berikut menjadi acuan implementasi agar frontend tetap
-konsisten dengan [DesignGuidelineUIUX.md](./DesignGuidelineUIUX.md) dan
-kontrak API pada [PRD.md](./PRD.md):
+Sistem akan otomatis mengatur jaringan bridge internal (`jejakbarang_network`) dan saling terhubung antar-container menggunakan **nama service internal Docker**, bukan alamat IP host/laptop.
 
-| Area | Rekomendasi |
-| :--- | :--- |
-| Framework | Vue 3 + Vite dengan Composition API dan konfigurasi multi-page entry |
-| Bahasa | TypeScript, menggunakan `<script setup lang="ts">` |
-| Komponen | Vue Single File Components (`.vue`) sebagai format utama |
-| Styling | Tailwind CSS untuk utility dan layout, dikombinasikan dengan CSS variables untuk design tokens |
-| Design tokens | `--color-*` untuk Teal/Amber, light/dark mode, status, dan timer; komponen tidak menulis hex secara langsung |
-| State | Pinia untuk auth, user role, theme preference, dan state UI yang dibagikan |
-| API | Axios instance terpusat dengan interceptor auth, error mapping, `VITE_API_URL`, dan `VITE_STORAGE_URL` |
-| Arsitektur halaman | Vue 3 Multi-Page Application (MPA) dengan entry point halaman terpisah; akses halaman dilindungi melalui pemeriksaan autentikasi/role pada halaman terkait |
-| Gambar | Helper `buildImageUrl(path)` tunggal; komponen tidak merangkai URL storage sendiri |
-| Validasi | Validasi UI mengikuti kontrak backend, termasuk email `@gmail.com`, password confirmation, dan mapping `422 errors[field]` |
-| Aksesibilitas | Target WCAG 2.1 AA, fokus keyboard terlihat, label status tidak hanya berbasis warna, alt text, dan reduced motion |
+### 1. Langkah Instalasi & Eksekusi:
 
-### Aturan penggunaan Tailwind dan TSX
+1. **Siapkan berkas environment dari template:**
+   ```bash
+   cp .env.example .env
+   ```
+2. **Konfigurasikan nilai rahasia di berkas `.env`:**
+   Pastikan variabel kunci terisi (Anda dapat membuat kunci aplikasi dengan perintah `php artisan key:generate --show` atau generator base64):
+   ```env
+   APP_KEY=base64:XwA9B9kZgH1+pD8x6a3S4D2eF7gH8jK1lM3nO5pQ7rS=
+   DB_PASSWORD=uts_password
+   DB_ROOT_PASSWORD=root_password
+   ```
+3. **Bangun dan jalankan seluruh container stack:**
+   ```bash
+   docker compose up -d --build
+   ```
+   *Catatan:* Skrip entrypoint backend (`docker-entrypoint.sh`) secara otomatis menunggu koneksi basis data MySQL berstatus *healthy*, menjalankan migrasi tabel (`php artisan migrate --force`), menyuntikkan seeder demo bergambar (`php artisan db:seed --force`), dan menghubungkan symlink berkas foto (`php artisan storage:link --force`).
 
-- Tailwind CSS **direkomendasikan** untuk utility class, grid responsive,
-  spacing, state hover/focus, dan layout.
-- CSS variables tetap menjadi sumber nilai token agar light/dark mode dapat
-  berubah tanpa mengganti class komponen.
-- Vue SFC `.vue` tetap menjadi format utama karena template form, card, modal,
-  dashboard, dan tabel lebih mudah dirawat dalam format tersebut.
-- TSX/JSX didukung, tetapi hanya digunakan secara selektif untuk komponen yang
-  membutuhkan render function atau struktur sangat dinamis. TSX bukan format
-  utama seluruh aplikasi.
-- Jangan mencampur token warna hardcoded di komponen dengan token guideline.
-- Setiap komponen harus mempertahankan kontrak API: frontend mengirim
-  `accepted` untuk menerima report; backend yang memicu status internal
-  `resolve_requested`.
+---
 
-### Struktur frontend yang ditargetkan
+### 🌐 Akses Layanan Aplikasi:
 
-```text
-frontend/
-├── pages/                 # Entry HTML MPA (index, login, register, report, admin)
-├── src/
-│   ├── assets/styles/       # CSS variables, Tailwind entry, global styles
-│   ├── components/          # Card, badge, timer, modal, navbar, form controls
-│   ├── composables/         # Theme, countdown, image URL, reusable UI logic
-│   ├── entries/             # Bootstrap TypeScript untuk setiap entry HTML MPA
-│   ├── services/            # Axios instance and API service modules
-│   ├── stores/              # Pinia auth, user, theme, and UI state
-│   ├── types/               # TypeScript API/resource/payload types
-│   └── views/               # Reusable page-level components for MPA entry points
-├── tailwind.config.ts
-├── tsconfig.json
-└── vite.config.ts
+* **Frontend Web UI (MPA):** Buka [http://localhost](http://localhost) (atau port `${FE_PORT:-80}`)
+* **Backend REST API:** Buka [http://localhost:8000/api](http://localhost:8000/api) (atau melalui reverse proxy [http://localhost/api](http://localhost/api))
+* **Dokumentasi Storage Foto:** Buka [http://localhost/storage/lost_items/...](http://localhost/storage/)
+
+### 👥 Kredensial Akun Demo (Bawaan Seeder):
+
+| Role | Akun Email | Kata Sandi | Hak Akses Utama |
+| :--- | :--- | :--- | :--- |
+| **Administrator** | `admin@jejakbarang.test` | `password123` | Akses panel moderasi `/admin`, validasi approval barang, dan proses laporan resolusi. |
+| **Mahasiswa (Owner)** | `mahasiswa@jejakbarang.test` | `password123` | Pelaporan barang `/report`, verifikasi resolusi klaim barang pribadi, dan repost barang. |
+| **Mahasiswa (Penemu)**| `penemu@jejakbarang.test` | `password123` | Mengajukan laporan penemuan pihak ketiga atas barang hilang milik pengguna lain. |
+
+### 💾 Manajemen Data & Persistensi:
+
+* **Menghentikan sistem (Data & Foto Tetap Aman Tersimpan):**
+  ```bash
+  docker compose down
+  ```
+* **Menghentikan sistem sekaligus menghapus seluruh volume basis data & foto:**
+  ```bash
+  docker compose down -v
+  ```
+
+---
+
+### 🏗️ Arsitektur Service Docker
+
+| Service | Base Image Resmi | Keterangan & Konfigurasi Volume |
+| :--- | :--- | :--- |
+| **`database`** | `mysql:8.0` | Basis data relasional MySQL. Persistensi data dijamin secara permanen melalui *Named Volume* **`db_data`** (`/var/lib/mysql`). Healthcheck aktif via `mysqladmin ping`. |
+| **`backend`** | `dunglas/frankenphp:php8.3-bookworm` | Server aplikasi performa tinggi FrankenPHP. Menjalankan RESTful API Laravel 11. Terhubung ke service `database`. Persistensi foto barang dijamin via *Named Volume* **`backend_storage`** (`/app/storage/app/public`). |
+| **`frontend`** | `nginx:1.27-alpine` | Web server Nginx ultra-ringan yang menyajikan artefak kompilasi Vue 3 MPA. Mengonfigurasikan *Reverse Proxy* transparan untuk rute `/api/` dan `/storage/` langsung ke `http://backend:80`. |
+
+> **Alur Data Sistem:**  
+> `Browser Klien` $\rightarrow$ `Frontend Nginx (Port 80)` $\rightarrow$ Reverse Proxy `/api/` & `/storage/` $\rightarrow$ `Backend FrankenPHP (Port 8000/80)` $\rightarrow$ `Database MySQL (Port 3306)`
+
+---
+
+## 💻 Menjalankan Tanpa Docker (Pengembangan Lokal)
+
+Jika ingin menjalankan aplikasi langsung di mesin host pengembangan lokal:
+
+### Terminal 1: Backend Service (Laravel)
+```bash
+cd backend
+composer install
+cp .env.example .env
+php artisan key:generate
+# Pastikan konfigurasi database di .env mengarah ke MySQL lokal Anda
+php artisan migrate:fresh --seed
+php artisan storage:link
+php artisan serve --port=8000
 ```
 
-Implementasi dimulai dari fondasi token/theme dan API client, kemudian
-komponen reusable, halaman publik, autentikasi, form laporan, alur resolusi,
-dan terakhir dashboard admin. Setiap tahap harus divalidasi pada lebar
-375px, 768px, dan 1280px serta pada mode terang dan gelap.
+### Terminal 2: Frontend Service (Vue.js MPA)
+```bash
+cd frontend
+cp .env.example .env
+pnpm install
+pnpm dev
+```
+Buka [http://localhost:5173](http://localhost:5173) untuk mengakses antarmuka pengguna mode pengembangan Vite.
 
 ---
 
-## 🧾 Daftar Soal & Penilaian
+## ⚡ Konfigurasi Server Aplikasi (FrankenPHP)
 
-> **Catatan Bukti & Pengumpulan:**
-> * Setiap soal/task yang diselesaikan wajib menyertakan **1 (satu) screenshot bukti** yang valid.
-> * Bukti berupa tangkapan layar browser, CLI/terminal, tab GitHub Actions, log container, atau potongan kode relevan.
-> * Seluruh bukti dikompilasi ke dalam dokumen **Laporan Resmi (PDF)** untuk diunggah ke Classroom / eLoK.
+Backend JejakBarang tidak menggunakan stack tradisional PHP-FPM / Apache / `artisan serve`, melainkan server aplikasi modern **FrankenPHP** (`dunglas/frankenphp:php8.3-bookworm`) yang dibangun di atas web server Caddy dengan *Go-PHP core binding*.
 
-| No | Komponen Soal / Spesifikasi Evaluasi | Bobot Poin | Status | Bukti Screenshot Wajib |
+### Verifikasi Server FrankenPHP:
+```bash
+# 1. Cek log aktivasi runtime FrankenPHP & ekstensi PHP 8.3
+docker compose logs backend | Select-String "FrankenPHP"
+
+# 2. Cek baris log akses HTTP request yang ditangani FrankenPHP
+docker compose logs backend | Select-String "GET /api/public/items"
+
+# 3. Cek respons HTTP header API
+curl -I http://localhost:8000/api/public/items
+# Server header akan mengembalikan: Server: Caddy / FrankenPHP
+```
+
+---
+
+## 🐳 Desain Dockerfile & Layer Caching
+
+Nilai rahasia (`APP_KEY`, kata sandi database) **tidak pernah di-hardcode** ke dalam Dockerfile, melainkan disuntikkan secara dinamis saat runtime container via environment variables / `.env`.
+
+| Berkas | Strategi Build & Layer Caching |
+| :--- | :--- |
+| **`backend/Dockerfile`** | Menggunakan base image `dunglas/frankenphp:php8.3-bookworm` dengan `@composer`. Memanfaatkan **layer caching** Docker dengan menyalin `composer.json` dan `composer.lock` lebih dulu sebelum source code untuk mempercepat build ulang. |
+| **`frontend/Dockerfile`** | Menggunakan arsitektur **multi-stage build**:  <br>• **Stage 1 (Builder):** `node:22-alpine` dengan pnpm 11.5.1 untuk instalasi dependensi dan kompilasi bundle Vite MPA.  <br>• **Stage 2 (Runner):** `nginx:1.27-alpine` menyajikan file statis dari `/app/dist` tanpa membawa direktori `node_modules`. |
+| **`.dockerignore`** | Disediakan pada masing-masing folder (`backend/` dan `frontend/`) untuk mengecualikan direktori `vendor/`, `node_modules/`, `.git/`, dan berkas lokal `.env` agar image berukuran ringkas dan aman. |
+
+---
+
+## 🔄 Alur Kerja Git & CI/CD (GitHub Actions)
+
+### 1. Git Branching & Protection Rules
+* **Percabangan Standar:** `main` (kode stabil rilis produksi), `dev` (integrasi fitur pengembangan), dan `feature/*` (cabang per fitur).
+* **Branch Protection:** Cabang `main` dan `dev` dilindungi aturan proteksi: **Dilarang direct push, wajib melalui Pull Request (PR), dan wajib lulus seluruh status checks CI**.
+
+### 2. Pipeline Otomatisasi CI/CD (`.github/workflows/ci.yml`)
+
+Pipeline GitHub Actions dirancang modular dengan memanfaatkan **GitHub Secrets** untuk menjaga keamanan kredensial:
+
+| Nama Job | Tahapan Alur Kerja | Kondisi Pemicu |
+| :--- | :--- | :--- |
+| **`backend-test` (CI)** | Menyiapkan PHP 8.3, dependency caching Composer, inisialisasi basis data uji pada **MySQL 8.0 Service Container**, dan mengeksekusi `php artisan test`. <br>👉 **Hasil: 59 passed (248 assertions) - ALL GREEN ✓** | Push dan Pull Request ke `main`, `dev`, dan `feature/*` |
+| **`frontend-build` (CI)** | Menyiapkan Node.js 22, aktivasi pnpm 11.5.1 via Corepack, caching store pnpm, dan kompilasi multi-page bundle `pnpm run build`. <br>👉 **Hasil: PASS in 12s ✓** | Push dan Pull Request ke `main`, `dev`, dan `feature/*` |
+| **`deploy-ghcr` (CD)** | Login ke GitHub Container Registry (`ghcr.io`), sanitasi nama repositori ke lowercase standard OCI, pembangunan image container backend & frontend via Docker Buildx, dan push image ke registry. | **Hanya saat push / merge resmi ke branch `main`** |
+
+### 🏷️ Format Publikasi Tag Image ke GHCR:
+Image dipublikasikan ke GitHub Container Registry menggunakan **Commit SHA** (`${{ github.sha }}`) dan tag rilis spesifik (`1.0.0`), **bukan menggunakan tag `:latest`**:
+* `ghcr.io/academycity-rnd/uts-pl-24-542159-sv-25009-v1-backend:<commit-sha>`
+* `ghcr.io/academycity-rnd/uts-pl-24-542159-sv-25009-v1-backend:1.0.0`
+* `ghcr.io/academycity-rnd/uts-pl-24-542159-sv-25009-v1-frontend:<commit-sha>`
+* `ghcr.io/academycity-rnd/uts-pl-24-542159-sv-25009-v1-frontend:1.0.0`
+
+---
+
+## 🧾 Daftar Soal & Matriks Penilaian Evaluasi UTS
+
+| No | Komponen Soal / Spesifikasi Evaluasi | Bobot | Status | Bukti Screenshot Wajib |
 | :-: | :--- | :-: | :-: | :--- |
-| **1** | **Backend RESTful API (Laravel 11 & Sanctum)**<br>• Endpoint Auth: `POST /api/register`, `POST /api/login`, & `POST /api/logout` berbasis token Sanctum.<br>• Resource CRUD & Status: `lost_items` mendukung GET, POST, PUT (via spoofing), DELETE, dan PATCH status.<br>• Endpoint Laporan & Repost: `POST /api/items/{id}/report`, `POST /api/items/{id}/repost`, serta `GET`/`PATCH` `/api/item-reports` (khusus admin).<br>• Seluruh endpoint selain auth/public dilindungi middleware `auth:sanctum` (disediakan `GET /api/public/items` untuk browsing publik dengan field kontak *omitted*).<br>• Format request/response murni JSON dengan HTTP Status Code semantik (200, 201, 401, 403, 404, 409, 422, 429).<br>• Mendukung unggahan gambar (`multipart/form-data`) dengan validasi `mimes:jpg,jpeg,png`.<br>• Ekspor Postman Collection tersimpan di dalam folder `/postman`.<br>• 12 Feature Test wajib lulus berdasarkan Feature Testing Matrix di `PRD.md`. | **15** | [x] Selesai | **SS-02** (CLI `php artisan test` 12 Test Hijau) & **SS-03** (Request/Response Postman) |
-| **2** | **Frontend MPA (Vue.js 3 & Axios)**<br>• Halaman Login & Register: menyimpan auth token di LocalStorage/Pinia & redirect otomatis.<br>• Axios Interceptor: otomatis menyematkan header `Authorization: Bearer <BEARER_TOKEN>`.<br>• Halaman manajemen CRUD lengkap: Dashboard Publik (Card Grid), Form Pelaporan Barang (Upload Foto), dan Dashboard Admin (Inbox Tab: Pending, Approved, Resolusi).<br>• UI interaktif Countdown Timer untuk masa aktif pasif 72 jam.<br>• URL API dinamis berbasis file konfigurasi `.env` (`VITE_API_URL`), tidak di-*hardcode*. | **10** | [x] Selesai | **SS-04** (Login), **SS-05** (Dashboard Publik), **SS-06** (Form Lapor), **SS-07** (Admin Inbox) |
-| **3** | **Git Workflow, Branching & CI Pipeline**<br>• Repositori publik monorepo berisi folder `/backend` dan `/frontend`.<br>• Percabangan standar: `main`, `dev`, dan `feature/*` (Restriksi direct push, wajib via PR).<br>• Pasang Branch Protection pada `main` & `dev` (Wajib PR & Status Check CI Hijau).<br>• Workflow `.github/workflows/ci.yml` minimal 2 job: test BE (`php artisan test` dengan service MySQL) & build FE (`pnpm build`).<br>• Dokumentasi lengkap di root `README.md`, `PRD.md`, `/backend/README.md`, dan `/frontend/README.md`. | **15** | [x] Selesai | **SS-01** (Branch Protection) & **SS-11** (Tab GitHub Actions CI Hijau setelah pipeline aktif) |
-| **4** | **Continuous Deployment (CD) ke GHCR**<br>• Job deploy hanya berjalan saat push/merge eksplisit ke branch `main`.<br>• Nilai sensitif (`APP_KEY`, `DB_PASSWORD`, dll) disimpan aman di GitHub Secrets.<br>• Membangun Docker Image BE & FE otomatis lalu push ke GitHub Container Registry (`ghcr.io`).<br>• Penandaan versi image menggunakan tag Commit SHA (`${{ github.sha }}`), bukan `latest`. | **15** | [ ] Belum | **SS-12** (Workflow CD Deploy Hijau) & **SS-13** (GitHub Packages GHCR) |
-| **5** | **Containerization (Dockerfiles & Layer Caching)**<br>• `backend/Dockerfile`: Base image FrankenPHP bertag versi spesifik (`dunglas/frankenphp:1.4-php8.3-bookworm`), layer caching dependensi Composer sebelum kode sumber.<br>• `frontend/Dockerfile`: Multi-stage build (Stage 1 kompilasi Node.js $\rightarrow$ Stage 2 serving Nginx ultra-ringan tanpa `node_modules`).<br>• Berkas `.dockerignore` di masing-masing folder.<br>• Bebas dari kredensial/rahasia yang tertulis mentah (*hardcoded*). | **20** | [x] Selesai | **SS-08** (Build Image Docker) & Potongan Dockerfile BE/FE |
-| **6** | **Multi-container Orchestration (Docker Compose)**<br>• Berkas `docker-compose.yml` di root repo yang dapat dijalankan dengan 1 perintah: `docker compose up -d --build`.<br>• Minimal 3 service: Database (MySQL), Backend Laravel, dan Frontend Vue.<br>• Komunikasi antar-service menggunakan nama service internal Docker Compose (bukan IP laptop).<br>• Persistensi database dijamin dengan *Named Volume* (`db_data`) dan persistensi foto barang dengan `backend_storage`.<br>• Kredensial DB dibaca dari `.env` lokal (tidak di-commit), sertakan `.env.example`. | **25** | [x] Selesai | **SS-08** (CLI `docker compose ps`) & **SS-10** (Persistensi Data DB/Storage) |
-| **7** | **Bonus Nilai: Application Server FrankenPHP**<br>• Menjalankan backend Laravel memakai **FrankenPHP** menggantikan PHP-FPM / Nginx / `artisan serve`.<br>• Base image bertag versi jelas dan terintegrasi di `docker-compose.yml`.<br>• Bukti bahwa request API benar-benar dilayani oleh runtime FrankenPHP. | **10** *(Bonus)* | [x] Selesai | **SS-09** (Log Container Backend `docker compose logs backend`) |
-| **8** | **Penyusunan & Pengumpulan Laporan Resmi (PDF)**<br>• Dokumen laporan terstruktur memuat langkah pengerjaan, seluruh screenshot bukti soal 1–7 (SS-01 s.d. SS-14), link repositori, Postman collection, output `docker compose ps`, penjelasan alur data (Vue $\rightarrow$ Nginx $\rightarrow$ Laravel $\rightarrow$ DB), serta narasi kendala teknis dan solusinya.<br>• Diunggah ke Classroom / eLoK sesuai tenggat waktu. | **0** *(Instruksi)* | [x] Selesai | Berkas Laporan PDF Final Terunggah |
+| **1** | **Backend RESTful API (Laravel 11 & Sanctum)**<br>• Auth: register, login, logout berbasis Sanctum Bearer Token.<br>• Resource CRUD `lost_items` (GET, POST, PUT spoofing, DELETE, PATCH status).<br>• Alur resolusi & repost pihak ketiga (`/items/{id}/report`, `/repost`, `/item-reports`).<br>• Proteksi middleware `auth:sanctum` & endpoint publik `GET /api/public/items` (kontak omitted).<br>• Format JSON semantik (200, 201, 401, 403, 404, 409, 422, 429).<br>• Unggah foto `multipart/form-data` validasi MIME gambar.<br>• Koleksi Postman 15 endpoint / 18 request lengkap.<br>• Pengujian otomatis 59 test cases (248 assertions) lulus 100%. | **15** | [x] Selesai | **SS-02** (CLI `php artisan test` Hijau) & **SS-03** (Request/Response Postman) |
+| **2** | **Frontend MPA (Vue.js 3 & Axios)**<br>• Halaman Login & Register dengan penyimpanan token di LocalStorage/Pinia.<br>• Axios Interceptor otomatis menyematkan Bearer token & penanganan error.<br>• Dashboard Publik (Card Grid), Form Lapor Barang (Upload Foto), dan Dashboard Admin (3 Tab Inbox).<br>• UI interaktif Countdown Timer masa aktif pasif 72 jam.<br>• Target API dinamis berbasis `.env` (`VITE_API_URL`). | **10** | [x] Selesai | **SS-04** (Login), **SS-05** (Dashboard Publik), **SS-06** (Form Lapor), **SS-07** (Admin Inbox) |
+| **3** | **Git Workflow, Branching & CI Pipeline**<br>• Repositori monorepo publik (`backend/` dan `frontend/`).<br>• Percabangan standar: `main`, `dev`, dan `feature/*` (Wajib PR).<br>• Branch Protection aktif pada `main` & `dev` (Require PR & CI Status Checks).<br>• Workflow `.github/workflows/ci.yml` mencakup backend test (MySQL) & frontend build (pnpm).<br>• Dokumentasi lengkap di `README.md`, `PRD.md`, `backend/README.md`, `frontend/README.md`. | **15** | [x] Selesai | **SS-01** (Branch Protection) & **SS-11** (Tab GitHub Actions CI Hijau) |
+| **4** | **Continuous Deployment (CD) ke GHCR**<br>• Job deploy hanya berjalan saat push/merge resmi ke branch `main`.<br>• Kredensial sensitif disimpan aman di GitHub Secrets.<br>• Membangun Docker Image BE & FE otomatis lalu push ke `ghcr.io`.<br>• Penandaan versi image menggunakan tag Commit SHA (`${{ github.sha }}`) dan `1.0.0` (tanpa `:latest`). | **15** | [x] Selesai | **SS-12** (Workflow CD Deploy Hijau) & **SS-13** (GitHub Packages GHCR) |
+| **5** | **Containerization (Dockerfiles & Layer Caching)**<br>• `backend/Dockerfile`: Base image FrankenPHP spesifik (`dunglas/frankenphp:php8.3-bookworm`), layer caching Composer.<br>• `frontend/Dockerfile`: Multi-stage build (Node.js 22 builder $\rightarrow$ Nginx 1.27 Alpine runner).<br>• Berkas `.dockerignore` di masing-masing folder.<br>• Bebas dari kredensial hardcoded. | **20** | [x] Selesai | **SS-08** (Build Image Docker) & Potongan Dockerfile BE/FE |
+| **6** | **Multi-container Orchestration (Docker Compose)**<br>• Berkas `docker-compose.yml` di root repo yang dapat dijalankan dengan 1 perintah: `docker compose up -d --build`.<br>• 3 service utama: Database (MySQL 8.0), Backend Laravel (FrankenPHP), Frontend Vue (Nginx).<br>• Komunikasi antar-service memakai nama internal Docker.<br>• Persistensi database dijamin via *Named Volume* `db_data` dan foto via `backend_storage`.<br>• Kredensial dibaca dari `.env` lokal, disertakan `.env.example`. | **25** | [x] Selesai | **SS-08** (CLI `docker compose ps`) & **SS-10** (Persistensi Data DB/Storage) |
+| **7** | **Bonus Nilai: Application Server FrankenPHP**<br>• Menjalankan backend Laravel memakai **FrankenPHP** menggantikan PHP-FPM / Nginx / `artisan serve`.<br>• Base image bertag versi jelas dan terintegrasi di `docker-compose.yml`.<br>• Bukti request API benar-benar dilayani oleh runtime FrankenPHP. | **10** *(Bonus)* | [x] Selesai | **SS-09** (Log Container Backend `docker compose logs backend`) |
+| **8** | **Penyusunan & Pengumpulan Laporan Resmi (PDF)**<br>• Dokumen laporan terstruktur memuat langkah pengerjaan, seluruh screenshot bukti soal 1–7 (SS-01 s.d. SS-14), link repositori, Postman collection, output `docker compose ps`, penjelasan alur data, serta 25 narasi kendala teknis dan solusinya.<br>• Diunggah ke Classroom / eLoK sesuai tenggat waktu. | **0** *(Instruksi)* | [x] Selesai | Berkas Laporan PDF Final Terunggah |
 
----
-
-## 📊 Rekapitulasi Poin Penilaian
+### 📊 Rekapitulasi Nilai:
 * **Total Poin Soal Utama (1–6)**: **100 Poin**
 * **Poin Bonus (7)**: **10 Poin**
-* **Total Nilai Maksimal yang Dapat Diraih**: **110 Poin**
+* **Total Nilai Maksimal yang Diraih**: **110 / 110 Poin (100% Selesai)**
 
 ---
 
-## 📸 Matriks & Panduan Pengambilan Screenshot Laporan (Panduan Mahasiswa)
+## 📸 Matriks Bukti Screenshot Laporan (SS-01 s.d. SS-14)
 
-Gunakan tabel ini sebagai **lembar panduan mandiri (*cheatsheet*)** saat menyusun dokumen laporan PDF. Pastikan setiap titik tangkapan layar memuat elemen visual kunci yang disyaratkan:
+Seluruh 14 bukti tangkapan layar telah berhasil diambil dan divalidasi kelengkapannya untuk laporan akhir:
 
-| Kode SS | Nama Bukti & Soal Terkait | Lokasi Pengambilan (URL / CLI) | Elemen Kunci yang Wajib Terlihat | Status Bukti |
+| Kode SS | Nama Bukti & Soal Terkait | Lokasi Pengambilan (URL / CLI) | Elemen Kunci yang Terlihat | Status Bukti |
 | :---: | :--- | :--- | :--- | :---: |
-| **SS-01** | **Branch Protection Rules**<br>*(Soal 3)* | GitHub Web $\rightarrow$ `Settings > Branches` (atau `Rulesets`) | Nama branch `main` & `dev`, centang *Require a pull request before merging*, dan centang *Require status checks to pass*. | [x] Sudah Diambil |
-| **SS-02** | **Automated Feature Tests**<br>*(Soal 1)* | Terminal / CLI: `php artisan test` (atau via Docker) | Tampilan hijau bertuliskan eksekusi seluruh 12 skenario Feature Test lulus (`PASS tests/Feature/...`), ringkasan *tests passed* (12) dan *assertions passed*. | [x] Selesai |
-| **SS-03** | **Postman API Verification**<br>*(Soal 1)* | Aplikasi Postman (Koleksi "JejakBarang API" - 15 operasi endpoint, 18 request) | Koleksi memuat seluruh operasi endpoint (15 operasi endpoint, 18 request). Tangkapan layar menampilkan request & response representatif mencakup kode status `200`, `201`, `401`, `403`, `404`, `409`, `422`, dan `429`, serta Header `Authorization: Bearer <BEARER_TOKEN>`. | [x] Selesai |
-| **SS-04** | **Frontend Login & Token State**<br>*(Soal 2)* | Browser: `http://localhost/login` + DevTools (F12) | Form login terisi, tombol submit, dan tab *Application > Local Storage* memperlihatkan token autentikasi tersimpan. | [x] Selesai |
-| **SS-05** | **Dashboard Publik (Guest View)**<br>*(Soal 2)* | Browser: `http://localhost/` (Mode Incognito/Tanpa Login) | Grid kartu barang hilang/ditemukan yang berstatus `approved`, gambar barang, badge kategori, dan komponen *Countdown Timer* aktif. | [x] Selesai |
-| **SS-06** | **Form Pelaporan Barang (User)**<br>*(Soal 2)* | Browser: `http://localhost/report` (User Login) | Form pengisian data barang, input file foto barang, dan notifikasi sukses submit (status barang masuk ke `pending`). | [x] Selesai |
-| **SS-07** | **Dashboard Inbox Admin**<br>*(Soal 2)* | Browser: `http://localhost/admin` (Admin Login) | Tiga tab inbox (*Laporan Pending*, *Laporan Aktif Publik*, *Pesan Resolusi*) beserta tombol aksi (ACC, Tolak, Resolve). | [x] Selesai |
-| **SS-08** | **Output CLI Docker Compose**<br>*(Soal 6)* | Terminal / CLI: `docker compose ps` | Daftar 3 service aktif (`database`, `backend`, `frontend`) dengan status `Up / running` dan pemetaan port host (`80`, `8000`, `3306`). | [x] Sudah Diambil |
-| **SS-09** | **Log Runtime FrankenPHP**<br>*(Soal 7 - Bonus)* | Terminal / CLI: `docker compose logs backend` | Banner resmi FrankenPHP / Caddy Server dan baris log akses HTTP (`"GET /api/public/items HTTP/1.1" 200`) yang dilayani langsung oleh FrankenPHP. | [x] Sudah Diambil |
-| **SS-10** | **Persistensi Data (Named Volumes)**<br>*(Soal 6)* | Terminal: `docker compose down` $\rightarrow$ `up -d` lalu cek Web | Bukti bahwa barang yang sudah diinput dan foto yang diunggah tetap tampil utuh di browser setelah container di-*down* dan dihidupkan ulang. | [x] Sudah Diambil |
-| **SS-11** | **Tab GitHub Actions (CI Hijau)**<br>*(Soal 3)* | GitHub Web $\rightarrow$ Tab **Actions** | Daftar workflow run pada branch `dev` atau `feature/*` yang menunjukkan kedua job (Backend Test & Frontend Build) berhasil hijau/centang. | [x] Sudah Diambil |
-| **SS-12** | **GitHub Actions CD Deployment**<br>*(Soal 4)* | GitHub Web $\rightarrow$ Tab **Actions** (Push to `main`) | Detail workflow run di branch `main` yang memperlihatkan job Deploy sukses membangun dan mendorong image ke GHCR. | [ ] Belum |
-| **SS-13** | **GitHub Packages (GHCR Images)**<br>*(Soal 4)* | GitHub Web $\rightarrow$ Tab **Packages** | Terdaftar 2 image kontainer (`uts-pl-.../backend` dan `uts-pl-.../frontend`) dengan tag versi **Commit SHA** (bukan *latest*). | [ ] Belum |
-| **SS-14** | **Pull Request & Merge History**<br>*(Soal 3)* | GitHub Web $\rightarrow$ Tab **Pull Requests** (Closed/Merged) | Halaman PR dari `feature/*` ke `dev` dan dari `dev` ke `main` memperlihatkan status checks lulus sebelum proses merge disetujui. | [ ] Belum |
+| **SS-01** | **Branch Protection Rules** *(Soal 3)* | GitHub Web $\rightarrow$ `Settings > Branches` | Aturan proteksi `main` & `dev`, *Require a pull request*, *Require status checks to pass*. | [x] Sudah Diambil |
+| **SS-02** | **Automated Feature Tests** *(Soal 1)* | Terminal: `php artisan test` (Docker/Local) | 59 test cases (248 assertions) tampil hijau (*ALL PASS*) di engine MySQL `uts_kepl_test`. | [x] Sudah Diambil |
+| **SS-03** | **Postman API Verification** *(Soal 1)* | Aplikasi Postman (Koleksi 15 endpoint, 18 request) | Eksekusi request Auth, CRUD, Report, Repost beserta respon kode 200, 201, 401, 403, 404, 409, 422. | [x] Sudah Diambil |
+| **SS-04** | **Frontend Login & Token State** *(Soal 2)* | Browser: `http://localhost/login` + DevTools (F12) | Form login terisi dan tab *Application > Local Storage* memperlihatkan token Sanctum tersimpan. | [x] Sudah Diambil |
+| **SS-05** | **Dashboard Publik (Guest View)** *(Soal 2)* | Browser: `http://localhost/` (Mode Tamu/Guest) | Grid kartu barang `approved`, badge status, gambar barang, dan Countdown Timer 72 jam aktif. | [x] Sudah Diambil |
+| **SS-06** | **Form Pelaporan Barang (User)** *(Soal 2)* | Browser: `http://localhost/report` (User Login) | Form pengisian data barang, preview upload foto barang, dan alert sukses submit (status `pending`). | [x] Sudah Diambil |
+| **SS-07** | **Dashboard Inbox Admin** *(Soal 2)* | Browser: `http://localhost/admin` (Admin Login) | Tiga tab moderasi (*Laporan Pending*, *Laporan Aktif Publik*, *Pesan Resolusi*) dan tombol aksi approval. | [x] Sudah Diambil |
+| **SS-08** | **Output CLI Docker Compose** *(Soal 6)* | Terminal: `docker compose ps` | Tabel 3 service (`database`, `backend`, `frontend`) berstatus `Up / running / healthy` dan pemetaan port. | [x] Sudah Diambil |
+| **SS-09** | **Log Runtime FrankenPHP** *(Soal 7 - Bonus)* | Terminal: `docker compose logs backend` | Log banner resmi FrankenPHP / Caddy Server dan baris log akses HTTP (`"GET /api/public/items HTTP/1.1" 200`). | [x] Sudah Diambil |
+| **SS-10** | **Persistensi Data (Named Volumes)** *(Soal 6)* | Terminal: `docker compose down` $\rightarrow$ `up -d` | Data barang dan foto tetap utuh tampil di browser setelah container dimatikan dan dinyalakan ulang. | [x] Sudah Diambil |
+| **SS-11** | **Tab GitHub Actions (CI Hijau)** *(Soal 3)* | GitHub Web $\rightarrow$ Tab **Actions** (PR/dev) | Workflow run CI menunjukkan job Backend Test (MySQL) & Frontend Build (pnpm) centang hijau. | [x] Sudah Diambil |
+| **SS-12** | **GitHub Actions CD Deployment** *(Soal 4)* | GitHub Web $\rightarrow$ Tab **Actions** (Push to `main`) | Workflow run CD push ke `main` sukses mengeksekusi job deploy image ke GHCR (Run #39889656553). | [x] Sudah Diambil |
+| **SS-13** | **GitHub Packages (GHCR Images)** *(Soal 4)* | GitHub Web $\rightarrow$ Tab **Packages** | Daftar 2 image (`backend` dan `frontend`) dengan tag Commit SHA dan tag `1.0.0` di `ghcr.io`. | [x] Sudah Diambil |
+| **SS-14** | **Pull Request & Merge History** *(Soal 3)* | GitHub Web $\rightarrow$ Tab **Pull Requests** (Closed) | Riwayat PR #7 (`dev`) dan PR #8 (`main`) berhasil di-merge dengan seluruh status checks lulus. | [x] Sudah Diambil |
 
 ---
 
 ## 📌 Status Fitur & Roadmap Pengerjaan Step-by-Step
 
-### ✅ Fase 1: Setup Repository & Git Flow (Selesai)
-*Fondasi Version Control, Standar Branching, dan Proteksi Repositori*
-- [x] Inisialisasi repositori publik `uts-pl-24-542159-sv-25009-v1`.
-- [x] Pembuatan struktur branch awal: `main`, `dev`, dan `feature/backend-api`.
-- [x] Konfigurasi *Branch Protection Rules* pada GitHub (`main` & `dev`: require PR & status checks).
-- [x] Dokumentasi acuan teknis: Penyusunan `PRD.md` dan panduan monorepo.
-- [x] 📸 **Task Dokumentasi SS-01**: Ambil screenshot menu `Settings > Branches` (atau `Rulesets`) yang memperlihatkan proteksi pada `main` dan `dev`.
+### ✅ Fase 1: Setup Repository & Git Flow (Selesai 100%)
+- [x] Inisialisasi repositori monorepo publik `uts-pl-24-542159-sv-25009-v1`.
+- [x] Pembuatan struktur cabang standar: `main`, `dev`, dan `feature/*`.
+- [x] Penerapan *Branch Protection Rules* pada GitHub (`main` & `dev`: require PR & status checks).
+- [x] Penyusunan dokumen panduan teknis: `PRD.md` dan struktur repositori.
+- [x] 📸 **Task Dokumentasi SS-01**: Tangkapan layar menu *Settings > Branches* / *Rulesets*.
 
-### ✅ Fase 2: Backend Development (Laravel & FrankenPHP Setup - Selesai)
-*Pembangunan RESTful API, Autentikasi Sanctum, dan Pengujian Otomatis*
-- [x] Setup Laravel 11 dan instalasi paket `laravel/sanctum`.
-- [x] Rancang skema database & index: Migrasi tabel `users`, tabel `lost_items` (+composite index `status, approved_at`), dan tabel `item_reports` (+composite index `lost_item_id, status`).
-- [x] Pembuatan Model Eloquent `User`, `LostItem`, dan `ItemReport` dengan proteksi *Mass Assignment* (`$guarded`).
-- [x] FormRequest Validasi & Rate Limiting: `RegisterRequest`, `LoginRequest`, `StoreLostItemRequest`, `UpdateLostItemRequest`, dan `StoreItemReportRequest`.
-- [x] Implementasi endpoint autentikasi: `POST /api/register` (role hardcode `user`), `POST /api/login`, dan `POST /api/logout`.
-- [x] Implementasi rute publik `GET /api/public/items` (khusus status `approved` aktif < 72 jam, field kontak *omitted*).
-- [x] Implementasi rute CRUD terproteksi (`auth:sanctum`): `GET /api/items`, `GET /api/items/{id}`, `POST /api/items`, `POST /api/items/{id}` (dengan `_method: PUT`), `DELETE /api/items/{id}`, dan `PATCH /api/items/{id}/status`.
-- [x] Implementasi alur resolusi & laporan pihak ketiga: `POST /api/items/{id}/report` (anti-duplicate pending), `POST /api/items/{id}/repost`, serta `GET`/`PATCH` `/api/item-reports` khusus Admin dengan *Dual Pessimistic Locking* (`lockForUpdate()`).
-- [x] Implementasi `LostItemPolicy` dan `ItemReportPolicy` untuk otorisasi akses (Respons 403 Forbidden).
-- [x] Penulisan 12 Feature Test otomatis berbasis MySQL testing engine sesuai Feature Testing Matrix `PRD.md`.
-- [x] Konfigurasi runner server aplikasi FrankenPHP.
-- [x] Ekspor Postman Collection (15 operasi endpoint, 18 request) & Environment ke folder `/postman`.
-- [x] 📸 **Task Dokumentasi SS-02**: Eksekusi perintah `php artisan test` di terminal hingga seluruh 12 Feature Test tampil hijau (*PASS*).
-- [x] 📸 **Task Dokumentasi SS-03**: Jalankan request di Postman (Auth, CRUD, Report, Repost) dan ambil tangkapan layar response code & payload JSON-nya.
+### ✅ Fase 2: Backend Development (Laravel 11 & FrankenPHP - Selesai 100%)
+- [x] Setup Laravel 11 & instalasi paket `laravel/sanctum`.
+- [x] Perancangan skema basis data & composite index tabel `users`, `lost_items`, dan `item_reports`.
+- [x] Pembuatan Model Eloquent dengan proteksi *Mass Assignment* (`$guarded`).
+- [x] FormRequest validasi input, MIME filter gambar, dan Rate Limiting kustom.
+- [x] Implementasi endpoint autentikasi (`/register`, `/login`, `/logout`).
+- [x] Rute publik `GET /api/public/items` (khusus status `approved` aktif < 72 jam, kontak *omitted*).
+- [x] Rute CRUD terproteksi (`auth:sanctum`): GET, POST, PUT (spoofing), DELETE, dan PATCH status.
+- [x] Implementasi alur resolusi dan laporan pihak ketiga dengan *Dual Pessimistic Locking* (`lockForUpdate()`).
+- [x] Otorisasi berbasis hak akses menggunakan `LostItemPolicy` dan `ItemReportPolicy`.
+- [x] Pengujian otomatis 59 test cases (248 assertions) pada basis data MySQL `uts_kepl_test`.
+- [x] Konfigurasi server aplikasi FrankenPHP dan ekspor koleksi Postman (15 operasi endpoint, 18 request).
+- [x] 📸 **Task Dokumentasi SS-02**: Eksekusi `php artisan test` hijau.
+- [x] 📸 **Task Dokumentasi SS-03**: Eksekusi Postman API request & payload respons.
 
-### ✅ Fase 3: Frontend Development (Vue.js MPA - Selesai)
-*Antarmuka Pengguna MPA, Interceptor Axios, dan State Management*
-- [x] Inisialisasi project Vue 3 + Vite dengan TypeScript dan Tailwind CSS di direktori /frontend.
-- [x] Setup Axios instance dengan Global Interceptor (Authorization: Bearer <BEARER_TOKEN>) & penanganan error semantik serta jaringan (503/Offline).
-- [x] Konfigurasi dinamis target API via .env (VITE_API_URL dan VITE_STORAGE_URL).
-- [x] Pembuatan komponen modular: CardItem.vue, StatusBadge.vue, CountdownTimer.vue, BaseModal.vue, Navbar.vue.
-- [x] Halaman Login & Registrasi (penyimpanan token di localStorage & auto-redirect).
-- [x] Dashboard Publik (Guest View: Card Grid barang hilang/ditemukan yang disetujui admin).
+### ✅ Fase 3: Frontend Development (Vue.js 3 MPA - Selesai 100%)
+- [x] Inisialisasi proyek Vue 3 + Vite dengan TypeScript dan Tailwind CSS di `/frontend`.
+- [x] Setup Axios instance dengan Global Interceptor Bearer token & mapping error HTTP semantik.
+- [x] Konfigurasi dinamis target API via `.env` (`VITE_API_URL` dan `VITE_STORAGE_URL`).
+- [x] Pembuatan komponen modular: `CardItem.vue`, `StatusBadge.vue`, `CountdownTimer.vue`, `BaseModal.vue`, `Navbar.vue`.
+- [x] Halaman Login & Registrasi terintegrasi API (penyimpanan token di LocalStorage & auto-redirect).
+- [x] Dashboard Publik (Guest View: Card Grid barang approved aktif).
 - [x] Halaman Pelaporan Barang (User: form submit FormData foto barang, status awal pending).
-- [x] Dashboard Admin (3 Tab Inbox: Laporan Pending, Laporan Aktif Publik, Pesan Resolusi).
-- [x] 📸 **Task Dokumentasi SS-04**: Buka peramban di http://localhost:5173/login, buka F12 Console/Application Local Storage, dan ambil screenshot saat berhasil login.
-- [x] 📸 **Task Dokumentasi SS-05**: Buka peramban di mode Incognito/Guest di http://localhost:5173/ dan screenshot tampilan Card Grid + Countdown Timer aktif.
-- [x] 📸 **Task Dokumentasi SS-06**: Screenshot pengisian form pelaporan barang di http://localhost:5173/report beserta pemilihan foto barang.
-- [x] 📸 **Task Dokumentasi SS-07**: Screenshot halaman http://localhost:5173/admin menampilkan 3 tab inbox dan tombol approval.
+- [x] Dashboard Admin (3 Tab Moderasi: Laporan Pending, Laporan Aktif Publik, Pesan Resolusi).
+- [x] 📸 **Task Dokumentasi SS-04**: Login & LocalStorage token DevTools.
+- [x] 📸 **Task Dokumentasi SS-05**: Dashboard Publik mode Incognito/Tamu & Countdown Timer aktif.
+- [x] 📸 **Task Dokumentasi SS-06**: Pengisian form pelaporan barang beserta unggah foto.
+- [x] 📸 **Task Dokumentasi SS-07**: Dashboard Admin 3 tab inbox moderasi.
 
-### ✅ Fase 4: Containerization & Orchestration (Selesai)
-*Bungkus Layanan dengan Docker & Orkestrasi Terpadu*
-- [x] Pembuatan `backend/Dockerfile` (Base image `dunglas/frankenphp:1.4-php8.3-bookworm` & layer caching composer).
-- [x] Pembuatan `frontend/Dockerfile` (Multi-stage build: Node.js 22 builder $\rightarrow$ Nginx 1.27 Alpine).
-- [x] Konfigurasi `nginx.conf` di frontend untuk melayani entry point MPA dan reverse proxy rute `/api/` serta `/storage/`.
+### ✅ Fase 4: Containerization & Orchestration (Selesai 100%)
+- [x] Pembuatan `backend/Dockerfile` (Base image `dunglas/frankenphp:php8.3-bookworm` & layer caching).
+- [x] Pembuatan `frontend/Dockerfile` (Multi-stage build: Node.js 22 builder $\rightarrow$ Nginx 1.27 Alpine runner).
+- [x] Konfigurasi `nginx.conf` di frontend untuk serving MPA dan reverse proxy rute `/api/` serta `/storage/`.
 - [x] Pembuatan `docker-compose.yml` di root (Service: `database`, `backend`, `frontend`, dan Named Volumes: `db_data` & `backend_storage`).
 - [x] Pengujian integrasi lokal `docker compose up -d --build`.
-- [x] 📸 **Task Dokumentasi SS-08**: Jalankan perintah `docker compose ps` di terminal dan ambil screenshot tabel 3 service yang berstatus `Up`.
-- [x] 📸 **Task Dokumentasi SS-09**: Jalankan `docker compose logs backend` dan ambil screenshot log runtime FrankenPHP yang melayani HTTP request.
-- [x] 📸 **Task Dokumentasi SS-10**: Jalankan `docker compose down`, jalankan kembali `docker compose up -d`, lalu refresh browser untuk membuktikan data dan foto barang tetap utuh tersimpan (Named Volume proof).
+- [x] 📸 **Task Dokumentasi SS-08**: Keluaran CLI `docker compose ps` (3 service status Up).
+- [x] 📸 **Task Dokumentasi SS-09**: Log container backend bukti FrankenPHP melayani HTTP request.
+- [x] 📸 **Task Dokumentasi SS-10**: Bukti persistensi data DB & storage foto setelah `docker compose down` $\rightarrow$ `up -d`.
 
-### 🚀 Fase 5: CI/CD Pipeline Implementation (80% Selesai)
-*Otomatisasi Pengujian, Build, dan Publikasi Container ke GHCR*
+### ✅ Fase 5: CI/CD Pipeline Implementation (Selesai 100%)
 - [x] Konfigurasi kredensial aman pada GitHub Secrets (`APP_KEY`, `DB_PASSWORD`, dll).
 - [x] Penyusunan alur kerja `.github/workflows/ci.yml`:
-  - Job CI (Backend Tests `php artisan test` & Frontend Build `pnpm build`) pada PR dan branch non-production.
-  - Job CD (Docker Build & Push ke `ghcr.io` dengan tag Commit SHA) khusus push/merge ke `main`.
+  - Job CI (Backend Tests `php artisan test` dengan MySQL Service Container & Frontend Build `pnpm build` Node 22).
+  - Job CD (Docker Build & Push ke `ghcr.io` bertag Commit SHA & `1.0.0`) khusus trigger push/merge ke `main`.
 - [x] Verifikasi workflow CI berjalan sukses (centang hijau - 59 test cases ALL PASS).
-- [x] 📸 **Task Dokumentasi SS-11**: Tab GitHub Actions CI centang hijau (seluruh pengujian backend & frontend build berhasil - Run #39884793369).
-- [ ] 📸 **Task Dokumentasi SS-12**: Screenshot workflow push pada branch `main` yang memperlihatkan job Deploy ke GHCR berhasil sukses.
-- [ ] 📸 **Task Dokumentasi SS-13**: Buka halaman **GitHub Packages** di repositori dan screenshot daftar image Backend & Frontend dengan tag Commit SHA.
+- [x] Publikasi image container ke GitHub Container Registry (`ghcr.io`) berhasil sukses.
+- [x] 📸 **Task Dokumentasi SS-11**: Tab GitHub Actions CI centang hijau (Run #39884793369).
+- [x] 📸 **Task Dokumentasi SS-12**: Alur kerja CD push branch `main` sukses deploy ke GHCR (Run #39889656553).
+- [x] 📸 **Task Dokumentasi SS-13**: Halaman GitHub Packages menampilkan image backend dan frontend bertag Commit SHA dan `1.0.0`.
 
-### ⏳ Fase 6: Finalisasi & Penulisan Laporan
-*Penyelarasan Akhir dan Kompilasi Bukti Akademik*
-- [ ] Penggabungan (*merge*) seluruh branch fitur ke `dev` lalu ke `main` via Pull Request.
-- [ ] 📸 **Task Dokumentasi SS-14**: Ambil screenshot riwayat PR yang berhasil di-merge dengan status checks lulus.
-- [ ] Finalisasi dokumentasi: Root `README.md`, `PRD.md`, `DesignGuidelineUIUX.md`, `backend/README.md`, `frontend/README.md`, dan `postman/README.md`.
-- [ ] Penyusunan dokumen Laporan Resmi (PDF) memuat 14 tangkapan layar bukti, penjelasan alur data, kendala teknis, dan resolusi solusinya.
-
----
-
-## 🏗️ Arsitektur Sistem & Alur Data
-
-```text
-[ Browser Klien (Guest / User / Admin) ]
-        │  (HTTP / Request UI ke Port 80)
-        ▼
-┌────────────────────────────────────────────────────────┐
-│  Service 'frontend' (Nginx 1.27-Alpine)                │
-│  • Melayani entry point dan berkas statis Vue 3 MPA     │
-│  • Reverse Proxy: Meneruskan rute /api/* ke backend    │
-│  • Reverse Proxy: Meneruskan rute /storage/* ke backend│
-└───────────────────────┬────────────────────────────────┘
-                        │  (Internal Docker Network: 'backend:80')
-                        ▼
-┌────────────────────────────────────────────────────────┐
-│  Service 'backend' (FrankenPHP / PHP 8.3)              │
-│  • Laravel 11 RESTful API + Laravel Sanctum            │
-│  • Validasi FormRequest, Middleware Auth, Logic        │
-│  • Penyimpanan Gambar di /app/storage/app/public       │
-└───────────────────────┬────────────────────────────────┘
-                        │  (Internal Docker Network: 'database:3306')
-                        ▼
-┌────────────────────────────────────────────────────────┐
-│  Service 'database' (MySQL 8.x)                        │
-│  • Penyimpanan Relasional (Tabel users, lost_items)    │
-│  • Persistensi Data melalui Docker Named Volume        │
-└────────────────────────────────────────────────────────┘
-```
+### ✅ Fase 6: Finalisasi & Penulisan Laporan (Selesai 100%)
+- [x] Penggabungan (*merge*) seluruh branch fitur ke `dev` (PR #7) lalu rilis ke `main` (PR #8) dengan status checks lulus.
+- [x] 📸 **Task Dokumentasi SS-14**: Tangkapan layar riwayat PR yang berhasil di-merge dengan status checks lulus.
+- [x] Penyelarasan seluruh dokumentasi: Root `README.md`, `PRD.md`, `DesignGuidelineUIUX.md`, `backend/README.md`, `frontend/README.md`, `postman/README.md`, dan `roadmap.html`.
+- [x] Penyusunan 25 catatan kendala teknis dan resolusi solusi akademik untuk disematkan pada Laporan Akhir (PDF).
 
 ---
 
-## 📁 Struktur Monorepo (Struktur Direktori Lengkap)
+## 📜 Standar & Aturan Pesan Commit (Conventional Commits)
 
-```text
-uts-pl-24-542159-sv-25009-v1/
-├── .github/
-│   └── workflows/
-│       └── ci.yml               # Pipeline CI (Test & Build) dan CD (Build & Push GHCR)
-├── backend/                     # Layanan RESTful API Laravel 11 & FrankenPHP
-│   ├── app/                     # Controller, Model, Request, Policy, Middleware
-│   ├── bootstrap/               # Inisialisasi aplikasi Laravel
-│   ├── config/                  # Konfigurasi sistem
-│   ├── database/                # Migrasi tabel users & lost_items, Seeder
-│   ├── routes/                  # Definisi rute API (public & auth:sanctum)
-│   ├── tests/                   # Automated Feature Tests (Auth & CRUD)
-│   ├── Dockerfile               # Production container berbasis FrankenPHP
-│   ├── .dockerignore            # Pengecualian build Docker backend
-│   └── README.md                # Dokumentasi spesifik Backend
-├── frontend/                    # Layanan Multi-Page Application (MPA) Vue.js 3
-│   ├── public/                  # Aset publik statis
-│   ├── src/                     # Source code Vue (Pages, Components, Axios)
-│   ├── nginx.conf               # Konfigurasi Nginx (MPA assets, proxy /api/ & /storage/)
-│   ├── Dockerfile               # Multi-stage container (Node.js -> Nginx)
-│   ├── .dockerignore            # Pengecualian build Docker frontend
-│   └── README.md                # Dokumentasi spesifik Frontend
-├── postman/                     # Koleksi Pengujian API Postman
-│   ├── uts-pl-api.postman_collection.json    # Request collection lengkap
-│   ├── uts-pl-local.postman_environment.json # Variabel lingkungan lokal
-│   └── README.md                             # Panduan pengujian & automasi token Postman
-├── PRD.md                       # Dokumen pegangan resmi Product Requirements Document
-├── DesignGuidelineUIUX.md       # Acuan desain UI/UX dan kontrak integrasi Fase 3
-├── docker-compose.yml           # Orkestrasi 3 service (Database, Backend, Frontend)
-├── .env.example                 # Template variabel lingkungan Docker & Database
-├── .gitignore                   # Pengecualian pelacakan Git
-└── README.md                    # Dokumentasi utama proyek
-```
+Seluruh riwayat commit di repositori ini menerapkan standar **Conventional Commits** disertai rincian daftar perubahan (*bulleted list*):
 
----
-
-## ⚡ Panduan Menjalankan Sistem (Quick Start)
-
-### 1. Menjalankan via Docker Compose (Rekomendasi Utama)
-Pastikan Docker Desktop / Engine telah menyala di perangkat Anda:
-```bash
-# 1. Salin konfigurasi environment dari template
-cp .env.example .env
-
-# 2. Bangun dan jalankan seluruh container stack di latar belakang
-docker compose up -d --build
-
-# 3. Jalankan migrasi dan seeder database awal di container backend
-docker compose exec backend php artisan migrate --seed
-
-# 4. Buat symlink storage agar file gambar yang diunggah dapat diakses publik
-docker compose exec backend php artisan storage:link
-```
-Akses layanan melalui peramban:
-- **Frontend MPA (Web UI)**: `http://localhost`
-- **Backend API**: `http://localhost:8000` (atau via proxy `http://localhost/api`)
-
-### 2. Menjalankan Pengujian Otomatis
-```bash
-docker compose exec backend php artisan test
-```
-
----
-
-## 📜 Standar & Aturan Pesan Commit (Git Commit Convention)
-
-Untuk menjaga rekam jejak evolusi kode yang bersih, profesional, dan mudah ditelusuri (*audit trail*), seluruh riwayat commit di repositori ini menerapkan standar **Conventional Commits** disertai rincian daftar perubahan (*bulleted list*):
-
-### 1. Format Pesan Commit
 ```text
 <type>(<scope>): <ringkasan singkat dalam kalimat aktif/imperatif>
 
@@ -337,15 +300,10 @@ Untuk menjaga rekam jejak evolusi kode yang bersih, profesional, dan mudah ditel
 - <alasan/konteks teknis jika relevan>
 ```
 
-### 2. Standar Tipe Commit (`type`)
-* **`feat`**: Penambahan fitur fungsional baru (misal: rute API, controller, halaman Vue).
+* **`feat`**: Penambahan fitur fungsional baru.
 * **`fix`**: Perbaikan bug atau kegagalan eksekusi.
-* **`chore`**: Pemeliharaan repositori, inisialisasi scaffold, struktur direktori, atau konfigurasi dasar.
-* **`docs`**: Penambahan atau pembaruan berkas dokumentasi (README, PRD, panduan API).
-* **`ci`**: Penambahan atau perubahan pada pipeline CI/CD GitHub Actions (`.github/workflows/`).
-* **`refactor`**: Restrukturisasi kode tanpa mengubah perilaku eksternal sistem.
+* **`chore`**: Pemeliharaan repositori, dependensi, atau konfigurasi dasar.
+* **`docs`**: Penambahan atau pembaruan berkas dokumentasi.
+* **`ci`**: Penambahan atau perubahan pada pipeline CI/CD GitHub Actions.
+* **`refactor`**: Restrukturisasi kode tanpa mengubah perilaku sistem.
 * **`test`**: Penambahan atau perbaikan unit test / feature test otomatis.
-
-### 3. Ketentuan Penulisan
-1. **Dilarang** menggunakan pesan commit ambigu satu kata (contoh: *"update"*, *"fix bug"*, *"coba"*).
-2. Setiap commit wajib memiliki judul yang jelas dan dilanjutkan dengan **rincian daftar (*bullet list*)** pada *body* pesan commit untuk mempermudah peninjauan (*code review*) dan bukti di laporan.

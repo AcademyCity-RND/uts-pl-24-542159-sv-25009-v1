@@ -498,13 +498,13 @@ Berkas `docker-compose.yml` mengelola 2 Named Volume penting:
 2. **Continuous Deployment (CD) & Keamanan Secret:**
    * Dipicu **HANYA** saat terjadi push/merge ke branch `main`.
    * Membangun Docker Image Backend & Frontend. Berkas `.env`, `APP_KEY`, kredensial basis data, atau rahasia sensitif lainnya **DILARANG KERAS di-*bake* (disalin permanen) ke dalam layer Docker Image**. Rahasia hanya disuntikkan secara dinamis saat *runtime container* melalui environment variables / GitHub Secrets.
-   * Mengunggah (*push*) image ke **GitHub Container Registry (`ghcr.io`)** menggunakan penandaan tag Commit SHA (`${{ github.sha }}`).
+   * Mengunggah (*push*) image ke **GitHub Container Registry (`ghcr.io`)** menggunakan penandaan tag Commit SHA (`${{ github.sha }}`) dan tag rilis `1.0.0` (tanpa `:latest`).
 
 ---
 
 ## 6. Matriks Pengujian Otomatis (*Feature Testing Matrix*)
 
-Sistem wajib lolos 12 skenario pengujian otomatis (`php artisan test`) untuk menjamin kepatuhan seluruh aturan bisnis:
+Sistem telah terverifikasi **lulus 100% pada 59 test cases (248 assertions)** menggunakan PHPUnit & engine MySQL (`uts_kepl_test`), mencakup 12 skenario pengujian wajib PRD serta unit testing integritas model & otorisasi:
 
 > **Catatan:** Angka 12 merujuk pada jumlah skenario wajib dalam matriks PRD, bukan jumlah seluruh test method. Implementasi dapat memiliki test tambahan untuk unit validation, policy authorization, CRUD, resolution flow, dan verifikasi konkurensi database.
 
