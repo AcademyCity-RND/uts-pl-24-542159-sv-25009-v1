@@ -6,6 +6,7 @@ max_attempts=30
 
 while [ "$attempt" -le "$max_attempts" ]; do
     if php artisan migrate --force; then
+        php artisan storage:link --force || true
         exec "$@"
     fi
 

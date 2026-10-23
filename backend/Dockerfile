@@ -6,7 +6,8 @@ RUN install-php-extensions \
     gd \
     intl \
     zip \
-    opcache
+    opcache \
+    @composer
 
 WORKDIR /app
 

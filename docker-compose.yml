@@ -23,16 +23,16 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    image: jejakbarang-backend:latest
+    image: jejakbarang-backend:1.0.0
     container_name: jejakbarang_backend
     restart: unless-stopped
     ports:
-      - "8000:80"
+      - "${BE_PORT:-8000}:80"
     environment:
       APP_NAME: JejakBarang
       APP_ENV: production
       APP_DEBUG: "false"
-      APP_URL: http://localhost:8000
+      APP_URL: http://localhost:${BE_PORT:-8000}
       APP_KEY: ${APP_KEY:?APP_KEY wajib diisi}
       DB_CONNECTION: mysql
       DB_HOST: database
@@ -45,6 +45,21 @@ services:
         condition: service_healthy
     volumes:
       - backend_storage:/app/storage/app/public
+    networks:
+      - jejakbarang_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: jejakbarang-frontend:1.0.0
+    container_name: jejakbarang_frontend
+    restart: unless-stopped
+    ports:
+      - "${FE_PORT:-80}:80"
+    depends_on:
+      backend:
+        condition: service_started
     networks:
       - jejakbarang_network
 
