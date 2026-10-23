@@ -2,15 +2,15 @@
 # Multi-Stage Dockerfile Frontend — JejakBarang
 # Stage 1: Build Aset Statis (Node 20 Alpine & pnpm)
 # ==========================================
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
 # Aktifkan pnpm via corepack
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@11.5.1 --activate
 
 # Copy manifest dependensi
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml* ./
 
 # Install dependensi
 RUN pnpm install --frozen-lockfile

@@ -23,7 +23,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    image: jejakbarang-backend:latest
+    image: jejakbarang-backend:1.0.0
     container_name: jejakbarang_backend
     restart: unless-stopped
     ports:
@@ -52,7 +52,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    image: jejakbarang-frontend:latest
+    image: jejakbarang-frontend:1.0.0
     container_name: jejakbarang_frontend
     restart: unless-stopped
     ports:

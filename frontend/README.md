@@ -143,7 +143,7 @@ Aplikasi menerapkan sistem desain bernuansa **Teal** sebagai warna utama (*Prima
   - Halaman / dialog detail barang untuk konfirmasi penerimaan resolusi (`PATCH /api/items/{id}/status`).
   - Fitur Repost (`POST /api/items/{id}/repost`) untuk barang kedaluwarsa/selesai dengan proteksi cooldown 72 jam.
 
-### ⏳ Task Terkait Soal 5: Multi-Stage Dockerfile (20 Poin)
+### ✅ Task Terkait Soal 5: Multi-Stage Dockerfile (20 Poin - Selesai)
 - [x] Berkas `frontend/Dockerfile` tersedia dengan strategi multi-stage:
   - Stage 1: Build aset statis menggunakan image `node:20-alpine`.
   - Stage 2: Sajikan aset statis menggunakan image ringan `nginx:1.27-alpine`.
@@ -152,7 +152,7 @@ Aplikasi menerapkan sistem desain bernuansa **Teal** sebagai warna utama (*Prima
   - Reverse proxy path `/api/` ke service Docker backend (`http://backend:80/api/`).
   - Reverse proxy path `/storage/` ke service Docker backend (`http://backend:80/storage/`).
 - [x] Berkas `frontend/.dockerignore` tersedia.
-- [ ] Validasi integrasi container frontend melalui `docker compose up -d --build` masih menunggu penyelesaian Fase 4.
+- [x] Validasi integrasi container frontend melalui `docker compose up -d --build` berhasil 100% (healthy & running).
 
 ---
 
