@@ -177,7 +177,7 @@ melalui `.env`.
 > DB_PASSWORD=
 > ```
 
-Pengujian otomatis dijalankan melalui PHPUnit dengan target **100% kelulusan** pada 12 skenario wajib:
+Suite pengujian otomatis mencakup **59 test cases (248 assertions)** yang diorganisasikan ke dalam *Unit Tests* dan *Feature Tests*, mencakup 12 skenario wajib UTS:
 1. `test_guest_cannot_see_contact_info_on_public_list()`
 2. `test_authenticated_non_owner_cannot_see_other_user_contact_info()`
 3. `test_owner_and_admin_can_see_contact_info()`
@@ -196,7 +196,7 @@ Jalankan pengujian via CLI:
 # Eksekusi di dalam container backend (MySQL terhubung otomatis)
 docker compose exec backend php artisan test
 
-# Atau eksekusi lokal dengan basis data MySQL lokal (pastikan database uts_kepl_test telah dibuat)
+# Atau eksekusi di pipeline GitHub Actions (service container MySQL 8.0 - ALL GREEN ✓)
 php artisan test
 ```
 

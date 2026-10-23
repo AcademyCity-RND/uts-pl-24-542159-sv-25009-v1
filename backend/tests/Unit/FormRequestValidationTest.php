@@ -10,10 +10,12 @@ use App\Http\Requests\UpdateLostItemRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class FormRequestValidationTest extends TestCase
 {
+    use RefreshDatabase;
     /**
      * Memverifikasi aturan validasi RegisterRequest.
      */
