@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -58,6 +59,15 @@ class AuthController extends Controller
         $user = User::where('email', $validated['email'])->first();
 
         if (!$user || !Hash::check($validated['password'], $user->password)) {
+            // Pencatatan Log Terstruktur Level WARNING (P10: Otentikasi Gagal / Validasi Gagal Tanpa Kebocoran Password)
+            Log::warning('Percobaan otentikasi login pengguna gagal: kredensial tidak cocok', [
+                'event' => 'auth.login_failed',
+                'actor_ip' => $request->ip(),
+                'attempted_email' => $validated['email'],
+                'action' => 'user_login',
+                'reason' => 'invalid_credentials',
+            ]);
+
             return response()->json([
                 'message' => 'Kredensial yang diberikan tidak cocok dengan data kami.',
                 'errors' => [
