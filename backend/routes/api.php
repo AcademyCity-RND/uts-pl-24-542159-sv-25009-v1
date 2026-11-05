@@ -4,8 +4,12 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ItemController;
 use App\Http\Controllers\Api\ItemReportController;
 use App\Http\Controllers\Api\PublicItemController;
+use App\Http\Controllers\HealthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+// Endpoint Pemeriksaan Kesehatan Sistem (P10)
+Route::get('/health', [HealthController::class, 'check']);
 
 // Endpoint Publik Terbuka
 Route::get('/public/items', [PublicItemController::class, 'index']);
