@@ -1,5 +1,10 @@
 FROM dunglas/frankenphp:php8.3-bookworm
 
+# Pastikan curl terinstal untuk container health check
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install ekstensi PHP yang dibutuhkan Laravel: pdo_mysql, gd, intl, zip, opcache
 RUN install-php-extensions \
     pdo_mysql \
