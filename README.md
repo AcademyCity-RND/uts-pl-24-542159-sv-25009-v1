@@ -286,6 +286,18 @@ Seluruh 14 bukti tangkapan layar telah berhasil diambil dan divalidasi kelengkap
 - [x] Penyelarasan seluruh dokumentasi: Root `README.md`, `PRD.md`, `DesignGuidelineUIUX.md`, `backend/README.md`, `frontend/README.md`, `postman/README.md`, dan `roadmap.html`.
 - [x] Penyusunan 25 catatan kendala teknis dan resolusi solusi akademik untuk disematkan pada Laporan Akhir (PDF).
 
+### ✅ Fase 7: Observability, Structured Logging & Health Check (Pertemuan 10 - Selesai 100%)
+- [x] Konfigurasi stdout/stderr logging Laravel via `LOG_CHANNEL=stderr` untuk agregasi langsung `docker compose logs`.
+- [x] Penerapan minimal 3 log terstruktur berkonteks:
+  - `INFO`: Pencatatan penyimpanan laporan barang baru di `ItemController@store`.
+  - `WARNING`: Pencatatan kegagalan otentikasi kredensial login di `AuthController@login` (tanpa membocorkan password).
+  - `ERROR`: Pencatatan kegagalan dependensi kritis basis data saat health probe mendeteksi error di `HealthController@check`.
+- [x] Pembuatan endpoint aktif `GET /health` dan `GET /api/health` yang menguji koneksi MySQL dan cache secara riil (respons 200 OK saat sehat, 503 Service Unavailable saat sakit).
+- [x] Konfigurasi probe `healthcheck` backend di `compose.yaml` (`interval: 10s`, `timeout: 5s`, `retries: 3`, `start_period: 20s`).
+- [x] Skenario verifikasi 2 arah: simulasi `docker compose stop database` mengubah status backend menjadi `unhealthy` dan mencatat log error, lalu pulih menjadi `healthy` saat database dihidupkan kembali.
+- [x] Pembatasan rotasi log kontainer di `compose.yaml` menggunakan driver `json-file` (`max-size: "10m"`, `max-file: "3"`).
+- [x] Penyusunan panduan komprehensif dan matriks tangkapan layar di [P10_REPORT_GUIDE.md](./P10_REPORT_GUIDE.md).
+
 ---
 
 ## 📜 Standar & Aturan Pesan Commit (Conventional Commits)

@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ItemReportController extends Controller
@@ -50,6 +51,18 @@ class ItemReportController extends Controller
 
         // 2. Ketentuan State Barang: Harus approved dan belum kedaluwarsa (PRD Skenario 7: 409 Conflict)
         if ($item->status !== 'approved' || $item->is_expired) {
+            // Pencatatan Log Terstruktur Level WARNING (P10: Anomali State / Upaya Pelaporan Ilegal)
+            Log::warning('Upaya pelaporan penemuan ditolak: barang tidak aktif atau kedaluwarsa', [
+                'event' => 'item_report.rejected_invalid_item_state',
+                'actor_id' => $user->id,
+                'actor_role' => $user->role,
+                'action' => 'create_item_report',
+                'target_item_id' => $item->id,
+                'target_item_status' => $item->status,
+                'target_is_expired' => $item->is_expired,
+                'reason' => 'item_not_approved_or_expired',
+            ]);
+
             return response()->json([
                 'message' => 'Laporan penemuan hanya dapat diajukan untuk barang aktif berstatus disetujui (approved) dan belum kedaluwarsa.',
             ], 409);

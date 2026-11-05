@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -90,6 +91,20 @@ class ItemController extends Controller
         $item->user_id = $user->id;
         $item->status = 'pending';
         $item->save();
+
+        // Pencatatan Log Terstruktur Level INFO (P10: Alur Simpan Data Penting)
+        Log::info('Laporan barang baru berhasil disimpan ke basis data', [
+            'event' => 'item.created',
+            'actor_id' => $user->id,
+            'actor_role' => $user->role,
+            'action' => 'create_lost_item',
+            'item_id' => $item->id,
+            'item_name' => $item->item_name,
+            'category' => $item->category,
+            'status' => $item->status,
+            'has_image' => !is_null($imagePath),
+            'reason' => 'user_submitted_report',
+        ]);
 
         $item->load('user');
 
