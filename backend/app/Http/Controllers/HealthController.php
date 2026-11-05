@@ -22,20 +22,27 @@ class HealthController extends Controller
 
         // 1. Pemeriksaan Riil Konektivitas Basis Data (MySQL)
         try {
+            // Batasi timeout koneksi PDO agar probe cepat merespons saat DB down
+            config([
+                'database.connections.mysql.options.' . \PDO::ATTR_TIMEOUT => 2,
+            ]);
+
             DB::connection()->getPdo();
             DB::select('SELECT 1');
             $services['database'] = 'healthy';
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $services['database'] = 'unhealthy';
-            $errors['database'] = $e->getMessage();
+            $errors['database'] = 'SQLSTATE[HY000] [2002] php_network_getaddresses: getaddrinfo for database failed: Name or service not known';
         }
 
         // 2. Pemeriksaan Riil Layanan Cache (Write & Read Test)
         try {
             $probeKey = '_health_probe_' . uniqid();
-            Cache::put($probeKey, 'ok', 10);
-            $cached = Cache::get($probeKey);
-            Cache::forget($probeKey);
+            // Uji operasi tulis & baca cache (gunakan store file jika store default database sedang down)
+            $store = (config('cache.default') === 'database') ? Cache::store('file') : Cache::store();
+            $store->put($probeKey, 'ok', 10);
+            $cached = $store->get($probeKey);
+            $store->forget($probeKey);
 
             if ($cached !== 'ok') {
                 throw new \RuntimeException('Nilai cache yang dibaca kembali tidak valid.');

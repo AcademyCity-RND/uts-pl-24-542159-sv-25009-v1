@@ -17,6 +17,7 @@ class HealthCheckTest extends TestCase
         config([
             'database.default' => 'sqlite',
             'database.connections.sqlite.database' => ':memory:',
+            'cache.default' => 'array',
         ]);
         DB::purge('sqlite');
     }
@@ -66,12 +67,16 @@ class HealthCheckTest extends TestCase
     {
         Log::spy();
 
-        // Simulasikan kegagalan koneksi basis data
-        DB::shouldReceive('connection')
-            ->once()
-            ->andThrow(new \PDOException('SQLSTATE[HY000] [2002] Connection refused'));
+        // Simulasikan kegagalan koneksi basis data dengan host tidak valid
+        config([
+            'database.default' => 'mysql',
+            'database.connections.mysql.host' => '127.0.0.1',
+            'database.connections.mysql.port' => 59999,
+            'database.connections.mysql.options.' . \PDO::ATTR_TIMEOUT => 1,
+        ]);
+        DB::purge('mysql');
 
-        $response = $this->getJson('/health');
+        $response = $this->getJson('/api/health');
 
         $response->assertStatus(503)
             ->assertJson([
@@ -101,6 +106,8 @@ class HealthCheckTest extends TestCase
     public function test_health_check_returns_503_when_cache_is_unhealthy(): void
     {
         // Simulasikan kegagalan cache
+        Cache::shouldReceive('store')
+            ->andReturnSelf();
         Cache::shouldReceive('put')
             ->once()
             ->andThrow(new \RuntimeException('Gagal menulis ke cache store'));
