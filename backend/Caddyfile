@@ -14,6 +14,10 @@
         format console
     }
 
+    # Teruskan request /health ke API handler tanpa session middleware
+    rewrite /health /api/health
+    rewrite /metrics /api/metrics
+
     # Serve file statis langsung
     file_server
 

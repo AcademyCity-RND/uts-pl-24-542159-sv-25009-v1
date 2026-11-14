@@ -1,0 +1,11 @@
+groups:
+  - name: jejakbarang_alerts
+    rules:
+      - alert: LayananAplikasiMati
+        expr: up{job="aplikasi"} == 0
+        for: 30s
+        labels:
+          severity: kritis
+        annotations:
+          summary: "Layanan Backend JejakBarang terdeteksi mati dan tidak dapat ditarik oleh Prometheus"
+          action: "Segera eksekusi 'docker compose ps' lalu periksa log error dengan 'docker compose logs --tail=50 backend'"
