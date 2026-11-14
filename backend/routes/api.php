@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Route;
 // Endpoint Pemeriksaan Kesehatan Sistem (P10)
 Route::get('/health', [HealthController::class, 'check']);
 
+// Endpoint Metrik Prometheus (P11)
+Route::get('/metrics', [\App\Http\Controllers\MetricsController::class, 'index']);
+
 // Endpoint Publik Terbuka
 Route::get('/public/items', [PublicItemController::class, 'index']);
 

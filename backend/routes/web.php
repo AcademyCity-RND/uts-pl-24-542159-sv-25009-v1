@@ -23,3 +23,13 @@ Route::get('/health', [HealthController::class, 'check'])
         ShareErrorsFromSession::class,
         ValidateCsrfToken::class,
     ]);
+
+// Endpoint Metrik Prometheus (P11)
+Route::get('/metrics', [\App\Http\Controllers\MetricsController::class, 'index'])
+    ->withoutMiddleware([
+        EncryptCookies::class,
+        AddQueuedCookiesToResponse::class,
+        StartSession::class,
+        ShareErrorsFromSession::class,
+        ValidateCsrfToken::class,
+    ]);
